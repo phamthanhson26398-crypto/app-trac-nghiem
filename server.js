@@ -47,6 +47,7 @@ function advanceToNextQuestion() {
 
   state.currentIndex++;
 
+  // Nếu đã hết câu hỏi -> Kết thúc bài thi
   if (state.currentIndex >= state.queue.length) {
     state.status = 'ended';
     state.currentItem = null;
@@ -57,29 +58,32 @@ function advanceToNextQuestion() {
     return;
   }
 
-  state.currentItem = state.queue[state.currentIndex];
-  state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
+  // NGHỈ 3 GIÂY ĐỆM TRƯỚC KHI BẮT ĐẦU CÂU TIẾP THEO
+  setTimeout(() => {
+    state.currentItem = state.queue[state.currentIndex];
+    state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
 
-  // Reset lượt làm câu mới
-  Object.keys(state.students).forEach(id => {
-    state.students[id].currentScore = 0;
-    state.students[id].answered = false;
-  });
+    // Reset lượt làm câu mới
+    Object.keys(state.students).forEach(id => {
+      state.students[id].currentScore = 0;
+      state.students[id].answered = false;
+    });
 
-  state.isAdvancing = false;
+    state.isAdvancing = false;
 
-  // Phát câu hỏi mới kèm số giây chuẩn
-  io.emit('question_started', {
-    item: state.currentItem,
-    duration: state.currentDuration,
-    currentIndex: state.currentIndex,
-    totalQuestions: state.queue.length
-  });
+    // Phát câu hỏi mới
+    io.emit('question_started', {
+      item: state.currentItem,
+      duration: state.currentDuration,
+      currentIndex: state.currentIndex,
+      totalQuestions: state.queue.length
+    });
 
-  // Hẹn giờ dự phòng ở Server (thêm 1 giây đệm)
-  state.timerTimeout = setTimeout(() => {
-    advanceToNextQuestion();
-  }, (state.currentDuration + 1) * 1000);
+    // Hẹn giờ dự phòng ở Server (Thời gian làm bài + 3s nghỉ + 1s đệm mạng)
+    state.timerTimeout = setTimeout(() => {
+      advanceToNextQuestion();
+    }, (state.currentDuration + 4) * 1000);
+  }, 3000);
 }
 
 io.on('connection', (socket) => {
@@ -145,10 +149,29 @@ io.on('connection', (socket) => {
       state.students[id].answered = false;
     });
 
-    advanceToNextQuestion();
+    // Câu đầu tiên bắt đầu ngay
+    advanceToNextQuestionDirect();
   });
 
-  // Khi hết giờ từ Client
+  function advanceToNextQuestionDirect() {
+    state.currentIndex = 0;
+    state.currentItem = state.queue[0];
+    state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
+    state.isAdvancing = false;
+
+    io.emit('question_started', {
+      item: state.currentItem,
+      duration: state.currentDuration,
+      currentIndex: state.currentIndex,
+      totalQuestions: state.queue.length
+    });
+
+    state.timerTimeout = setTimeout(() => {
+      advanceToNextQuestion();
+    }, (state.currentDuration + 4) * 1000);
+  }
+
+  // Khi học sinh đếm về 0s
   socket.on('time_up', () => {
     if (state.status === 'playing') {
       advanceToNextQuestion();
