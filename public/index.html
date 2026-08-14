@@ -215,13 +215,14 @@
   </div>
 
   <script>
-    const socket = io();
+    const socket = io({ reconnection: true, reconnectionAttempts: 10 });
     const DEFAULT_CODE = 'DE_01';
     let myRole = '';
     let currentStudentName = '';
     let allQuizzes = {};
     let partCount = 0;
     let editingQuizKey = null;
+    let localTimerLoop = null;
     let currentRemainingSeconds = 0;
     
     let isSelectedChoiceCorrect = false;
@@ -595,13 +596,17 @@
       }
     });
 
-    // MỖI KHI SERVER PHÁT CÂU HỎI MỚI -> VẼ LẠI GIAO DIỆN
-    socket.on('question_started', ({ item, duration }) => {
+    // MỖI KHI SERVER PHÁT CÂU HỎI MỚI -> TỰ ĐỘNG CHẠY ĐỒNG HỒ KHÔNG NGHẼN MẠNG
+    socket.on('question_started', ({ item, duration, endTime }) => {
       if (myRole === 'student') {
         document.getElementById('student-screen').style.display = 'none';
         document.getElementById('quiz-screen').style.display = 'block';
 
-        // Reset trạng thái làm bài
+        if (localTimerLoop) {
+          clearInterval(localTimerLoop);
+          localTimerLoop = null;
+        }
+
         isSelectedChoiceCorrect = false;
         hasSelectedAnOption = false;
         hasSubmittedCurrentQuestion = false;
@@ -628,23 +633,43 @@
 
         container.innerHTML = html;
 
-        currentRemainingSeconds = duration;
-        document.getElementById('timer').innerText = currentRemainingSeconds;
+        // ĐỒNG BỘ ĐỒNG HỒ THEO MỐC TIMESTAMP THỰC TẾ
+        const targetTime = endTime || (Date.now() + duration * 1000);
+
+        function updateClock() {
+          const now = Date.now();
+          const remain = Math.max(0, Math.ceil((targetTime - now) / 1000));
+          currentRemainingSeconds = remain;
+
+          const timerEl = document.getElementById('timer');
+          if (timerEl) {
+            timerEl.innerText = `${remain}`;
+          }
+
+          if (remain <= 0) {
+            clearInterval(localTimerLoop);
+            localTimerLoop = null;
+
+            // Khi hết giờ, nếu chưa nộp thì tự khóa nút
+            const submitBtn = document.getElementById('btn-submit');
+            if (submitBtn && !hasSubmittedCurrentQuestion) {
+              submitBtn.style.display = 'none';
+              const waitingBox = document.getElementById('waiting-box');
+              if (waitingBox) {
+                waitingBox.style.display = 'block';
+                waitingBox.innerHTML = `⌛ <b>HẾT THỜI GIAN!</b> Đang tải câu tiếp theo...`;
+              }
+            }
+          }
+        }
+
+        updateClock();
+        localTimerLoop = setInterval(updateClock, 500);
       }
     });
 
-    // ĐỒNG BỘ ĐỒNG HỒ
-    socket.on('timer_sync', ({ timeLeft }) => {
-      currentRemainingSeconds = timeLeft;
-      const timerEl = document.getElementById('timer');
-      if (timerEl) {
-        timerEl.innerText = Math.max(0, timeLeft);
-      }
-    });
-
-    // CHỌN PHƯƠNG ÁN
     function selectChoice(isCorrect, element) {
-      if (hasSubmittedCurrentQuestion) return;
+      if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0) return;
 
       isSelectedChoiceCorrect = isCorrect;
       hasSelectedAnOption = true;
@@ -655,9 +680,8 @@
       }
     }
 
-    // NỘP ĐÁP ÁN
     function submitCurrentAnswer() {
-      if (hasSubmittedCurrentQuestion) return;
+      if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0) return;
       if (!hasSelectedAnOption) {
         return alert('Em hãy chọn một đáp án trước khi bấm Nộp!');
       }
@@ -688,8 +712,12 @@
       });
     }
 
-    // KẾT THÚC BÀI THI
     socket.on('quiz_ended', ({ leaderboard, quizName }) => {
+      if (localTimerLoop) {
+        clearInterval(localTimerLoop);
+        localTimerLoop = null;
+      }
+
       document.getElementById('quiz-screen').style.display = 'none';
       document.getElementById('teacher-screen').style.display = 'none';
       document.getElementById('result-screen').style.display = 'block';
