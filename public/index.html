@@ -50,18 +50,21 @@
     }
     
     .btn-submit-answer {
-      background-color: #28a745;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-      width: 100%;
-      padding: 14px;
-      border-radius: 8px;
-      margin-top: 20px;
-      box-shadow: 0 4px 6px rgba(40,167,69,0.2);
+      background-color: #28a745 !important;
+      color: white !important;
+      font-size: 18px !important;
+      font-weight: bold !important;
+      width: 100% !important;
+      padding: 15px !important;
+      border-radius: 8px !important;
+      margin-top: 20px !important;
+      border: none !important;
+      cursor: pointer;
+      display: block !important;
+      box-shadow: 0 4px 6px rgba(40,167,69,0.3);
     }
     .btn-submit-answer:disabled {
-      background-color: #6c757d;
+      background-color: #6c757d !important;
       cursor: not-allowed;
       box-shadow: none;
     }
@@ -170,10 +173,8 @@
     </div>
     <hr>
     
+    <!-- KHU VỰC CHỨA CÂU HỎI VÀ NÚT NỘP BÀI TỰ ĐỘNG SINH RA -->
     <div id="questions-container"></div>
-
-    <!-- NÚT NỘP ĐÁP ÁN CHỐT ĐIỂM -->
-    <button id="btn-submit" class="btn-submit-answer" onclick="submitCurrentAnswer()">📤 NỘP ĐÁP ÁN</button>
   </div>
 
   <!-- MÀN HÌNH KẾT QUẢ -->
@@ -590,6 +591,7 @@
       }
     });
 
+    // MỖI KHI CÓ CÂU HỎI MỚI -> TỰ ĐỘNG VẼ NỘI DUNG VÀ NÚT NỘP BÀI
     socket.on('question_started', ({ item, duration }) => {
       if (myRole === 'student') {
         document.getElementById('student-screen').style.display = 'none';
@@ -605,18 +607,16 @@
         hasSelectedAnOption = false;
         hasSubmittedCurrentQuestion = false;
 
-        const submitBtn = document.getElementById('btn-submit');
-        submitBtn.disabled = false;
-        submitBtn.innerText = '📤 NỘP ĐÁP ÁN';
-        submitBtn.style.background = '#28a745';
-
         document.getElementById('student-part-title').innerText = `${item.partTitle}`;
         document.getElementById('student-q-index').innerText = `(Câu ${item.questionIndex}/${item.totalQuestionsInPart})`;
 
         const container = document.getElementById('questions-container');
         const q = item.question;
+        
+        // Vẽ câu hỏi
         let html = `<h3 style="margin-top: 0; font-size: 18px;">${q.title}</h3>`;
 
+        // Vẽ các phương án
         if (q.type === 'multiple') {
           q.options.forEach((opt, optIdx) => {
             if (opt) html += `<button class="opt-btn" type="button" onclick="selectChoice(${optIdx == q.correct}, this)">${opt}</button>`;
@@ -626,8 +626,12 @@
                    <button class="opt-btn" type="button" onclick="selectChoice('${q.correct}' === 'Sai', this)">Sai</button>`;
         }
 
+        // TỰ ĐỘNG THÊM NÚT NỘP ĐÁP ÁN VÀO DƯỚI CÙNG
+        html += `<button id="btn-submit" class="btn-submit-answer" type="button" onclick="submitCurrentAnswer()">📤 NỘP ĐÁP ÁN</button>`;
+
         container.innerHTML = html;
 
+        // Đếm ngược thời gian
         currentRemainingSeconds = duration;
         document.getElementById('timer').innerText = currentRemainingSeconds;
 
@@ -652,7 +656,7 @@
       hasSelectedAnOption = true;
 
       if (element.tagName === 'BUTTON') {
-        element.parentNode.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+        element.parentNode.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
         element.classList.add('selected');
       }
     }
@@ -668,9 +672,11 @@
 
       // Khóa nút nộp
       const submitBtn = document.getElementById('btn-submit');
-      submitBtn.disabled = true;
-      submitBtn.innerText = `✅ ĐÃ NỘP (Ghi nhận ở giây thứ ${currentRemainingSeconds})`;
-      submitBtn.style.background = '#6c757d';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = `✅ ĐÃ NỘP (Ghi nhận ở giây thứ ${currentRemainingSeconds})`;
+        submitBtn.style.background = '#6c757d';
+      }
 
       // Khóa tất cả các nút đáp án không cho đổi lại
       const optButtons = document.querySelectorAll('.opt-btn');
