@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ứng Dụng Kiểm Tra Trắc Nghiệm</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- THƯ VIỆN TẠO MÃ QR TỰ ĐỘNG -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 680px; margin: auto; background: #f0f2f5; }
+    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
+    button { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 15px; margin-top: 5px; }
+    input, select, textarea { width: 95%; padding: 10px; margin-top: 5px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; font-family: inherit; }
+    
+    .part-block { background: #eef2f5; border: 2px solid #b8c6d1; padding: 15px; border-radius: 8px; margin-bottom: 20px; position: relative; }
+    .q-block { background: white; border: 1px solid #ddd; padding: 12px; border-radius: 8px; margin-bottom: 12px; margin-top: 10px; position: relative; }
+    
+    .opt-btn { 
+      background-color: #ffffff !important; 
+      color: #333333 !important; 
+      border: 1px solid #cccccc !important; 
+      text-align: left; 
+      margin-top: 8px; 
+      width: 100%; 
+      font-size: 16px; 
+      padding: 12px 15px; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      transition: background-color 0.2s, border-color 0.2s;
+      -webkit-appearance: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+      outline: none !important;
+      box-shadow: none !important;
+      user-select: none;
+    }
+    .opt-btn:focus, .opt-btn:focus-visible, .opt-btn:active { 
+      background-color: #ffffff !important; 
+      border: 1px solid #cccccc !important;
+      outline: none !important;
+      box-shadow: none !important;
+    }
+    .opt-btn.selected { 
+      background-color: #d4edda !important; 
+      border: 2px solid #28a745 !important; 
+      font-weight: bold !important; 
+      color: #155724 !important; 
+    }
+    
+    .btn-delete { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto; }
+    .btn-edit { background: #ffc107; color: #212529; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto; margin-right: 8px; font-weight: 500; }
+    
+    .quiz-manager { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    
+    .quiz-item { 
+      background: white; 
+      padding: 12px 15px; 
+      border-radius: 8px; 
+      margin-top: 10px; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 10px; 
+      border: 1px solid #ddd; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .quiz-item-actions { 
+      display: flex; 
+      justify-content: flex-end; 
+      align-items: center; 
+      border-top: 1px dashed #eee; 
+      padding-top: 8px; 
+    }
+    
+    .history-card { background: #fff3cd; border: 1px solid #ffeeba; padding: 12px; border-radius: 6px; margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border: 1px solid #ddd; padding: 10px 8px; text-align: left; font-size: 14px; }
+    th { background-color: #f2f2f2; }
+
+    #qrcode-box { background: #f8f9fa; border: 2px dashed #007bff; padding: 15px; border-radius: 10px; text-align: center; margin: 15px 0; }
+    #qrcode img { margin: 10px auto; }
+  </style>
+</head>
+<body>
+
+  <!-- MÀN HÌNH CHỌN VAI TRÒ -->
+  <div id="role-screen" class="card">
+    <h2>🎯 BẠN LÀ AI?</h2>
+    <button onclick="selectRole('teacher')" style="background: #28a745; width: 100%;">Tôi là Giáo Viên</button>
+    <button onclick="selectRole('student')" style="width: 100%;">Tôi là Học Sinh</button>
+  </div>
+
+  <!-- MÀN HÌNH GIÁO VIÊN -->
+  <div id="teacher-screen" class="card" style="display: none;">
+    <h2>👨‍🏫 Màn Hình Giáo Viên</h2>
+    
+    <!-- KHU VỰC HIỂN THỊ MÃ QR PHÒNG THI -->
+    <div id="qrcode-box">
+      <h3 style="margin: 0; color: #007bff;">📲 QUÉT MÃ QR ĐỂ VÀO THI</h3>
+      <p style="margin: 5px 0; font-size: 13px; color: #6c757d;">(Học sinh dùng camera điện thoại quét mã này để tham gia phòng làm bài)</p>
+      <div id="qrcode"></div>
+    </div>
+
+    <!-- 1. DANH SÁCH BÀI KIỂM TRA ĐÃ LƯU -->
+    <div class="quiz-manager">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0;">📁 Danh Sách Bài Kiểm Tra</h3>
+        <button onclick="createNewQuizSection()" style="background: #28a745; width: auto;">➕ Tạo Bài Mới</button>
+      </div>
+      <div id="quiz-list-container" style="margin-top: 10px;"></div>
+    </div>
+
+    <!-- 2. KHU VỰC SOẠN / CHỈNH SỬA ĐỀ THI -->
+    <div id="editor-section" style="display: none; border: 2px solid #007bff; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #f8f9fa;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h3 id="current-quiz-title" style="margin: 0; color: #007bff;">📝 Soạn Đề Thi</h3>
+        <button onclick="closeEditor()" style="background: #6c757d; width: auto;">❌ Đóng Khung Soạn</button>
+      </div>
+
+      <label><strong>Tên Bài Kiểm Tra:</strong></label>
+      <input type="text" id="quiz-name-input" placeholder="Ví dụ: Kiểm tra 15 phút - Bài 1">
+
+      <div id="parts-list"></div>
+      
+      <button onclick="addPartInput()" style="background: #17a2b8; width: 100%; font-size: 15px; margin-bottom: 10px;">➕ THÊM PHẦN MỚI</button>
+      <button onclick="saveCurrentQuiz()" style="background: #28a745; width: 100%; font-size: 16px;">💾 LƯU BÀI KIỂM TRA NÀY</button>
+    </div>
+
+    <!-- 3. KHU VỰC KẾT QUẢ THI & BẢNG CHỌN -->
+    <div class="quiz-manager">
+      <h3>📊 Vùng Chọn Kết Quả Thi</h3>
+      <label><strong>Chọn Bài Kiểm Tra Muốn Xem Kết Quả:</strong></label>
+      <select id="history-quiz-select" onchange="renderHistoryUI()">
+        <option value="">-- Chọn bài kiểm tra --</option>
+      </select>
+
+      <div id="history-display-area" style="margin-top: 10px;">
+        <p style="color: #6c757d; font-style: italic;">Vui lòng chọn bài kiểm tra ở menu trên để xem bảng kết quả chi tiết.</p>
+      </div>
+    </div>
+
+    <!-- 4. DANH SÁCH HỌC SINH VÀO PHÒNG & NÚT BẮT ĐẦU -->
+    <div style="border-top: 2px dashed #ccc; padding-top: 15px; margin-top: 15px;">
+      <label><strong>Bài thi chuẩn bị phát:</strong></label>
+      <select id="active-quiz-select" style="font-weight: bold; color: #007bff;"></select>
+
+      <h3>👨‍🎓 Học sinh đã vào phòng (<span id="count">0</span>):</h3>
+      <ul id="student-list"></ul>
+      
+      <button onclick="startQuiz()" style="background: #dc3545; font-size: 18px; width: 100%;">🚀 BẤT ĐẦU LÀM BÀI</button>
+    </div>
+  </div>
+
+  <!-- MÀN HÌNH HỌC SINH -->
+  <div id="student-screen" class="card" style="display: none;">
+    <h2>👋 Xin chào các bạn</h2>
+    <label><strong>Nhập tên thánh & họ và tên của em:</strong></label>
+    <input type="text" id="student-name" placeholder="Ví dụ: Giuse Nguyễn Văn A">
+    <button onclick="joinQuiz()" style="background: #28a745; width: 100%;">Tham Gia Bài Thi</button>
+  </div>
+
+  <!-- MÀN HÌNH LÀM BÀI TỪNG CÂU HỎI (HỌC SINH) -->
+  <div id="quiz-screen" class="card" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; background: #e9ecef; padding: 10px; border-radius: 5px;">
+      <div>
+        <span id="student-part-title" style="font-weight: bold; color: #007bff;">PHẦN 1</span>
+        <span id="student-q-index" style="margin-left: 10px; font-weight: bold;">(Câu 1/5)</span>
+      </div>
+      <h2 style="margin: 0; color: #d9534f;">⏰ <span id="timer">--</span>s</h2>
+    </div>
+    <hr>
+    <div id="questions-container"></div>
+  </div>
+
+  <!-- MÀN HÌNH KẾT QUẢ KHI KẾT THÚC BÀI THI -->
+  <div id="result-screen" class="card" style="display: none;">
+    <div id="teacher-result-view" style="display: none;">
+      <h2 style="text-align: center; color: #d9534f;">🏆 BẢNG VINH DANH THÀNH TÍCH</h2>
+      <p style="text-align: center; color: #6c757d; margin-top: -10px; font-size: 14px;">(Điểm = Tổng số giây còn lại khi đưa ra đáp án đúng)</p>
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align: center; width: 100px;">Giải</th>
+            <th>Họ và Tên Thí Sinh</th>
+            <th style="text-align: right;">Tổng Điểm</th>
+          </tr>
+        </thead>
+        <tbody id="teacher-leaderboard-body"></tbody>
+      </table>
+      <button onclick="location.reload()" style="background: #007bff; width: 100%; margin-top: 15px;">Quay Lại Màn Hình Quản Lý</button>
+    </div>
+
+    <div id="student-result-view" style="display: none; text-align: center; padding: 20px 0;">
+      <h2 style="color: #28a745;">🎉 HOÀN THÀNH BÀI THI!</h2>
+      <p style="font-size: 18px;">Xin chào em <strong><span id="my-student-name">--</span></strong>,</p>
+      <div style="background: #e9ecef; border-radius: 10px; padding: 20px; margin: 15px 0;">
+        <span style="font-size: 16px; color: #555;">TỔNG ĐIỂM THI ĐUA CỦA EM:</span>
+        <h1 style="font-size: 48px; color: #d9534f; margin: 10px 0;"><span id="my-final-score">0</span> điểm</h1>
+        <p style="margin: 0; font-size: 13px; color: #6c757d;">(Em trả lời đúng càng nhanh thì điểm tích lũy càng cao)</p>
+      </div>
+      <p style="color: #6c757d; font-size: 14px;">Em hãy quan sát màn hình của Thầy/Cô để xem thứ hạng trao giải nhé!</p>
+    </div>
+  </div>
+
+  <script>
+    const socket = io();
+    const DEFAULT_CODE = 'DE_01';
+    let myRole = '';
+    let currentStudentName = '';
+    let allQuizzes = {};
+    let partCount = 0;
+    let editingQuizKey = null;
+
+    // HÀM GẮN BIỂU TƯỢNG HUY CHƯƠNG CHO GIẢI NHẤT, NHÌ, BA
+    function getRankBadge(idx) {
+      if (idx === 0) return '🥇 <b>Giải Nhất</b>';
+      if (idx === 1) return '🥈 <b>Giải Nhì</b>';
+      if (idx === 2) return '🥉 <b>Giải Ba</b>';
+      return `#${idx + 1}`;
+    }
+
+    async function generateRoomQRCode() {
+      const qrContainer = document.getElementById("qrcode");
+      qrContainer.innerHTML = "";
+      
+      let hostUrl = window.location.origin;
+
+      if (hostUrl.includes("localhost") || hostUrl.includes("127.0.0.1")) {
+        try {
+          const res = await fetch('/api/server-info');
+          const data = await res.json();
+          if (data.ip && data.ip !== 'localhost') {
+            hostUrl = `http://${data.ip}:${data.port || 3000}`;
+          }
+        } catch (e) {
+          console.error("Lỗi lấy IP:", e);
+        }
+      }
+
+      new QRCode(qrContainer, {
+        text: `${hostUrl}?role=student`,
+        width: 160,
+        height: 160
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('role') === 'student') {
+        selectRole('student');
+      }
+    });
+
+    function loadSavedQuizzes() {
+      const saved = localStorage.getItem('all_quizzes_v4');
+      allQuizzes = saved ? JSON.parse(saved) : {};
+
+      const listContainer = document.getElementById('quiz-list-container');
+      const historySelect = document.getElementById('history-quiz-select');
+      const activeSelect = document.getElementById('active-quiz-select');
+
+      listContainer.innerHTML = '';
+      historySelect.innerHTML = '<option value="">-- Chọn bài kiểm tra --</option>';
+      activeSelect.innerHTML = '';
+
+      const keys = Object.keys(allQuizzes);
+      if (keys.length === 0) {
+        listContainer.innerHTML = '<p style="color: #6c757d; font-style: italic;">Chưa có bài kiểm tra nào được lưu.</p>';
+        activeSelect.innerHTML = '<option value="">(Chưa có bài kiểm tra nào)</option>';
+        return;
+      }
+
+      keys.forEach(name => {
+        const item = document.createElement('div');
+        item.className = 'quiz-item';
+        item.innerHTML = `
+          <div>
+            <strong style="font-size: 15px; line-height: 1.4; color: #212529;">📌 ${name}</strong>
+          </div>
+          <div class="quiz-item-actions">
+            <button class="btn-edit" onclick="editQuiz('${name}')">✏️ Chỉnh Sửa</button>
+            <button class="btn-delete" onclick="deleteQuiz('${name}')">🗑️ Xóa</button>
+          </div>
+        `;
+        listContainer.appendChild(item);
+
+        historySelect.innerHTML += `<option value="${name}">${name}</option>`;
+        activeSelect.innerHTML += `<option value="${name}">${name}</option>`;
+      });
+    }
+
+    function createNewQuizSection() {
+      editingQuizKey = null;
+      document.getElementById('current-quiz-title').innerText = '📝 Tạo Bài Kiểm Tra Mới';
+      document.getElementById('quiz-name-input').value = '';
+      document.getElementById('parts-list').innerHTML = '';
+      partCount = 0;
+      addPartInput();
+      document.getElementById('editor-section').style.display = 'block';
+    }
+
+    function editQuiz(name) {
+      if (!allQuizzes[name]) return;
+      editingQuizKey = name;
+      document.getElementById('current-quiz-title').innerText = `📝 Chỉnh Sửa: ${name}`;
+      document.getElementById('quiz-name-input').value = name;
+      
+      const container = document.getElementById('parts-list');
+      container.innerHTML = '';
+      partCount = 0;
+
+      allQuizzes[name].forEach(part => addPartInput(part));
+      document.getElementById('editor-section').style.display = 'block';
+    }
+
+    function closeEditor() {
+      document.getElementById('editor-section').style.display = 'none';
+    }
+
+    function saveCurrentQuiz() {
+      const newName = document.getElementById('quiz-name-input').value.trim();
+      if (!newName) return alert('Vui lòng nhập tên bài kiểm tra!');
+
+      const parts = getStructureFromScreen();
+      if (parts.length === 0) return alert('Bài thi phải có ít nhất 1 Phần và 1 câu hỏi hoàn chỉnh!');
+
+      if (editingQuizKey && editingQuizKey !== newName) {
+        delete allQuizzes[editingQuizKey];
+      }
+
+      allQuizzes[newName] = parts;
+      localStorage.setItem('all_quizzes_v4', JSON.stringify(allQuizzes));
+      alert(`Đã lưu thành công bài kiểm tra "${newName}"!`);
+
+      closeEditor();
+      loadSavedQuizzes();
+    }
+
+    function deleteQuiz(name) {
+      if (confirm(`Bạn có chắc chắn muốn xóa bài "${name}" không?`)) {
+        delete allQuizzes[name];
+        localStorage.setItem('all_quizzes_v4', JSON.stringify(allQuizzes));
+
+        const historyData = JSON.parse(localStorage.getItem('quiz_history_records') || '{}');
+        delete historyData[name];
+        localStorage.setItem('quiz_history_records', JSON.stringify(historyData));
+
+        loadSavedQuizzes();
+        renderHistoryUI();
+      }
+    }
+
+    function addPartInput(data = null) {
+      partCount++;
+      const container = document.getElementById('parts-list');
+      const pDiv = document.createElement('div');
+      pDiv.className = 'part-block';
+
+      const partTitle = data ? data.title : `PHẦN ${partCount}`;
+
+      pDiv.innerHTML = `
+        <button class="btn-delete" style="float:right;" onclick="this.parentElement.remove()">❌ Xóa Phần</button>
+        <label><strong>Tên Phần:</strong></label>
+        <input type="text" class="part-title" value="${partTitle}" placeholder="Ví dụ: PHẦN 1: TRẮC NGHIỆM">
+        
+        <div class="q-container" style="margin-top: 10px;"></div>
+        
+        <button onclick="addQuestionToPart(this.previousElementSibling)" style="background: #6c757d; font-size: 13px;">➕ Thêm Câu Hỏi Vào Phần Này</button>
+      `;
+      container.appendChild(pDiv);
+
+      const qContainer = pDiv.querySelector('.q-container');
+      if (data && data.questions) {
+        data.questions.forEach(q => addQuestionToPart(qContainer, q));
+      } else {
+        addQuestionToPart(qContainer);
+      }
+    }
+
+    function addQuestionToPart(container, data = null) {
+      const qDiv = document.createElement('div');
+      qDiv.className = 'q-block';
+
+      const type = data ? data.type : 'multiple';
+      const title = data ? data.title : '';
+      const duration = data ? data.duration : 10;
+
+      qDiv.innerHTML = `
+        <button class="btn-delete" style="float:right;" onclick="this.parentElement.remove()">❌ Xóa Câu</button>
+        <div style="display: flex; gap: 10px;">
+          <div style="flex: 2;">
+            <label><strong>Dạng câu hỏi:</strong></label>
+            <select class="q-type" onchange="renderQuestionTypeUI(this)">
+              <option value="multiple" ${type === 'multiple' ? 'selected' : ''}>Trắc nghiệm A/B/C/D</option>
+              <option value="tf" ${type === 'tf' ? 'selected' : ''}>Đúng / Sai</option>
+              <option value="essay" ${type === 'essay' ? 'selected' : ''}>Tự luận / Điền đáp án</option>
+            </select>
+          </div>
+          <div style="flex: 1;">
+            <label style="color: #d9534f;"><strong>⏱️ Thời gian (giây):</strong></label>
+            <input type="number" class="q-duration" value="${duration}">
+          </div>
+        </div>
+        
+        <label>Nội dung câu hỏi:</label>
+        <input type="text" class="q-title" value="${title}" placeholder="Nhập câu hỏi...">
+        
+        <div class="q-options-area"></div>
+      `;
+
+      container.appendChild(qDiv);
+      renderQuestionTypeUI(qDiv.querySelector('.q-type'), data);
+    }
+
+    function renderQuestionTypeUI(selectEl, data = null) {
+      const qDiv = selectEl.closest('.q-block');
+      const optionsArea = qDiv.querySelector('.q-options-area');
+      const type = selectEl.value;
+
+      const opt0 = data && data.options ? data.options[0] || '' : '';
+      const opt1 = data && data.options ? data.options[1] || '' : '';
+      const opt2 = data && data.options ? data.options[2] || '' : '';
+      const opt3 = data && data.options ? data.options[3] || '' : '';
+      const correct = data ? data.correct : '';
+
+      if (type === 'multiple') {
+        optionsArea.innerHTML = `
+          <input type="text" class="q-opt0" value="${opt0}" placeholder="Đáp án A">
+          <input type="text" class="q-opt1" value="${opt1}" placeholder="Đáp án B">
+          <input type="text" class="q-opt2" value="${opt2}" placeholder="Đáp án C">
+          <input type="text" class="q-opt3" value="${opt3}" placeholder="Đáp án D">
+          <label>Đáp án đúng:</label>
+          <select class="q-correct">
+            <option value="0" ${correct == 0 ? 'selected' : ''}>A</option>
+            <option value="1" ${correct == 1 ? 'selected' : ''}>B</option>
+            <option value="2" ${correct == 2 ? 'selected' : ''}>C</option>
+            <option value="3" ${correct == 3 ? 'selected' : ''}>D</option>
+          </select>
+        `;
+      } else if (type === 'tf') {
+        optionsArea.innerHTML = `
+          <label>Đáp án đúng:</label>
+          <select class="q-correct">
+            <option value="Đúng" ${correct === 'Đúng' ? 'selected' : ''}>Đúng</option>
+            <option value="Sai" ${correct === 'Sai' ? 'selected' : ''}>Sai</option>
+          </select>
+        `;
+      } else if (type === 'essay') {
+        optionsArea.innerHTML = `
+          <label>Đáp án mẫu/Gợi ý:</label>
+          <input type="text" class="q-correct" value="${correct}" placeholder="Đáp án chuẩn...">
+        `;
+      }
+    }
+
+    function getStructureFromScreen() {
+      const partBlocks = document.querySelectorAll('.part-block');
+      const partsData = [];
+
+      partBlocks.forEach((pBlock) => {
+        const pTitle = pBlock.querySelector('.part-title').value;
+        const qBlocks = pBlock.querySelectorAll('.q-block');
+        const questions = [];
+
+        qBlocks.forEach((qBlock) => {
+          const type = qBlock.querySelector('.q-type').value;
+          const title = qBlock.querySelector('.q-title').value;
+          const duration = parseInt(qBlock.querySelector('.q-duration').value) || 10;
+          
+          if (type === 'multiple') {
+            const opt0 = qBlock.querySelector('.q-opt0').value;
+            const opt1 = qBlock.querySelector('.q-opt1').value;
+            const opt2 = qBlock.querySelector('.q-opt2').value;
+            const opt3 = qBlock.querySelector('.q-opt3').value;
+            const correct = qBlock.querySelector('.q-correct').value;
+            if (title && opt0 && opt1) questions.push({ type, title, duration, options: [opt0, opt1, opt2, opt3], correct });
+          } else if (type === 'tf') {
+            const correct = qBlock.querySelector('.q-correct').value;
+            if (title) questions.push({ type, title, duration, options: ['Đúng', 'Sai'], correct });
+          } else if (type === 'essay') {
+            const correct = qBlock.querySelector('.q-correct').value;
+            if (title) questions.push({ type, title, duration, correct });
+          }
+        });
+
+        if (pTitle && questions.length > 0) {
+          partsData.push({ title: pTitle, questions });
+        }
+      });
+
+      return partsData;
+    }
+
+    function renderHistoryUI() {
+      const select = document.getElementById('history-quiz-select');
+      const quizName = select.value;
+      const displayArea = document.getElementById('history-display-area');
+
+      if (!quizName) {
+        displayArea.innerHTML = '<p style="color: #6c757d; font-style: italic;">Vui lòng chọn bài kiểm tra ở menu trên để xem bảng kết quả chi tiết.</p>';
+        return;
+      }
+
+      const historyData = JSON.parse(localStorage.getItem('quiz_history_records') || '{}');
+      const records = historyData[quizName] || [];
+
+      if (records.length === 0) {
+        displayArea.innerHTML = `<p style="color: #6c757d; font-style: italic;">Chưa có lượt thi nào được ghi nhận cho bài "${quizName}".</p>`;
+        return;
+      }
+
+      let html = `<button onclick="clearQuizHistory('${quizName}')" style="background: #dc3545; font-size: 12px; width: auto; margin-bottom: 10px;">🗑️ Xóa Lịch Sử Bài Này</button>`;
+      records.forEach(rec => {
+        html += `
+          <div class="history-card">
+            <strong>📌 Lần thi thứ ${rec.attempt}</strong> - <small>(${rec.time})</small>
+            <table>
+              <thead>
+                <tr>
+                  <th style="text-align: center; width: 100px;">Giải</th>
+                  <th>Họ và Tên Thí Sinh</th>
+                  <th style="text-align: right;">Điểm Số</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rec.results.sort((a,b) => b.score - a.score).map((s, idx) => `
+                  <tr>
+                    <td style="text-align: center;">${getRankBadge(idx)}</td>
+                    <td>${s.name}</td>
+                    <td style="text-align: right;"><strong style="color: #28a745;">${s.score}</strong> điểm</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      });
+
+      displayArea.innerHTML = html;
+    }
+
+    function saveHistoryRecord(quizName, leaderboard) {
+      if (!quizName) return;
+
+      const historyData = JSON.parse(localStorage.getItem('quiz_history_records') || '{}');
+      if (!historyData[quizName]) {
+        historyData[quizName] = [];
+      }
+
+      const attemptNumber = historyData[quizName].length + 1;
+      const timestamp = new Date().toLocaleString('vi-VN');
+
+      historyData[quizName].push({
+        attempt: attemptNumber,
+        time: timestamp,
+        results: leaderboard
+      });
+
+      localStorage.setItem('quiz_history_records', JSON.stringify(historyData));
+    }
+
+    function clearQuizHistory(quizName) {
+      if (confirm(`Bạn có chắc muốn xóa lịch sử thi của "${quizName}" không?`)) {
+        const historyData = JSON.parse(localStorage.getItem('quiz_history_records') || '{}');
+        delete historyData[quizName];
+        localStorage.setItem('quiz_history_records', JSON.stringify(historyData));
+        renderHistoryUI();
+      }
+    }
+
+    function selectRole(role) {
+      myRole = role;
+      document.getElementById('role-screen').style.display = 'none';
+      if (role === 'teacher') {
+        document.getElementById('teacher-screen').style.display = 'block';
+        generateRoomQRCode();
+        loadSavedQuizzes();
+        socket.emit('join_room', { code: DEFAULT_CODE, name: 'Giáo Viên', role: 'teacher' });
+      } else {
+        document.getElementById('student-screen').style.display = 'block';
+      }
+    }
+
+    function joinQuiz() {
+      const name = document.getElementById('student-name').value.trim();
+      if (!name) return alert('Vui lòng nhập họ tên!');
+      currentStudentName = name;
+      socket.emit('join_room', { code: DEFAULT_CODE, name: name, role: 'student' });
+      alert('Đã báo danh thành công! Vui lòng đợi giáo viên bấm Bắt đầu.');
+    }
+
+    function startQuiz() {
+      const activeSelect = document.getElementById('active-quiz-select');
+      const selectedQuizName = activeSelect.value;
+
+      if (!selectedQuizName || !allQuizzes[selectedQuizName]) {
+        return alert('Vui lòng tạo hoặc chọn một bài kiểm tra để phát!');
+      }
+
+      const parts = allQuizzes[selectedQuizName];
+      socket.emit('start_quiz', { code: DEFAULT_CODE, parts, quizName: selectedQuizName });
+    }
+
+    socket.on('update_students', (students) => {
+      if (myRole === 'teacher') {
+        document.getElementById('count').innerText = students.length;
+        document.getElementById('student-list').innerHTML = students.map(s => `<li>${s.name}</li>`).join('');
+      }
+    });
+
+    socket.on('question_started', (item) => {
+      if (myRole === 'student') {
+        document.getElementById('student-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+
+        document.getElementById('student-part-title').innerText = `${item.partTitle}`;
+        document.getElementById('student-q-index').innerText = `(Câu ${item.questionIndex}/${item.totalQuestionsInPart})`;
+
+        const container = document.getElementById('questions-container');
+        const q = item.question;
+        let html = `<h3 style="margin-top: 0;">${q.title}</h3>`;
+
+        if (q.type === 'multiple') {
+          q.options.forEach((opt, optIdx) => {
+            if (opt) html += `<button class="opt-btn" type="button" onclick="selectChoice(${optIdx == q.correct}, this)">${opt}</button>`;
+          });
+        } else if (q.type === 'tf') {
+          html += `<button class="opt-btn" type="button" onclick="selectChoice('${q.correct}' === 'Đúng', this)">Đúng</button>
+                   <button class="opt-btn" type="button" onclick="selectChoice('${q.correct}' === 'Sai', this)">Sai</button>`;
+        } else if (q.type === 'essay') {
+          html += `<textarea id="essay-ans" placeholder="Nhập câu trả lời..." style="width:95%; height: 60px;" oninput="selectChoice(true, this)"></textarea>`;
+        }
+
+        container.innerHTML = html;
+
+        if (document.activeElement && document.activeElement.blur) {
+          document.activeElement.blur();
+        }
+      }
+    });
+
+    socket.on('timer_tick', ({ timeLeft }) => {
+      const timerEl = document.getElementById('timer');
+      if (timerEl) timerEl.innerText = timeLeft;
+    });
+
+    function selectChoice(isCorrect, element) {
+      socket.emit('update_choice', { code: DEFAULT_CODE, isCorrect });
+
+      if (element.tagName === 'BUTTON') {
+        element.parentNode.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+        element.classList.add('selected');
+      }
+    }
+
+    socket.on('quiz_ended', ({ leaderboard, quizName }) => {
+      document.getElementById('quiz-screen').style.display = 'none';
+      document.getElementById('teacher-screen').style.display = 'none';
+      document.getElementById('result-screen').style.display = 'block';
+
+      if (myRole === 'teacher') {
+        saveHistoryRecord(quizName, leaderboard);
+
+        document.getElementById('teacher-result-view').style.display = 'block';
+        document.getElementById('student-result-view').style.display = 'none';
+
+        const sortedList = leaderboard.sort((a,b) => b.score - a.score);
+        const tbody = document.getElementById('teacher-leaderboard-body');
+        tbody.innerHTML = sortedList.map((s, idx) => `
+          <tr>
+            <td style="text-align: center;">${getRankBadge(idx)}</td>
+            <td><strong>${s.name}</strong></td>
+            <td style="text-align: right;"><strong style="color: #28a745; font-size: 16px;">${s.score}</strong> điểm</td>
+          </tr>
+        `).join('');
+
+      } else if (myRole === 'student') {
+        document.getElementById('teacher-result-view').style.display = 'none';
+        document.getElementById('student-result-view').style.display = 'block';
+
+        const myRecord = leaderboard.find(s => s.id === socket.id);
+        const score = myRecord ? myRecord.score : 0;
+
+        document.getElementById('my-student-name').innerText = currentStudentName;
+        document.getElementById('my-final-score').innerText = score;
+      }
+    });
+  </script>
+</body>
+</html>
