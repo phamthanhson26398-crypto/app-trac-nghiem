@@ -42,7 +42,6 @@ io.on('connection', (socket) => {
     const currentRoom = rooms[code];
     if (!currentRoom || !parts || parts.length === 0) return;
 
-    // Ngăn chặn bấm nhiều lần khi phòng đang chạy
     if (currentRoom.timer) {
       clearTimeout(currentRoom.timer);
       currentRoom.timer = null;
@@ -80,38 +79,34 @@ io.on('connection', (socket) => {
       const item = currentRoom.queue[currentRoom.currentIndex];
       const duration = parseInt(item.question.duration) || 10;
 
-      // Reset điểm lượt này của từng thí sinh
       currentRoom.students.forEach(s => {
         s.currentScoreAwarded = 0;
       });
 
-      // Phát câu hỏi kèm thời gian chuẩn cho toàn bộ thí sinh
       io.to(code).emit('question_started', {
         item: item,
         duration: duration
       });
 
-      // Server chỉ đếm đúng 1 lần bằng timeout để chuyển câu tiếp theo
       currentRoom.timer = setTimeout(() => {
-        // Hết giờ: cộng điểm tích lũy của câu này vào tổng điểm
         currentRoom.students.forEach(s => {
           s.score += s.currentScoreAwarded;
         });
 
         currentRoom.currentIndex++;
         runQuestion();
-      }, (duration + 1) * 1000); // Thêm 1 giây đệm đồng bộ
+      }, (duration + 1) * 1000);
     }
 
     runQuestion();
   });
 
+  // NHẬN KẾT QUẢ KHI HỌC SINH BẤM NÚT "NỘP ĐÁP ÁN"
   socket.on('submit_answer', ({ code, isCorrect, remainingTime }) => {
     const room = rooms[code];
     if (room && room.status === 'playing') {
       const student = room.students.find(s => s.id === socket.id);
       if (student) {
-        // Chỉ ghi nhận điểm nếu chọn đúng, lấy đúng số giây lúc bấm
         student.currentScoreAwarded = isCorrect ? Math.max(1, remainingTime) : 0;
       }
     }
