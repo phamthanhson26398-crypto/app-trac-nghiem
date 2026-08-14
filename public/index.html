@@ -215,8 +215,7 @@
   </div>
 
   <script>
-    const socket = io({ reconnection: true, reconnectionAttempts: 10 });
-    const DEFAULT_CODE = 'DE_01';
+    const socket = io();
     let myRole = '';
     let currentStudentName = '';
     let allQuizzes = {};
@@ -558,7 +557,7 @@
         document.getElementById('teacher-screen').style.display = 'block';
         generateRoomQRCode();
         loadSavedQuizzes();
-        socket.emit('join_room', { code: DEFAULT_CODE, name: 'Huynh Trưởng', role: 'teacher' });
+        socket.emit('join_room', { name: 'Huynh Trưởng', role: 'teacher' });
       } else {
         document.getElementById('student-screen').style.display = 'block';
       }
@@ -568,7 +567,7 @@
       const name = document.getElementById('student-name').value.trim();
       if (!name) return alert('Vui lòng nhập họ tên!');
       currentStudentName = name;
-      socket.emit('join_room', { code: DEFAULT_CODE, name: name, role: 'student' });
+      socket.emit('join_room', { name: name, role: 'student' });
       alert('Đã báo danh thành công! Vui lòng đợi Huynh Trưởng / Giáo Viên bấm Bắt đầu.');
     }
 
@@ -586,7 +585,7 @@
       btn.style.background = '#6c757d';
 
       const parts = allQuizzes[selectedQuizName];
-      socket.emit('start_quiz', { code: DEFAULT_CODE, parts, quizName: selectedQuizName });
+      socket.emit('start_quiz', { parts, quizName: selectedQuizName });
     }
 
     socket.on('update_students', (students) => {
@@ -596,7 +595,7 @@
       }
     });
 
-    // MỖI KHI SERVER PHÁT CÂU HỎI MỚI -> TỰ ĐỘNG CHẠY ĐỒNG HỒ KHÔNG NGHẼN MẠNG
+    // MỖI KHI CÂU HỎI MỚI ĐƯỢC PHÁT -> ĐỒNG BỘ MẠNH MẼ
     socket.on('question_started', ({ item, duration, endTime }) => {
       if (myRole === 'student') {
         document.getElementById('student-screen').style.display = 'none';
@@ -633,7 +632,7 @@
 
         container.innerHTML = html;
 
-        // ĐỒNG BỘ ĐỒNG HỒ THEO MỐC TIMESTAMP THỰC TẾ
+        // VÒNG LẶP ĐẾM NGƯỢC THỰC TẾ TRÊN MÁY HỌC SINH
         const targetTime = endTime || (Date.now() + duration * 1000);
 
         function updateClock() {
@@ -650,7 +649,7 @@
             clearInterval(localTimerLoop);
             localTimerLoop = null;
 
-            // Khi hết giờ, nếu chưa nộp thì tự khóa nút
+            // Khóa nút nộp bài khi hết giờ
             const submitBtn = document.getElementById('btn-submit');
             if (submitBtn && !hasSubmittedCurrentQuestion) {
               submitBtn.style.display = 'none';
@@ -664,7 +663,7 @@
         }
 
         updateClock();
-        localTimerLoop = setInterval(updateClock, 500);
+        localTimerLoop = setInterval(updateClock, 300);
       }
     });
 
@@ -706,7 +705,6 @@
       });
 
       socket.emit('submit_answer', { 
-        code: DEFAULT_CODE, 
         isCorrect: isSelectedChoiceCorrect, 
         remainingTime: currentRemainingSeconds 
       });
