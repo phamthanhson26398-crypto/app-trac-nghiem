@@ -6,9 +6,7 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: "*" },
-  pingTimeout: 60000,
-  pingInterval: 25000
+  cors: { origin: "*" }
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -18,121 +16,131 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-const rooms = {};
+
+// Bộ lưu trữ dữ liệu tập trung
+const state = {
+  status: 'waiting', // waiting | playing | ended
+  quizName: '',
+  queue: [],
+  currentIndex: 0,
+  currentEndTime: 0,
+  students: {},
+  loopInterval: null
+};
 
 io.on('connection', (socket) => {
-  socket.on('join_room', ({ code, name, role }) => {
-    socket.join(code);
-    if (!rooms[code]) {
-      rooms[code] = { 
-        students: {}, 
-        status: 'waiting',
-        timer: null,
-        queue: [],
-        currentIndex: 0
-      };
-    }
-
+  // Gửi trạng thái hiện tại ngay khi kết nối lại
+  socket.on('join_room', ({ name, role }) => {
     if (role === 'student') {
-      rooms[code].students[socket.id] = {
-        id: socket.id,
-        name: name,
-        score: 0,
-        currentScoreAwarded: 0,
-        hasAnswered: false
-      };
-      io.to(code).emit('update_students', Object.values(rooms[code].students));
+      if (!state.students[socket.id]) {
+        state.students[socket.id] = {
+          id: socket.id,
+          name: name || 'Thí sinh',
+          score: 0,
+          currentScore: 0,
+          answered: false
+        };
+      }
+      io.emit('update_students', Object.values(state.students));
     }
   });
 
-  socket.on('start_quiz', ({ code, parts, quizName }) => {
-    const room = rooms[code];
-    if (!room || !parts || parts.length === 0) return;
+  socket.on('start_quiz', ({ parts, quizName }) => {
+    if (!parts || parts.length === 0) return;
 
-    if (room.timer) {
-      clearTimeout(room.timer);
-      room.timer = null;
+    // Dọn dẹp vòng lặp cũ
+    if (state.loopInterval) {
+      clearInterval(state.loopInterval);
+      state.loopInterval = null;
     }
 
-    room.status = 'playing';
-    room.currentIndex = 0;
-    
-    // Reset điểm tất cả học sinh
-    Object.values(room.students).forEach(s => {
-      s.score = 0;
-      s.currentScoreAwarded = 0;
-      s.hasAnswered = false;
-    });
-
+    // Nén đề thi thành danh sách câu hỏi tuần tự
     const queue = [];
-    parts.forEach((part, pIdx) => {
-      part.questions.forEach((q, qIdx) => {
+    parts.forEach((p, pIdx) => {
+      p.questions.forEach((q, qIdx) => {
         queue.push({
-          partTitle: part.title,
+          partTitle: p.title,
           partIndex: pIdx + 1,
           totalParts: parts.length,
           questionIndex: qIdx + 1,
-          totalQuestionsInPart: part.questions.length,
+          totalQuestionsInPart: p.questions.length,
           question: q
         });
       });
     });
-    room.queue = queue;
 
-    function playNext() {
-      if (room.timer) {
-        clearTimeout(room.timer);
-        room.timer = null;
-      }
+    state.status = 'playing';
+    state.quizName = quizName || 'Bài thi';
+    state.queue = queue;
+    state.currentIndex = 0;
 
-      if (room.currentIndex >= room.queue.length) {
-        room.status = 'finished';
-        io.to(code).emit('quiz_ended', { 
-          leaderboard: Object.values(room.students), 
-          quizName 
+    // Reset điểm toàn bộ học sinh
+    Object.keys(state.students).forEach(id => {
+      state.students[id].score = 0;
+      state.students[id].currentScore = 0;
+      state.students[id].answered = false;
+    });
+
+    function dispatchQuestion() {
+      if (state.currentIndex >= state.queue.length) {
+        state.status = 'ended';
+        if (state.loopInterval) clearInterval(state.loopInterval);
+        io.emit('quiz_ended', { 
+          leaderboard: Object.values(state.students), 
+          quizName: state.quizName 
         });
         return;
       }
 
-      const item = room.queue[room.currentIndex];
-      const duration = parseInt(item.question.duration) || 10;
-      const endTime = Date.now() + duration * 1000;
+      const currentItem = state.queue[state.currentIndex];
+      const duration = parseInt(currentItem.question.duration) || 10;
+      state.currentEndTime = Date.now() + (duration * 1000);
 
-      // Reset lượt câu này
-      Object.values(room.students).forEach(s => {
-        s.currentScoreAwarded = 0;
-        s.hasAnswered = false;
+      // Reset lượt làm câu hiện tại
+      Object.keys(state.students).forEach(id => {
+        state.students[id].currentScore = 0;
+        state.students[id].answered = false;
       });
 
-      // Bắn câu hỏi kèm mốc thời gian tuyệt đối
-      io.to(code).emit('question_started', {
-        item,
-        duration,
-        endTime
+      // Bắn câu hỏi mới kèm thời gian kết thúc chuẩn xác
+      io.emit('question_started', {
+        item: currentItem,
+        duration: duration,
+        endTime: state.currentEndTime,
+        itemIndex: state.currentIndex
       });
-
-      // Server tự động hẹn giờ chuyển câu (kèm 1.2s độ trễ mạng)
-      room.timer = setTimeout(() => {
-        // Hết giờ: Cộng điểm tích lũy
-        Object.values(room.students).forEach(s => {
-          s.score += s.currentScoreAwarded;
-        });
-
-        room.currentIndex++;
-        playNext();
-      }, (duration * 1000) + 1200);
     }
 
-    playNext();
+    // Phát câu đầu tiên
+    dispatchQuestion();
+
+    // VÒNG LẶP ĐIỀU PHỐI TRUNG TÂM (Chạy liên tục mỗi 500ms để kiểm tra mốc chuyển câu)
+    state.loopInterval = setInterval(() => {
+      if (state.status !== 'playing') return;
+
+      const now = Date.now();
+      // Khi đã vượt quá mốc kết thúc câu hỏi (+ 1.5s độ trễ mạng)
+      if (now >= state.currentEndTime + 1500) {
+        // Cộng dồn điểm của câu vừa xong
+        Object.keys(state.students).forEach(id => {
+          state.students[id].score += state.students[id].currentScore;
+          state.students[id].currentScore = 0;
+        });
+
+        // Nhảy sang câu tiếp theo
+        state.currentIndex++;
+        dispatchQuestion();
+      }
+    }, 500);
   });
 
-  socket.on('submit_answer', ({ code, isCorrect, remainingTime }) => {
-    const room = rooms[code];
-    if (room && room.status === 'playing') {
-      const student = room.students[socket.id];
-      if (student && !student.hasAnswered) {
-        student.hasAnswered = true;
-        student.currentScoreAwarded = isCorrect ? Math.max(1, parseInt(remainingTime) || 0) : 0;
+  // Nhận kết quả nộp bài
+  socket.on('submit_answer', ({ isCorrect, remainingTime }) => {
+    if (state.status === 'playing' && state.students[socket.id]) {
+      const student = state.students[socket.id];
+      if (!student.answered) {
+        student.answered = true;
+        student.currentScore = isCorrect ? Math.max(1, parseInt(remainingTime) || 0) : 0;
       }
     }
   });
@@ -141,5 +149,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server running on port: ${PORT}`);
+  console.log(`Server is running on PORT: ${PORT}`);
 });
