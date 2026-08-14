@@ -5,9 +5,7 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: { origin: "*" }
-});
+const io = new Server(server, { cors: { origin: "*" } });
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -27,8 +25,7 @@ io.on('connection', (socket) => {
         status: 'waiting',
         timer: null,
         queue: [],
-        currentIndex: 0,
-        currentRemaining: 0
+        currentIndex: 0
       };
     }
 
@@ -42,17 +39,17 @@ io.on('connection', (socket) => {
   });
 
   socket.on('start_quiz', ({ code, parts, quizName }) => {
-    const currentRoom = rooms[code];
-    if (!currentRoom || !parts || parts.length === 0) return;
+    const room = rooms[code];
+    if (!room || !parts || parts.length === 0) return;
 
-    if (currentRoom.timer) {
-      clearInterval(currentRoom.timer);
-      currentRoom.timer = null;
+    if (room.timer) {
+      clearInterval(room.timer);
+      room.timer = null;
     }
 
-    currentRoom.status = 'playing';
-    currentRoom.currentIndex = 0;
-    currentRoom.students.forEach(s => {
+    room.status = 'playing';
+    room.currentIndex = 0;
+    room.students.forEach(s => {
       s.score = 0;
       s.currentScoreAwarded = 0;
       s.hasAnswered = false;
@@ -71,57 +68,49 @@ io.on('connection', (socket) => {
         });
       });
     });
-    currentRoom.queue = queue;
+    room.queue = queue;
 
-    function nextQuestion() {
-      if (currentRoom.timer) {
-        clearInterval(currentRoom.timer);
-        currentRoom.timer = null;
-      }
-
-      if (currentRoom.currentIndex >= currentRoom.queue.length) {
-        currentRoom.status = 'finished';
-        io.to(code).emit('quiz_ended', { leaderboard: currentRoom.students, quizName });
+    function playCurrentQuestion() {
+      if (room.currentIndex >= room.queue.length) {
+        room.status = 'finished';
+        io.to(code).emit('quiz_ended', { leaderboard: room.students, quizName });
         return;
       }
 
-      const item = currentRoom.queue[currentRoom.currentIndex];
-      const duration = parseInt(item.question.duration) || 10;
-      currentRoom.currentRemaining = duration;
+      const item = room.queue[room.currentIndex];
+      let timeLeft = parseInt(item.question.duration) || 10;
 
-      currentRoom.students.forEach(s => {
+      // Reset trạng thái nộp bài từng thí sinh
+      room.students.forEach(s => {
         s.currentScoreAwarded = 0;
         s.hasAnswered = false;
       });
 
-      // Phát câu hỏi cho toàn bộ học sinh
-      io.to(code).emit('question_started', {
-        item: item,
-        duration: duration
-      });
+      // Bắn câu hỏi mới và số giây ban đầu
+      io.to(code).emit('question_started', { item, duration: timeLeft });
 
-      // Đếm ngược từng giây trên Server để đảm bảo 100% tự động chuyển câu
-      currentRoom.timer = setInterval(() => {
-        currentRoom.currentRemaining--;
-        io.to(code).emit('timer_sync', { timeLeft: currentRoom.currentRemaining });
+      // Vòng lặp đếm ngược chính thức
+      room.timer = setInterval(() => {
+        timeLeft--;
+        io.to(code).emit('timer_sync', { timeLeft: Math.max(0, timeLeft) });
 
-        if (currentRoom.currentRemaining <= 0) {
-          clearInterval(currentRoom.timer);
-          currentRoom.timer = null;
+        if (timeLeft <= 0) {
+          clearInterval(room.timer);
+          room.timer = null;
 
-          // Hết giờ: Cộng điểm cho các bạn đã nộp
-          currentRoom.students.forEach(s => {
+          // Hết giờ: Cộng điểm
+          room.students.forEach(s => {
             s.score += s.currentScoreAwarded;
           });
 
-          currentRoom.currentIndex++;
-          // Nghỉ 1 giây ngắn rồi sang câu tiếp theo
-          setTimeout(nextQuestion, 1000);
+          // Nhảy sang câu tiếp theo
+          room.currentIndex++;
+          setTimeout(playCurrentQuestion, 1000);
         }
       }, 1000);
     }
 
-    nextQuestion();
+    playCurrentQuestion();
   });
 
   socket.on('submit_answer', ({ code, isCorrect, remainingTime }) => {
@@ -139,5 +128,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server running on port: ${PORT}`);
+  console.log(`Server listening on PORT: ${PORT}`);
 });
