@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ứng Dụng Kiểm Tra Trắc Nghiệm</title>
   <script src="/socket.io/socket.io.js"></script>
-  <!-- THƯ VIỆN TẠO MÃ QR TỰ ĐỘNG -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; max-width: 680px; margin: auto; background: #f0f2f5; }
@@ -13,32 +12,23 @@
     button { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 15px; margin-top: 5px; }
     input, select, textarea { width: 95%; padding: 10px; margin-top: 5px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; font-family: inherit; }
     
-    .part-block { background: #eef2f5; border: 2px solid #b8c6d1; padding: 15px; border-radius: 8px; margin-bottom: 20px; position: relative; }
-    .q-block { background: white; border: 1px solid #ddd; padding: 12px; border-radius: 8px; margin-bottom: 12px; margin-top: 10px; position: relative; }
+    .part-block { background: #eef2f5; border: 2px solid #b8c6d1; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .q-block { background: white; border: 1px solid #ddd; padding: 12px; border-radius: 8px; margin-bottom: 12px; margin-top: 10px; }
     
     .opt-btn { 
       background-color: #ffffff !important; 
       color: #333333 !important; 
       border: 1px solid #cccccc !important; 
       text-align: left; 
-      margin-top: 8px; 
+      margin-top: 10px; 
       width: 100%; 
       font-size: 16px; 
-      padding: 12px 15px; 
+      padding: 14px 15px; 
       border-radius: 8px; 
       cursor: pointer; 
-      transition: background-color 0.2s, border-color 0.2s;
-      -webkit-appearance: none !important;
-      -webkit-tap-highlight-color: transparent !important;
-      outline: none !important;
-      box-shadow: none !important;
+      display: block;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
       user-select: none;
-    }
-    .opt-btn:focus, .opt-btn:focus-visible, .opt-btn:active { 
-      background-color: #ffffff !important; 
-      border: 1px solid #cccccc !important;
-      outline: none !important;
-      box-shadow: none !important;
     }
     .opt-btn.selected { 
       background-color: #d4edda !important; 
@@ -51,25 +41,8 @@
     .btn-edit { background: #ffc107; color: #212529; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto; margin-right: 8px; font-weight: 500; }
     
     .quiz-manager { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-    
-    .quiz-item { 
-      background: white; 
-      padding: 12px 15px; 
-      border-radius: 8px; 
-      margin-top: 10px; 
-      display: flex; 
-      flex-direction: column; 
-      gap: 10px; 
-      border: 1px solid #ddd; 
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .quiz-item-actions { 
-      display: flex; 
-      justify-content: flex-end; 
-      align-items: center; 
-      border-top: 1px dashed #eee; 
-      padding-top: 8px; 
-    }
+    .quiz-item { background: white; padding: 12px 15px; border-radius: 8px; margin-top: 10px; display: flex; flex-direction: column; gap: 10px; border: 1px solid #ddd; }
+    .quiz-item-actions { display: flex; justify-content: flex-end; align-items: center; border-top: 1px dashed #eee; padding-top: 8px; }
     
     .history-card { background: #fff3cd; border: 1px solid #ffeeba; padding: 12px; border-radius: 6px; margin-bottom: 10px; }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; }
@@ -82,7 +55,7 @@
 </head>
 <body>
 
-  <!-- MÀN HÌNH CHỌN VAI TRÒ -->
+  <!-- CHỌN VAI TRÒ -->
   <div id="role-screen" class="card">
     <h2>🎯 BẠN LÀ AI?</h2>
     <button onclick="selectRole('teacher')" style="background: #28a745; width: 100%;">Tôi là Giáo Viên</button>
@@ -93,14 +66,13 @@
   <div id="teacher-screen" class="card" style="display: none;">
     <h2>👨‍🏫 Màn Hình Giáo Viên</h2>
     
-    <!-- KHU VỰC HIỂN THỊ MÃ QR PHÒNG THI -->
     <div id="qrcode-box">
       <h3 style="margin: 0; color: #007bff;">📲 QUÉT MÃ QR ĐỂ VÀO THI</h3>
-      <p style="margin: 5px 0; font-size: 13px; color: #6c757d;">(Học sinh dùng camera điện thoại quét mã này để tham gia phòng làm bài)</p>
+      <p style="margin: 5px 0; font-size: 13px; color: #6c757d;">(Học sinh dùng camera quét mã để vào phòng)</p>
       <div id="qrcode"></div>
     </div>
 
-    <!-- 1. DANH SÁCH BÀI KIỂM TRA ĐÃ LƯU -->
+    <!-- DANH SÁCH BÀI KIỂM TRA -->
     <div class="quiz-manager">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h3 style="margin: 0;">📁 Danh Sách Bài Kiểm Tra</h3>
@@ -109,11 +81,11 @@
       <div id="quiz-list-container" style="margin-top: 10px;"></div>
     </div>
 
-    <!-- 2. KHU VỰC SOẠN / CHỈNH SỬA ĐỀ THI -->
+    <!-- KHUNG SOẠN BÀI -->
     <div id="editor-section" style="display: none; border: 2px solid #007bff; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #f8f9fa;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h3 id="current-quiz-title" style="margin: 0; color: #007bff;">📝 Soạn Đề Thi</h3>
-        <button onclick="closeEditor()" style="background: #6c757d; width: auto;">❌ Đóng Khung Soạn</button>
+        <button onclick="closeEditor()" style="background: #6c757d; width: auto;">❌ Đóng</button>
       </div>
 
       <label><strong>Tên Bài Kiểm Tra:</strong></label>
@@ -121,24 +93,21 @@
 
       <div id="parts-list"></div>
       
-      <button onclick="addPartInput()" style="background: #17a2b8; width: 100%; font-size: 15px; margin-bottom: 10px;">➕ THÊM PHẦN MỚI</button>
-      <button onclick="saveCurrentQuiz()" style="background: #28a745; width: 100%; font-size: 16px;">💾 LƯU BÀI KIỂM TRA NÀY</button>
+      <button onclick="addPartInput()" style="background: #17a2b8; width: 100%; margin-bottom: 10px;">➕ THÊM PHẦN MỚI</button>
+      <button onclick="saveCurrentQuiz()" style="background: #28a745; width: 100%; font-size: 16px;">💾 LƯU BÀI KIỂM TRA</button>
     </div>
 
-    <!-- 3. KHU VỰC KẾT QUẢ THI & BẢNG CHỌN -->
+    <!-- KẾT QUẢ CÁC LẦN THI -->
     <div class="quiz-manager">
       <h3>📊 Vùng Chọn Kết Quả Thi</h3>
       <label><strong>Chọn Bài Kiểm Tra Muốn Xem Kết Quả:</strong></label>
       <select id="history-quiz-select" onchange="renderHistoryUI()">
         <option value="">-- Chọn bài kiểm tra --</option>
       </select>
-
-      <div id="history-display-area" style="margin-top: 10px;">
-        <p style="color: #6c757d; font-style: italic;">Vui lòng chọn bài kiểm tra ở menu trên để xem bảng kết quả chi tiết.</p>
-      </div>
+      <div id="history-display-area" style="margin-top: 10px;"></div>
     </div>
 
-    <!-- 4. DANH SÁCH HỌC SINH VÀO PHÒNG & NÚT BẮT ĐẦU -->
+    <!-- BẮT ĐẦU THI -->
     <div style="border-top: 2px dashed #ccc; padding-top: 15px; margin-top: 15px;">
       <label><strong>Bài thi chuẩn bị phát:</strong></label>
       <select id="active-quiz-select" style="font-weight: bold; color: #007bff;"></select>
@@ -146,19 +115,19 @@
       <h3>👨‍🎓 Học sinh đã vào phòng (<span id="count">0</span>):</h3>
       <ul id="student-list"></ul>
       
-      <button onclick="startQuiz()" style="background: #dc3545; font-size: 18px; width: 100%;">🚀 BẤT ĐẦU LÀM BÀI</button>
+      <button id="start-btn" onclick="startQuiz()" style="background: #dc3545; font-size: 18px; width: 100%;">🚀 BẮT ĐẦU LÀM BÀI</button>
     </div>
   </div>
 
   <!-- MÀN HÌNH HỌC SINH -->
   <div id="student-screen" class="card" style="display: none;">
     <h2>👋 Xin chào các bạn</h2>
-    <label><strong>Nhập tên thánh & họ và tên của em:</strong></label>
-    <input type="text" id="student-name" placeholder="Ví dụ: Giuse Nguyễn Văn A">
-    <button onclick="joinQuiz()" style="background: #28a745; width: 100%;">Tham Gia Bài Thi</button>
+    <label><strong>Nhập họ và tên của em:</strong></label>
+    <input type="text" id="student-name" placeholder="Ví dụ: Nguyễn Văn A">
+    <button onclick="joinQuiz()" style="background: #28a745; width: 100%;">Bắt Đầu Làm Bài</button>
   </div>
 
-  <!-- MÀN HÌNH LÀM BÀI TỪNG CÂU HỎI (HỌC SINH) -->
+  <!-- MÀN HÌNH LÀM BÀI -->
   <div id="quiz-screen" class="card" style="display: none;">
     <div style="display: flex; justify-content: space-between; align-items: center; background: #e9ecef; padding: 10px; border-radius: 5px;">
       <div>
@@ -171,11 +140,11 @@
     <div id="questions-container"></div>
   </div>
 
-  <!-- MÀN HÌNH KẾT QUẢ KHI KẾT THÚC BÀI THI -->
+  <!-- MÀN HÌNH KẾT QUẢ -->
   <div id="result-screen" class="card" style="display: none;">
     <div id="teacher-result-view" style="display: none;">
       <h2 style="text-align: center; color: #d9534f;">🏆 BẢNG VINH DANH THÀNH TÍCH</h2>
-      <p style="text-align: center; color: #6c757d; margin-top: -10px; font-size: 14px;">(Điểm = Tổng số giây còn lại khi đưa ra đáp án đúng)</p>
+      <p style="text-align: center; color: #6c757d; margin-top: -10px; font-size: 14px;">(Điểm = Tổng số giây còn lại khi chọn đáp án đúng)</p>
       <table>
         <thead>
           <tr>
@@ -193,11 +162,10 @@
       <h2 style="color: #28a745;">🎉 HOÀN THÀNH BÀI THI!</h2>
       <p style="font-size: 18px;">Xin chào em <strong><span id="my-student-name">--</span></strong>,</p>
       <div style="background: #e9ecef; border-radius: 10px; padding: 20px; margin: 15px 0;">
-        <span style="font-size: 16px; color: #555;">TỔNG ĐIỂM THI ĐUA CỦA EM:</span>
+        <span style="font-size: 16px; color: #555;">TỔNG ĐIỂM CỦA EM:</span>
         <h1 style="font-size: 48px; color: #d9534f; margin: 10px 0;"><span id="my-final-score">0</span> điểm</h1>
-        <p style="margin: 0; font-size: 13px; color: #6c757d;">(Em trả lời đúng càng nhanh thì điểm tích lũy càng cao)</p>
       </div>
-      <p style="color: #6c757d; font-size: 14px;">Em hãy quan sát màn hình của Thầy/Cô để xem thứ hạng trao giải nhé!</p>
+      <p style="color: #6c757d; font-size: 14px;">Em hãy chú ý lắng nghe thầy/cô chữa bài tại lớp nhé!</p>
     </div>
   </div>
 
@@ -209,8 +177,9 @@
     let allQuizzes = {};
     let partCount = 0;
     let editingQuizKey = null;
+    let localTimerInterval = null;
+    let currentRemainingSeconds = 0;
 
-    // HÀM GẮN BIỂU TƯỢNG HUY CHƯƠNG CHO GIẢI NHẤT, NHÌ, BA
     function getRankBadge(idx) {
       if (idx === 0) return '🥇 <b>Giải Nhất</b>';
       if (idx === 1) return '🥈 <b>Giải Nhì</b>';
@@ -221,20 +190,7 @@
     async function generateRoomQRCode() {
       const qrContainer = document.getElementById("qrcode");
       qrContainer.innerHTML = "";
-      
       let hostUrl = window.location.origin;
-
-      if (hostUrl.includes("localhost") || hostUrl.includes("127.0.0.1")) {
-        try {
-          const res = await fetch('/api/server-info');
-          const data = await res.json();
-          if (data.ip && data.ip !== 'localhost') {
-            hostUrl = `http://${data.ip}:${data.port || 3000}`;
-          }
-        } catch (e) {
-          console.error("Lỗi lấy IP:", e);
-        }
-      }
 
       new QRCode(qrContainer, {
         text: `${hostUrl}?role=student`,
@@ -264,8 +220,8 @@
 
       const keys = Object.keys(allQuizzes);
       if (keys.length === 0) {
-        listContainer.innerHTML = '<p style="color: #6c757d; font-style: italic;">Chưa có bài kiểm tra nào được lưu.</p>';
-        activeSelect.innerHTML = '<option value="">(Chưa có bài kiểm tra nào)</option>';
+        listContainer.innerHTML = '<p style="color: #6c757d; font-style: italic;">Chưa có bài kiểm tra nào.</p>';
+        activeSelect.innerHTML = '<option value="">(Chưa có bài)</option>';
         return;
       }
 
@@ -273,9 +229,7 @@
         const item = document.createElement('div');
         item.className = 'quiz-item';
         item.innerHTML = `
-          <div>
-            <strong style="font-size: 15px; line-height: 1.4; color: #212529;">📌 ${name}</strong>
-          </div>
+          <div><strong style="font-size: 15px;">📌 ${name}</strong></div>
           <div class="quiz-item-actions">
             <button class="btn-edit" onclick="editQuiz('${name}')">✏️ Chỉnh Sửa</button>
             <button class="btn-delete" onclick="deleteQuiz('${name}')">🗑️ Xóa</button>
@@ -336,7 +290,7 @@
     }
 
     function deleteQuiz(name) {
-      if (confirm(`Bạn có chắc chắn muốn xóa bài "${name}" không?`)) {
+      if (confirm(`Bạn có chắc muốn xóa bài "${name}" không?`)) {
         delete allQuizzes[name];
         localStorage.setItem('all_quizzes_v4', JSON.stringify(allQuizzes));
 
@@ -360,10 +314,8 @@
       pDiv.innerHTML = `
         <button class="btn-delete" style="float:right;" onclick="this.parentElement.remove()">❌ Xóa Phần</button>
         <label><strong>Tên Phần:</strong></label>
-        <input type="text" class="part-title" value="${partTitle}" placeholder="Ví dụ: PHẦN 1: TRẮC NGHIỆM">
-        
+        <input type="text" class="part-title" value="${partTitle}">
         <div class="q-container" style="margin-top: 10px;"></div>
-        
         <button onclick="addQuestionToPart(this.previousElementSibling)" style="background: #6c757d; font-size: 13px;">➕ Thêm Câu Hỏi Vào Phần Này</button>
       `;
       container.appendChild(pDiv);
@@ -392,7 +344,6 @@
             <select class="q-type" onchange="renderQuestionTypeUI(this)">
               <option value="multiple" ${type === 'multiple' ? 'selected' : ''}>Trắc nghiệm A/B/C/D</option>
               <option value="tf" ${type === 'tf' ? 'selected' : ''}>Đúng / Sai</option>
-              <option value="essay" ${type === 'essay' ? 'selected' : ''}>Tự luận / Điền đáp án</option>
             </select>
           </div>
           <div style="flex: 1;">
@@ -403,7 +354,6 @@
         
         <label>Nội dung câu hỏi:</label>
         <input type="text" class="q-title" value="${title}" placeholder="Nhập câu hỏi...">
-        
         <div class="q-options-area"></div>
       `;
 
@@ -444,11 +394,6 @@
             <option value="Sai" ${correct === 'Sai' ? 'selected' : ''}>Sai</option>
           </select>
         `;
-      } else if (type === 'essay') {
-        optionsArea.innerHTML = `
-          <label>Đáp án mẫu/Gợi ý:</label>
-          <input type="text" class="q-correct" value="${correct}" placeholder="Đáp án chuẩn...">
-        `;
       }
     }
 
@@ -476,9 +421,6 @@
           } else if (type === 'tf') {
             const correct = qBlock.querySelector('.q-correct').value;
             if (title) questions.push({ type, title, duration, options: ['Đúng', 'Sai'], correct });
-          } else if (type === 'essay') {
-            const correct = qBlock.querySelector('.q-correct').value;
-            if (title) questions.push({ type, title, duration, correct });
           }
         });
 
@@ -496,7 +438,7 @@
       const displayArea = document.getElementById('history-display-area');
 
       if (!quizName) {
-        displayArea.innerHTML = '<p style="color: #6c757d; font-style: italic;">Vui lòng chọn bài kiểm tra ở menu trên để xem bảng kết quả chi tiết.</p>';
+        displayArea.innerHTML = '<p style="color: #6c757d; font-style: italic;">Vui lòng chọn bài kiểm tra ở trên.</p>';
         return;
       }
 
@@ -504,7 +446,7 @@
       const records = historyData[quizName] || [];
 
       if (records.length === 0) {
-        displayArea.innerHTML = `<p style="color: #6c757d; font-style: italic;">Chưa có lượt thi nào được ghi nhận cho bài "${quizName}".</p>`;
+        displayArea.innerHTML = `<p style="color: #6c757d; font-style: italic;">Chưa có lượt thi nào cho bài "${quizName}".</p>`;
         return;
       }
 
@@ -540,26 +482,19 @@
 
     function saveHistoryRecord(quizName, leaderboard) {
       if (!quizName) return;
-
       const historyData = JSON.parse(localStorage.getItem('quiz_history_records') || '{}');
-      if (!historyData[quizName]) {
-        historyData[quizName] = [];
-      }
-
-      const attemptNumber = historyData[quizName].length + 1;
-      const timestamp = new Date().toLocaleString('vi-VN');
+      if (!historyData[quizName]) historyData[quizName] = [];
 
       historyData[quizName].push({
-        attempt: attemptNumber,
-        time: timestamp,
+        attempt: historyData[quizName].length + 1,
+        time: new Date().toLocaleString('vi-VN'),
         results: leaderboard
       });
-
       localStorage.setItem('quiz_history_records', JSON.stringify(historyData));
     }
 
     function clearQuizHistory(quizName) {
-      if (confirm(`Bạn có chắc muốn xóa lịch sử thi của "${quizName}" không?`)) {
+      if (confirm(`Bạn có chắc muốn xóa lịch sử bài "${quizName}"?`)) {
         const historyData = JSON.parse(localStorage.getItem('quiz_history_records') || '{}');
         delete historyData[quizName];
         localStorage.setItem('quiz_history_records', JSON.stringify(historyData));
@@ -596,6 +531,11 @@
         return alert('Vui lòng tạo hoặc chọn một bài kiểm tra để phát!');
       }
 
+      const btn = document.getElementById('start-btn');
+      btn.disabled = true;
+      btn.innerText = '⏳ BÀI THI ĐANG DIỄN RA...';
+      btn.style.background = '#6c757d';
+
       const parts = allQuizzes[selectedQuizName];
       socket.emit('start_quiz', { code: DEFAULT_CODE, parts, quizName: selectedQuizName });
     }
@@ -607,17 +547,25 @@
       }
     });
 
-    socket.on('question_started', (item) => {
+    // NHẬN CÂU HỎI VÀ TỰ ĐỘNG CHẠY BỘ ĐẾM MƯỢT TRÊN MÁY HỌC SINH
+    socket.on('question_started', ({ item, duration }) => {
       if (myRole === 'student') {
         document.getElementById('student-screen').style.display = 'none';
         document.getElementById('quiz-screen').style.display = 'block';
 
+        // 1. DỌN SẠCH TIMER TRƯỚC ĐÓ
+        if (localTimerInterval) {
+          clearInterval(localTimerInterval);
+          localTimerInterval = null;
+        }
+
+        // 2. CẬP NHẬT GIAO DIỆN CÂU HỎI MỚI NGAY LẬP TỨC
         document.getElementById('student-part-title').innerText = `${item.partTitle}`;
         document.getElementById('student-q-index').innerText = `(Câu ${item.questionIndex}/${item.totalQuestionsInPart})`;
 
         const container = document.getElementById('questions-container');
         const q = item.question;
-        let html = `<h3 style="margin-top: 0;">${q.title}</h3>`;
+        let html = `<h3 style="margin-top: 0; font-size: 18px;">${q.title}</h3>`;
 
         if (q.type === 'multiple') {
           q.options.forEach((opt, optIdx) => {
@@ -626,25 +574,34 @@
         } else if (q.type === 'tf') {
           html += `<button class="opt-btn" type="button" onclick="selectChoice('${q.correct}' === 'Đúng', this)">Đúng</button>
                    <button class="opt-btn" type="button" onclick="selectChoice('${q.correct}' === 'Sai', this)">Sai</button>`;
-        } else if (q.type === 'essay') {
-          html += `<textarea id="essay-ans" placeholder="Nhập câu trả lời..." style="width:95%; height: 60px;" oninput="selectChoice(true, this)"></textarea>`;
         }
 
         container.innerHTML = html;
 
-        if (document.activeElement && document.activeElement.blur) {
-          document.activeElement.blur();
-        }
+        // 3. ĐỒNG HỒ ĐẾM NGƯỢC CHUẨN XÁC TẠI MÁY
+        currentRemainingSeconds = duration;
+        document.getElementById('timer').innerText = currentRemainingSeconds;
+
+        localTimerInterval = setInterval(() => {
+          currentRemainingSeconds--;
+          if (currentRemainingSeconds >= 0) {
+            document.getElementById('timer').innerText = currentRemainingSeconds;
+          }
+          if (currentRemainingSeconds <= 0) {
+            clearInterval(localTimerInterval);
+            localTimerInterval = null;
+          }
+        }, 1000);
       }
     });
 
-    socket.on('timer_tick', ({ timeLeft }) => {
-      const timerEl = document.getElementById('timer');
-      if (timerEl) timerEl.innerText = timeLeft;
-    });
-
     function selectChoice(isCorrect, element) {
-      socket.emit('update_choice', { code: DEFAULT_CODE, isCorrect });
+      // Gửi đáp án kèm chính xác số giây còn lại ngay lúc bấm
+      socket.emit('submit_answer', { 
+        code: DEFAULT_CODE, 
+        isCorrect: isCorrect, 
+        remainingTime: currentRemainingSeconds 
+      });
 
       if (element.tagName === 'BUTTON') {
         element.parentNode.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
@@ -653,6 +610,11 @@
     }
 
     socket.on('quiz_ended', ({ leaderboard, quizName }) => {
+      if (localTimerInterval) {
+        clearInterval(localTimerInterval);
+        localTimerInterval = null;
+      }
+
       document.getElementById('quiz-screen').style.display = 'none';
       document.getElementById('teacher-screen').style.display = 'none';
       document.getElementById('result-screen').style.display = 'block';
