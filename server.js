@@ -19,15 +19,68 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 const state = {
-  status: 'waiting', // waiting | playing | ended
+  status: 'waiting',
   quizName: '',
   queue: [],
   currentIndex: 0,
   currentItem: null,
   currentDuration: 0,
   students: {},
-  timerTimeout: null
+  timerTimeout: null,
+  isTransitioning: false
 };
+
+function moveToNextQuestion() {
+  if (state.isTransitioning || state.status !== 'playing') return;
+  state.isTransitioning = true;
+
+  if (state.timerTimeout) {
+    clearTimeout(state.timerTimeout);
+    state.timerTimeout = null;
+  }
+
+  // Cộng dồn điểm của câu vừa hoàn thành
+  Object.keys(state.students).forEach(id => {
+    state.students[id].score += state.students[id].currentScore;
+    state.students[id].currentScore = 0;
+  });
+
+  state.currentIndex++;
+
+  if (state.currentIndex >= state.queue.length) {
+    state.status = 'ended';
+    state.currentItem = null;
+    io.emit('quiz_ended', { 
+      leaderboard: Object.values(state.students), 
+      quizName: state.quizName 
+    });
+    return;
+  }
+
+  state.currentItem = state.queue[state.currentIndex];
+  state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
+
+  // Reset trạng thái làm bài của câu mới
+  Object.keys(state.students).forEach(id => {
+    state.students[id].currentScore = 0;
+    state.students[id].answered = false;
+  });
+
+  state.isTransitioning = false;
+
+  // Phát câu hỏi mới cho toàn bộ máy
+  io.emit('question_started', {
+    item: state.currentItem,
+    duration: state.currentDuration,
+    currentIndex: state.currentIndex,
+    totalQuestions: state.queue.length
+  });
+
+  // Hẹn giờ dự phòng ở server (chống trường hợp mất mạng)
+  state.timerTimeout = setTimeout(() => {
+    moveToNextQuestion();
+  }, (state.currentDuration * 1000) + 500);
+}
 
 io.on('connection', (socket) => {
   socket.emit('update_students', Object.values(state.students));
@@ -43,7 +96,6 @@ io.on('connection', (socket) => {
       };
       io.emit('update_students', Object.values(state.students));
 
-      // Học sinh vào sau khi bài đang chạy sẽ nhận ngay câu hỏi hiện tại
       if (state.status === 'playing' && state.currentItem) {
         socket.emit('question_started', {
           item: state.currentItem,
@@ -84,58 +136,24 @@ io.on('connection', (socket) => {
     state.status = 'playing';
     state.quizName = quizName || 'Bài thi';
     state.queue = queue;
-    state.currentIndex = 0;
+    state.currentIndex = -1;
+    state.isTransitioning = false;
 
-    // Reset điểm
     Object.keys(state.students).forEach(id => {
       state.students[id].score = 0;
       state.students[id].currentScore = 0;
       state.students[id].answered = false;
     });
 
-    function dispatchQuestion() {
-      if (state.currentIndex >= state.queue.length) {
-        state.status = 'ended';
-        state.currentItem = null;
-        if (state.timerTimeout) clearTimeout(state.timerTimeout);
-        io.emit('quiz_ended', { 
-          leaderboard: Object.values(state.students), 
-          quizName: state.quizName 
-        });
-        return;
-      }
+    // Kích hoạt câu đầu tiên
+    moveToNextQuestion();
+  });
 
-      state.currentItem = state.queue[state.currentIndex];
-      state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
-
-      // Reset lượt làm câu hiện tại
-      Object.keys(state.students).forEach(id => {
-        state.students[id].currentScore = 0;
-        state.students[id].answered = false;
-      });
-
-      // Phát lệnh bắt đầu câu hỏi tới toàn bộ các máy
-      io.emit('question_started', {
-        item: state.currentItem,
-        duration: state.currentDuration,
-        currentIndex: state.currentIndex,
-        totalQuestions: state.queue.length
-      });
-
-      // Đợi đúng hết thời gian câu hỏi -> cộng điểm và tự động chuyển câu tiếp theo
-      state.timerTimeout = setTimeout(() => {
-        Object.keys(state.students).forEach(id => {
-          state.students[id].score += state.students[id].currentScore;
-          state.students[id].currentScore = 0;
-        });
-
-        state.currentIndex++;
-        dispatchQuestion();
-      }, state.currentDuration * 1000);
+  // Khi máy học sinh đếm về 0s và yêu cầu chuyển câu
+  socket.on('time_up', () => {
+    if (state.status === 'playing') {
+      moveToNextQuestion();
     }
-
-    // Bắt đầu ngay câu đầu tiên
-    dispatchQuestion();
   });
 
   socket.on('submit_answer', ({ isCorrect, remainingTime }) => {
