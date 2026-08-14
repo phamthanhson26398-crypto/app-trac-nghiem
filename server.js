@@ -6,7 +6,8 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: "*" }
+  cors: { origin: "*" },
+  transports: ['websocket', 'polling']
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -17,44 +18,67 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-// Bộ lưu trữ dữ liệu tập trung
+// BỘ TRẠNG THÁI TRUNG TÂM CỦA HỆ THỐNG
 const state = {
   status: 'waiting', // waiting | playing | ended
   quizName: '',
   queue: [],
   currentIndex: 0,
   currentEndTime: 0,
+  currentItem: null,
+  currentDuration: 0,
   students: {},
   loopInterval: null
 };
 
 io.on('connection', (socket) => {
-  // Gửi trạng thái hiện tại ngay khi kết nối lại
+  // Gửi danh sách học sinh hiện tại khi có người vào
+  socket.emit('update_students', Object.values(state.students));
+
+  // Nếu bài thi đang chạy mà có học sinh vào hoặc tải lại trang -> đồng bộ ngay câu hỏi hiện tại
+  if (state.status === 'playing' && state.currentItem) {
+    socket.emit('question_started', {
+      item: state.currentItem,
+      duration: state.currentDuration,
+      endTime: state.currentEndTime,
+      currentIndex: state.currentIndex,
+      totalQuestions: state.queue.length
+    });
+  }
+
   socket.on('join_room', ({ name, role }) => {
     if (role === 'student') {
-      if (!state.students[socket.id]) {
-        state.students[socket.id] = {
-          id: socket.id,
-          name: name || 'Thí sinh',
-          score: 0,
-          currentScore: 0,
-          answered: false
-        };
-      }
+      state.students[socket.id] = {
+        id: socket.id,
+        name: name || 'Thí sinh',
+        score: 0,
+        currentScore: 0,
+        answered: false
+      };
       io.emit('update_students', Object.values(state.students));
+
+      // Nếu đang thi, phát ngay câu hỏi cho thí sinh vừa báo danh xong
+      if (state.status === 'playing' && state.currentItem) {
+        socket.emit('question_started', {
+          item: state.currentItem,
+          duration: state.currentDuration,
+          endTime: state.currentEndTime,
+          currentIndex: state.currentIndex,
+          totalQuestions: state.queue.length
+        });
+      }
     }
   });
 
   socket.on('start_quiz', ({ parts, quizName }) => {
     if (!parts || parts.length === 0) return;
 
-    // Dọn dẹp vòng lặp cũ
     if (state.loopInterval) {
       clearInterval(state.loopInterval);
       state.loopInterval = null;
     }
 
-    // Nén đề thi thành danh sách câu hỏi tuần tự
+    // Gom toàn bộ câu hỏi của các phần vào hàng đợi
     const queue = [];
     parts.forEach((p, pIdx) => {
       p.questions.forEach((q, qIdx) => {
@@ -69,12 +93,14 @@ io.on('connection', (socket) => {
       });
     });
 
+    if (queue.length === 0) return;
+
     state.status = 'playing';
     state.quizName = quizName || 'Bài thi';
     state.queue = queue;
     state.currentIndex = 0;
 
-    // Reset điểm toàn bộ học sinh
+    // Reset điểm
     Object.keys(state.students).forEach(id => {
       state.students[id].score = 0;
       state.students[id].currentScore = 0;
@@ -84,6 +110,7 @@ io.on('connection', (socket) => {
     function dispatchQuestion() {
       if (state.currentIndex >= state.queue.length) {
         state.status = 'ended';
+        state.currentItem = null;
         if (state.loopInterval) clearInterval(state.loopInterval);
         io.emit('quiz_ended', { 
           leaderboard: Object.values(state.students), 
@@ -92,49 +119,49 @@ io.on('connection', (socket) => {
         return;
       }
 
-      const currentItem = state.queue[state.currentIndex];
-      const duration = parseInt(currentItem.question.duration) || 10;
-      state.currentEndTime = Date.now() + (duration * 1000);
+      state.currentItem = state.queue[state.currentIndex];
+      state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
+      state.currentEndTime = Date.now() + (state.currentDuration * 1000);
 
-      // Reset lượt làm câu hiện tại
+      // Reset câu này
       Object.keys(state.students).forEach(id => {
         state.students[id].currentScore = 0;
         state.students[id].answered = false;
       });
 
-      // Bắn câu hỏi mới kèm thời gian kết thúc chuẩn xác
+      // Phát câu hỏi cho toàn bộ máy (cả giáo viên và học sinh)
       io.emit('question_started', {
-        item: currentItem,
-        duration: duration,
+        item: state.currentItem,
+        duration: state.currentDuration,
         endTime: state.currentEndTime,
-        itemIndex: state.currentIndex
+        currentIndex: state.currentIndex,
+        totalQuestions: state.queue.length
       });
     }
 
-    // Phát câu đầu tiên
+    // Chạy câu 1
     dispatchQuestion();
 
-    // VÒNG LẶP ĐIỀU PHỐI TRUNG TÂM (Chạy liên tục mỗi 500ms để kiểm tra mốc chuyển câu)
+    // VÒNG ĐIỀU PHỐI THỜI GIAN TRUNG TÂM
     state.loopInterval = setInterval(() => {
       if (state.status !== 'playing') return;
 
       const now = Date.now();
-      // Khi đã vượt quá mốc kết thúc câu hỏi (+ 1.5s độ trễ mạng)
-      if (now >= state.currentEndTime + 1500) {
-        // Cộng dồn điểm của câu vừa xong
+      // Khi đã hết giờ làm bài của câu (+ 1 giây đệm)
+      if (now >= state.currentEndTime + 1000) {
+        // Cộng dồn điểm
         Object.keys(state.students).forEach(id => {
           state.students[id].score += state.students[id].currentScore;
           state.students[id].currentScore = 0;
         });
 
-        // Nhảy sang câu tiếp theo
+        // Chuyển sang câu tiếp theo
         state.currentIndex++;
         dispatchQuestion();
       }
-    }, 500);
+    }, 400);
   });
 
-  // Nhận kết quả nộp bài
   socket.on('submit_answer', ({ isCorrect, remainingTime }) => {
     if (state.status === 'playing' && state.students[socket.id]) {
       const student = state.students[socket.id];
@@ -149,5 +176,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server is running on PORT: ${PORT}`);
+  console.log(`Server listening on PORT: ${PORT}`);
 });
