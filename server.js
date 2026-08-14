@@ -19,15 +19,14 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 const state = {
-  status: 'waiting', // waiting | playing | ended
+  status: 'waiting',
   quizName: '',
   queue: [],
   currentIndex: 0,
-  currentEndTime: 0,
   currentItem: null,
   currentDuration: 0,
   students: {},
-  loopInterval: null
+  timerTimeout: null
 };
 
 io.on('connection', (socket) => {
@@ -44,12 +43,10 @@ io.on('connection', (socket) => {
       };
       io.emit('update_students', Object.values(state.students));
 
-      // Nếu đang thi mà có học sinh vào sau -> nạp ngay câu hỏi hiện tại
       if (state.status === 'playing' && state.currentItem) {
         socket.emit('question_started', {
           item: state.currentItem,
           duration: state.currentDuration,
-          endTime: state.currentEndTime,
           currentIndex: state.currentIndex,
           totalQuestions: state.queue.length
         });
@@ -60,9 +57,9 @@ io.on('connection', (socket) => {
   socket.on('start_quiz', ({ parts, quizName }) => {
     if (!parts || parts.length === 0) return;
 
-    if (state.loopInterval) {
-      clearInterval(state.loopInterval);
-      state.loopInterval = null;
+    if (state.timerTimeout) {
+      clearTimeout(state.timerTimeout);
+      state.timerTimeout = null;
     }
 
     const queue = [];
@@ -96,7 +93,7 @@ io.on('connection', (socket) => {
       if (state.currentIndex >= state.queue.length) {
         state.status = 'ended';
         state.currentItem = null;
-        if (state.loopInterval) clearInterval(state.loopInterval);
+        if (state.timerTimeout) clearTimeout(state.timerTimeout);
         io.emit('quiz_ended', { 
           leaderboard: Object.values(state.students), 
           quizName: state.quizName 
@@ -106,45 +103,33 @@ io.on('connection', (socket) => {
 
       state.currentItem = state.queue[state.currentIndex];
       state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
-      state.currentEndTime = Date.now() + (state.currentDuration * 1000);
 
-      // Reset lượt làm câu hiện tại
       Object.keys(state.students).forEach(id => {
         state.students[id].currentScore = 0;
         state.students[id].answered = false;
       });
 
-      // Phát câu hỏi cho mọi người
+      // Phát câu hỏi kèm số giây chuẩn
       io.emit('question_started', {
         item: state.currentItem,
         duration: state.currentDuration,
-        endTime: state.currentEndTime,
         currentIndex: state.currentIndex,
         totalQuestions: state.queue.length
       });
-    }
 
-    // Bắt đầu câu 1
-    dispatchQuestion();
-
-    // VÒNG LẶP KIỂM TRA MỐC HẾT GIỜ (Chính xác từng 200ms)
-    state.loopInterval = setInterval(() => {
-      if (state.status !== 'playing') return;
-
-      const now = Date.now();
-      // Ngay khi vừa chạm hoặc vượt qua mốc hết giờ của câu hỏi
-      if (now >= state.currentEndTime) {
-        // Cộng điểm câu vừa xong vào tổng điểm
+      // Server đợi đúng hết số giây của câu hỏi -> cộng điểm và chuyển câu
+      state.timerTimeout = setTimeout(() => {
         Object.keys(state.students).forEach(id => {
           state.students[id].score += state.students[id].currentScore;
           state.students[id].currentScore = 0;
         });
 
-        // Tự động chuyển ngay sang câu tiếp theo
         state.currentIndex++;
         dispatchQuestion();
-      }
-    }, 200);
+      }, state.currentDuration * 1000);
+    }
+
+    dispatchQuestion();
   });
 
   socket.on('submit_answer', ({ isCorrect, remainingTime }) => {
