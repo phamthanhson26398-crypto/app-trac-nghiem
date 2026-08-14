@@ -113,7 +113,6 @@
       <div id="qrcode"></div>
     </div>
 
-    <!-- DANH SÁCH BÀI KIỂM TRA -->
     <div class="quiz-manager">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h3 style="margin: 0;">📁 Danh Sách Bài Kiểm Tra</h3>
@@ -122,7 +121,6 @@
       <div id="quiz-list-container" style="margin-top: 10px;"></div>
     </div>
 
-    <!-- KHUNG SOẠN ĐỀ -->
     <div id="editor-section" style="display: none; border: 2px solid #007bff; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #f8f9fa;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h3 id="current-quiz-title" style="margin: 0; color: #007bff;">📝 Soạn Đề Thi</h3>
@@ -138,7 +136,6 @@
       <button onclick="saveCurrentQuiz()" style="background: #28a745; width: 100%; font-size: 16px;">💾 LƯU BÀI KIỂM TRA</button>
     </div>
 
-    <!-- LỊCH SỬ KẾT QUẢ -->
     <div class="quiz-manager">
       <h3>📊 Vùng Chọn Kết Quả Thi</h3>
       <label><strong>Chọn Bài Kiểm Tra Muốn Xem Kết Quả:</strong></label>
@@ -148,7 +145,6 @@
       <div id="history-display-area" style="margin-top: 10px;"></div>
     </div>
 
-    <!-- KHỞI ĐỘNG PHÒNG THI -->
     <div style="border-top: 2px dashed #ccc; padding-top: 15px; margin-top: 15px;">
       <label><strong>Bài thi chuẩn bị phát:</strong></label>
       <select id="active-quiz-select" style="font-weight: bold; color: #007bff;"></select>
@@ -159,7 +155,6 @@
       <button id="start-btn" onclick="startQuiz()" style="background: #dc3545; font-size: 18px; width: 100%;">🚀 BẮT ĐẦU LÀM BÀI</button>
     </div>
 
-    <!-- BẢNG THEO DÕI TIẾN ĐỘ TRỰC TIẾP DÀNH CHO GIÁO VIÊN -->
     <div id="teacher-live-box" style="display: none; margin-top: 20px; background: #e8f4fd; padding: 15px; border-radius: 8px; border: 2px solid #007bff; text-align: center;">
       <h3 style="margin: 0; color: #007bff;">📡 BÀI THI ĐANG DIỄN RA TRỰC TIẾP</h3>
       <h4 id="teacher-current-q" style="margin: 10px 0;">--</h4>
@@ -579,7 +574,7 @@
       currentStudentName = name;
       myRole = 'student';
       socket.emit('join_room', { name: name, role: 'student' });
-      alert('Đã báo danh thành công! Em hãy chú ý màn hình, khi Thầy/Cô bấm bắt đầu bài thi sẽ hiện lên ngay.');
+      alert('Đã báo danh thành công! Em hãy quan sát màn hình, khi Thầy/Cô bấm Bắt đầu câu hỏi sẽ hiện lên ngay.');
     }
 
     function startQuiz() {
@@ -606,9 +601,8 @@
       }
     });
 
-    // MỖI KHI CÂU HỎI MỚI ĐƯỢC PHÁT
+    // MỖI KHI CÂU HỎI MỚI BẮT ĐẦU
     socket.on('question_started', ({ item, duration, endTime, currentIndex, totalQuestions }) => {
-      // 1. NẾU LÀ GIÁO VIÊN -> CẬP NHẬT BẢNG TIẾN ĐỘ TRỰC TIẾP
       if (myRole === 'teacher') {
         const liveBox = document.getElementById('teacher-live-box');
         if (liveBox) {
@@ -617,16 +611,10 @@
         }
       }
 
-      // 2. NẾU LÀ HỌC SINH -> CHUYỂN NGAY VÀO MÀN HÌNH LÀM BÀI
       if (myRole !== 'teacher') {
         document.getElementById('role-screen').style.display = 'none';
         document.getElementById('student-screen').style.display = 'none';
         document.getElementById('quiz-screen').style.display = 'block';
-
-        if (localTimerLoop) {
-          clearInterval(localTimerLoop);
-          localTimerLoop = null;
-        }
 
         isSelectedChoiceCorrect = false;
         hasSelectedAnOption = false;
@@ -655,7 +643,7 @@
         container.innerHTML = html;
       }
 
-      // 3. ĐỒNG BỘ ĐỒNG HỒ TỰ ĐỘNG CHO CẢ 2 MÀN HÌNH
+      // ĐỒNG HỒ ĐẾM NGƯỢC LIÊN TỤC VỀ 0s
       const targetTime = endTime || (Date.now() + duration * 1000);
 
       if (localTimerLoop) {
@@ -684,14 +672,14 @@
             const waitingBox = document.getElementById('waiting-box');
             if (waitingBox) {
               waitingBox.style.display = 'block';
-              waitingBox.innerHTML = `⌛ <b>HẾT THỜI GIAN!</b> Đang chuẩn bị sang câu tiếp theo...`;
+              waitingBox.innerHTML = `⌛ <b>HẾT THỜI GIAN!</b> Đang tải câu tiếp theo...`;
             }
           }
         }
       }
 
       updateClock();
-      localTimerLoop = setInterval(updateClock, 300);
+      localTimerLoop = setInterval(updateClock, 200);
     });
 
     function selectChoice(isCorrect, element) {
@@ -706,6 +694,7 @@
       }
     }
 
+    // KHI BẤM NỘP: KHÓA NÚT VÀ LỰA CHỌN, ĐỒNG HỒ VẪN CHẠY TIẾP ĐẾN HẾT GIỜ
     function submitCurrentAnswer() {
       if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0) return;
       if (!hasSelectedAnOption) {
@@ -722,7 +711,7 @@
       const waitingBox = document.getElementById('waiting-box');
       if (waitingBox) {
         waitingBox.style.display = 'block';
-        waitingBox.innerHTML = `✅ <b>ĐÃ NỘP THÀNH CÔNG</b> ở giây thứ <b>${currentRemainingSeconds}</b>!<br><small>Đang đợi hết thời gian để tự động chuyển sang câu tiếp theo...</small>`;
+        waitingBox.innerHTML = `✅ <b>ĐÃ NỘP THÀNH CÔNG</b> ở giây thứ <b>${currentRemainingSeconds}</b>!<br><small>Thời gian vẫn đang đếm ngược để đợi các bạn khác làm bài...</small>`;
       }
 
       const optButtons = document.querySelectorAll('.opt-btn');
