@@ -76,23 +76,6 @@
       font-weight: 500;
     }
 
-    /* Thống kê chi tiết Đúng / Sai / Bỏ trống */
-    .stat-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-      margin: 15px 0;
-    }
-    .stat-box {
-      padding: 12px 5px;
-      border-radius: 8px;
-      text-align: center;
-    }
-    .stat-box-correct { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
-    .stat-box-wrong { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
-    .stat-box-empty { background: #e2e3e5; border: 1px solid #d6d8db; color: #383d41; }
-    .stat-num { font-size: 24px; font-weight: bold; margin-top: 4px; }
-
     .btn-delete { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto; }
     .btn-edit { background: #ffc107; color: #212529; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto; margin-right: 8px; font-weight: 500; }
     
@@ -222,9 +205,8 @@
       <table>
         <thead>
           <tr>
-            <th style="text-align: center; width: 80px;">Giải</th>
+            <th style="text-align: center; width: 100px;">Giải</th>
             <th>Họ và Tên Thí Sinh</th>
-            <th style="text-align: center;">Đúng / Sai / Bỏ</th>
             <th style="text-align: right;">Tổng Điểm</th>
           </tr>
         </thead>
@@ -233,33 +215,15 @@
       <button onclick="location.reload()" style="background: #007bff; width: 100%; margin-top: 15px;">Quay Lại Màn Hình Quản Lý</button>
     </div>
 
-    <!-- Bảng chúc mừng & thông báo chi tiết của Học sinh -->
+    <!-- Bảng chúc mừng của Học sinh -->
     <div id="student-result-view" style="display: none; text-align: center; padding: 10px 0;">
-      <h2 style="color: #28a745; margin-bottom: 5px;">🎉 CHÚC MỪNG EM ĐÃ HOÀN THÀNH BÀI THI!</h2>
-      <p style="font-size: 18px; margin-top: 0;">Đoàn sinh: <strong><span id="my-student-name">--</span></strong></p>
-      
-      <!-- KHUNG TỔNG ĐIỂM -->
-      <div style="background: #e9ecef; border-radius: 10px; padding: 15px; margin: 15px 0;">
-        <span style="font-size: 15px; color: #555;">TỔNG ĐIỂM THI ĐUA CỦA EM:</span>
-        <h1 style="font-size: 42px; color: #d9534f; margin: 8px 0;"><span id="my-final-score">0</span> điểm</h1>
+      <h2 style="color: #28a745;">🎉 CHÚC MỪNG EM ĐÃ HOÀN THÀNH BÀI THI!</h2>
+      <p style="font-size: 18px;">Đoàn sinh: <strong><span id="my-student-name">--</span></strong></p>
+      <div style="background: #e9ecef; border-radius: 10px; padding: 20px; margin: 15px 0;">
+        <span style="font-size: 16px; color: #555;">TỔNG ĐIỂM THI ĐUA CỦA EM:</span>
+        <h1 style="font-size: 48px; color: #d9534f; margin: 10px 0;"><span id="my-final-score">0</span> điểm</h1>
+        <p style="margin: 0; font-size: 13px; color: #6c757d;">(Trả lời đúng càng nhanh thì điểm tích lũy càng cao)</p>
       </div>
-
-      <!-- KHUNG THỐNG KÊ CHI TIẾT: ĐÚNG - SAI - BỎ TRỐNG -->
-      <div class="stat-grid">
-        <div class="stat-box stat-box-correct">
-          <div>✅ Câu Đúng</div>
-          <div class="stat-num" id="stat-correct">0</div>
-        </div>
-        <div class="stat-box stat-box-wrong">
-          <div>❌ Câu Sai</div>
-          <div class="stat-num" id="stat-wrong">0</div>
-        </div>
-        <div class="stat-box stat-box-empty">
-          <div>⚪ Bỏ Trống</div>
-          <div class="stat-num" id="stat-empty">0</div>
-        </div>
-      </div>
-
       <p style="color: #6c757d; font-size: 14px;">Em hãy quan sát màn hình của Giáo lý viên để xem thứ hạng trao giải nhé!</p>
     </div>
   </div>
@@ -556,9 +520,8 @@
             <table>
               <thead>
                 <tr>
-                  <th style="text-align: center; width: 80px;">Giải</th>
+                  <th style="text-align: center; width: 100px;">Giải</th>
                   <th>Họ và Tên Thí Sinh</th>
-                  <th style="text-align: center;">Đúng / Sai / Bỏ</th>
                   <th style="text-align: right;">Điểm Số</th>
                 </tr>
               </thead>
@@ -567,7 +530,6 @@
                   <tr>
                     <td style="text-align: center;">${getRankBadge(idx)}</td>
                     <td>${s.name}</td>
-                    <td style="text-align: center;"><small>✅${s.correctCount || 0} | ❌${s.wrongCount || 0} | ⚪${s.unansweredCount || 0}</small></td>
                     <td style="text-align: right;"><strong style="color: #28a745;">${s.score}</strong> điểm</td>
                   </tr>
                 `).join('')}
@@ -647,7 +609,7 @@
       }
     });
 
-    // MỖI KHI CÂU HỎI MỚI BẮT ĐẦU (GIỮ NGUYÊN BẢN ĐẾM CHUẨN)
+    // MỖI KHI CÂU HỎI MỚI BẮT ĐẦU
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
@@ -707,20 +669,45 @@
         const teacherTimerEl = document.getElementById('teacher-timer');
         if (teacherTimerEl) teacherTimerEl.innerText = Math.max(0, currentRemainingSeconds);
 
+        // KHI HẾT GIỜ LÀM BÀI -> HIỆN ĐẾM NGƯỢC NGHỈ 3 GIÂY
         if (currentRemainingSeconds <= 0) {
           clearInterval(localTimerInterval);
           localTimerInterval = null;
 
           const submitBtn = document.getElementById('btn-submit');
-          if (submitBtn && !hasSubmittedCurrentQuestion) {
-            submitBtn.style.display = 'none';
-            const waitingBox = document.getElementById('waiting-box');
-            if (waitingBox) {
-              waitingBox.style.display = 'block';
-              waitingBox.innerHTML = `⌛ <b>HẾT THỜI GIAN!</b> Đang tải câu tiếp theo...`;
-            }
+          if (submitBtn) submitBtn.style.display = 'none';
+
+          const optButtons = document.querySelectorAll('.opt-btn');
+          optButtons.forEach(b => {
+            b.style.pointerEvents = 'none';
+            b.style.opacity = '0.5';
+          });
+
+          // Đếm ngược 3 giây chờ trước khi đổi câu
+          let restSeconds = 3;
+          const waitingBox = document.getElementById('waiting-box');
+          if (waitingBox) {
+            waitingBox.style.display = 'block';
+            waitingBox.style.background = '#fff3cd';
+            waitingBox.style.color = '#856404';
+            waitingBox.style.borderColor = '#ffeeba';
+            waitingBox.innerHTML = `⌛ <b>ĐÃ HẾT GIỜ!</b> Chuẩn bị câu tiếp theo sau <b>${restSeconds}s</b>...`;
           }
 
+          const restInterval = setInterval(() => {
+            restSeconds--;
+            if (waitingBox && restSeconds > 0) {
+              waitingBox.innerHTML = `⌛ <b>ĐÃ HẾT GIỜ!</b> Chuẩn bị câu tiếp theo sau <b>${restSeconds}s</b>...`;
+            }
+            if (restSeconds <= 0) {
+              clearInterval(restInterval);
+              if (waitingBox) {
+                waitingBox.innerHTML = `🚀 Đang tải câu hỏi mới...`;
+              }
+            }
+          }, 1000);
+
+          // Báo về server chuyển câu
           if (!timeUpFired) {
             timeUpFired = true;
             socket.emit('time_up');
@@ -772,7 +759,6 @@
       });
     }
 
-    // KẾT THÚC BÀI THI & TỔNG KẾT
     socket.on('quiz_ended', ({ leaderboard, quizName }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
@@ -795,7 +781,6 @@
           <tr>
             <td style="text-align: center;">${getRankBadge(idx)}</td>
             <td><strong>${s.name}</strong></td>
-            <td style="text-align: center;"><small>✅${s.correctCount || 0} | ❌${s.wrongCount || 0} | ⚪${s.unansweredCount || 0}</small></td>
             <td style="text-align: right;"><strong style="color: #28a745; font-size: 16px;">${s.score}</strong> điểm</td>
           </tr>
         `).join('');
@@ -806,15 +791,9 @@
 
         const myRecord = leaderboard.find(s => s.id === socket.id);
         const score = myRecord ? myRecord.score : 0;
-        const correct = myRecord ? (myRecord.correctCount || 0) : 0;
-        const wrong = myRecord ? (myRecord.wrongCount || 0) : 0;
-        const unanswered = myRecord ? (myRecord.unansweredCount || 0) : 0;
 
         document.getElementById('my-student-name').innerText = currentStudentName || 'Em';
         document.getElementById('my-final-score').innerText = score;
-        document.getElementById('stat-correct').innerText = correct;
-        document.getElementById('stat-wrong').innerText = wrong;
-        document.getElementById('stat-empty').innerText = unanswered;
       }
     });
   </script>
