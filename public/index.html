@@ -609,9 +609,8 @@
       }
     });
 
-    // MỖI KHI CÂU HỎI MỚI BẮT ĐẦU -> TẠO ĐỒNG HỒ NỘI BỘ CHUẨN XÁC
+    // MỖI KHI CÂU HỎI MỚI BẮT ĐẦU
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
-      // DỌN SẠCH ĐỒNG HỒ CŨ TRÁNH CHẠY NHANH GẤP ĐÔI
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
         localTimerInterval = null;
@@ -659,7 +658,7 @@
         container.innerHTML = html;
       }
 
-      // ĐỒNG HỒ NỘI BỘ TRÊN MÁY: ĐÚNG 1000MS TRỪ 1 GIÂY
+      // ĐỒNG HỒ NỘI BỘ (Chạy chuẩn 1000ms từng giây)
       let timeUpFired = false;
       localTimerInterval = setInterval(() => {
         currentRemainingSeconds--;
@@ -670,21 +669,45 @@
         const teacherTimerEl = document.getElementById('teacher-timer');
         if (teacherTimerEl) teacherTimerEl.innerText = Math.max(0, currentRemainingSeconds);
 
+        // KHI HẾT GIỜ LÀM BÀI -> HIỆN ĐẾM NGƯỢC NGHỈ 3 GIÂY
         if (currentRemainingSeconds <= 0) {
           clearInterval(localTimerInterval);
           localTimerInterval = null;
 
           const submitBtn = document.getElementById('btn-submit');
-          if (submitBtn && !hasSubmittedCurrentQuestion) {
-            submitBtn.style.display = 'none';
-            const waitingBox = document.getElementById('waiting-box');
-            if (waitingBox) {
-              waitingBox.style.display = 'block';
-              waitingBox.innerHTML = `⌛ <b>HẾT THỜI GIAN!</b> Đang tải câu tiếp theo...`;
-            }
+          if (submitBtn) submitBtn.style.display = 'none';
+
+          const optButtons = document.querySelectorAll('.opt-btn');
+          optButtons.forEach(b => {
+            b.style.pointerEvents = 'none';
+            b.style.opacity = '0.5';
+          });
+
+          // Đếm ngược 3 giây chờ trước khi đổi câu
+          let restSeconds = 3;
+          const waitingBox = document.getElementById('waiting-box');
+          if (waitingBox) {
+            waitingBox.style.display = 'block';
+            waitingBox.style.background = '#fff3cd';
+            waitingBox.style.color = '#856404';
+            waitingBox.style.borderColor = '#ffeeba';
+            waitingBox.innerHTML = `⌛ <b>ĐÃ HẾT GIỜ!</b> Chuẩn bị câu tiếp theo sau <b>${restSeconds}s</b>...`;
           }
 
-          // Báo về Server chuyển câu ngay
+          const restInterval = setInterval(() => {
+            restSeconds--;
+            if (waitingBox && restSeconds > 0) {
+              waitingBox.innerHTML = `⌛ <b>ĐÃ HẾT GIỜ!</b> Chuẩn bị câu tiếp theo sau <b>${restSeconds}s</b>...`;
+            }
+            if (restSeconds <= 0) {
+              clearInterval(restInterval);
+              if (waitingBox) {
+                waitingBox.innerHTML = `🚀 Đang tải câu hỏi mới...`;
+              }
+            }
+          }, 1000);
+
+          // Báo về server chuyển câu
           if (!timeUpFired) {
             timeUpFired = true;
             socket.emit('time_up');
