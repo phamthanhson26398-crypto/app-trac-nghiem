@@ -63,11 +63,6 @@
       display: block !important;
       box-shadow: 0 4px 6px rgba(40,167,69,0.3);
     }
-    .btn-submit-answer:disabled {
-      background-color: #6c757d !important;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
 
     .waiting-status-box {
       background: #e8f4fd;
@@ -173,7 +168,7 @@
     <button onclick="joinQuiz()" style="background: #28a745; width: 100%; font-size: 16px; padding: 12px; margin-top: 10px;">Bắt Đầu Làm Bài</button>
   </div>
 
-  <!-- MÀN HÌNH LÀM BÀI TỪNG CÂU -->
+  <!-- MÀN HÌNH LÀM BÀI -->
   <div id="quiz-screen" class="card" style="display: none;">
     <div class="header-banner" style="font-size: 14px; padding-bottom: 5px; margin-bottom: 10px;">Xứ đoàn TNTT Thái Hà</div>
     <div style="display: flex; justify-content: space-between; align-items: center; background: #e9ecef; padding: 10px; border-radius: 5px;">
@@ -227,10 +222,8 @@
     let allQuizzes = {};
     let partCount = 0;
     let editingQuizKey = null;
-    let localTimerInterval = null;
     let currentRemainingSeconds = 0;
     
-    // Biến trạng thái nộp bài
     let isSelectedChoiceCorrect = false;
     let hasSelectedAnOption = false;
     let hasSubmittedCurrentQuestion = false;
@@ -602,18 +595,13 @@
       }
     });
 
-    // KHI BẮT ĐẦU CÂU HỎI MỚI -> VẼ CÂU HỎI VÀ ĐẾM NGƯỢC
+    // MỖI KHI SERVER PHÁT CÂU HỎI MỚI -> VẼ LẠI GIAO DIỆN
     socket.on('question_started', ({ item, duration }) => {
       if (myRole === 'student') {
         document.getElementById('student-screen').style.display = 'none';
         document.getElementById('quiz-screen').style.display = 'block';
 
-        if (localTimerInterval) {
-          clearInterval(localTimerInterval);
-          localTimerInterval = null;
-        }
-
-        // Reset trạng thái làm bài câu này
+        // Reset lại trạng thái câu mới
         isSelectedChoiceCorrect = false;
         hasSelectedAnOption = false;
         hasSubmittedCurrentQuestion = false;
@@ -635,28 +623,22 @@
                    <button class="opt-btn" type="button" onclick="selectChoice('${q.correct}' === 'Sai', this)">Sai</button>`;
         }
 
-        // Thêm nút nộp đáp án
         html += `<button id="btn-submit" class="btn-submit-answer" type="button" onclick="submitCurrentAnswer()">📤 NỘP ĐÁP ÁN</button>`;
-        
-        // Thêm khung thông báo chờ
         html += `<div id="waiting-box" class="waiting-status-box" style="display: none;">⏳ ĐÃ GHI NHẬN ĐÁP ÁN! ĐANG CHỜ HẾT THỜI GIAN ĐỂ SANG CÂU TIẾP THEO...</div>`;
 
         container.innerHTML = html;
 
-        // Bắt đầu đếm ngược
         currentRemainingSeconds = duration;
         document.getElementById('timer').innerText = currentRemainingSeconds;
+      }
+    });
 
-        localTimerInterval = setInterval(() => {
-          currentRemainingSeconds--;
-          if (currentRemainingSeconds >= 0) {
-            document.getElementById('timer').innerText = currentRemainingSeconds;
-          }
-          if (currentRemainingSeconds <= 0) {
-            clearInterval(localTimerInterval);
-            localTimerInterval = null;
-          }
-        }, 1000);
+    // ĐỒNG BỘ ĐỒNG HỒ TỪ SERVER VỀ ĐIỆN THOẠI
+    socket.on('timer_sync', ({ timeLeft }) => {
+      currentRemainingSeconds = timeLeft;
+      const timerEl = document.getElementById('timer');
+      if (timerEl) {
+        timerEl.innerText = Math.max(0, timeLeft);
       }
     });
 
@@ -673,7 +655,7 @@
       }
     }
 
-    // NỘP ĐÁP ÁN (CHỐT ĐIỂM VÀ ĐỢI HẾT GIỜ)
+    // NỘP ĐÁP ÁN
     function submitCurrentAnswer() {
       if (hasSubmittedCurrentQuestion) return;
       if (!hasSelectedAnOption) {
@@ -682,7 +664,6 @@
 
       hasSubmittedCurrentQuestion = true;
 
-      // Ẩn nút nộp và hiện thông báo chờ
       const submitBtn = document.getElementById('btn-submit');
       if (submitBtn) {
         submitBtn.style.display = 'none';
@@ -691,17 +672,15 @@
       const waitingBox = document.getElementById('waiting-box');
       if (waitingBox) {
         waitingBox.style.display = 'block';
-        waitingBox.innerHTML = `✅ <b>ĐÃ NỘP THÀNH CÔNG</b> ở giây thứ <b>${currentRemainingSeconds}</b>!<br><small>Đang đợi hết thời gian của câu này để tự động chuyển sang câu tiếp theo...</small>`;
+        waitingBox.innerHTML = `✅ <b>ĐÃ NỘP THÀNH CÔNG</b> ở giây thứ <b>${currentRemainingSeconds}</b>!<br><small>Đang đợi hết thời gian để tự động chuyển sang câu tiếp theo...</small>`;
       }
 
-      // Khóa tất cả các nút đáp án không cho sửa
       const optButtons = document.querySelectorAll('.opt-btn');
       optButtons.forEach(b => {
         b.style.pointerEvents = 'none';
         b.style.opacity = '0.6';
       });
 
-      // Bắn điểm về server
       socket.emit('submit_answer', { 
         code: DEFAULT_CODE, 
         isCorrect: isSelectedChoiceCorrect, 
@@ -711,11 +690,6 @@
 
     // KẾT THÚC BÀI THI
     socket.on('quiz_ended', ({ leaderboard, quizName }) => {
-      if (localTimerInterval) {
-        clearInterval(localTimerInterval);
-        localTimerInterval = null;
-      }
-
       document.getElementById('quiz-screen').style.display = 'none';
       document.getElementById('teacher-screen').style.display = 'none';
       document.getElementById('result-screen').style.display = 'block';
