@@ -76,7 +76,7 @@
       font-weight: 500;
     }
 
-    /* Bảng thống kê chi tiết kết quả học sinh */
+    /* Thống kê chi tiết Đúng / Sai / Bỏ trống */
     .stat-grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
@@ -647,7 +647,7 @@
       }
     });
 
-    // MỖI KHI CÂU HỎI MỚI BẮT ĐẦU
+    // MỖI KHI CÂU HỎI MỚI BẮT ĐẦU (GIỮ NGUYÊN BẢN ĐẾM CHUẨN)
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
@@ -712,35 +712,14 @@
           localTimerInterval = null;
 
           const submitBtn = document.getElementById('btn-submit');
-          if (submitBtn) submitBtn.style.display = 'none';
-
-          const optButtons = document.querySelectorAll('.opt-btn');
-          optButtons.forEach(b => {
-            b.style.pointerEvents = 'none';
-            b.style.opacity = '0.5';
-          });
-
-          // Nghỉ 3 giây đệm thông báo
-          let restSeconds = 3;
-          const waitingBox = document.getElementById('waiting-box');
-          if (waitingBox) {
-            waitingBox.style.display = 'block';
-            waitingBox.style.background = '#fff3cd';
-            waitingBox.style.color = '#856404';
-            waitingBox.style.borderColor = '#ffeeba';
-            waitingBox.innerHTML = `⌛ <b>ĐÃ HẾT GIỜ!</b> Chuẩn bị câu tiếp theo sau <b>${restSeconds}s</b>...`;
+          if (submitBtn && !hasSubmittedCurrentQuestion) {
+            submitBtn.style.display = 'none';
+            const waitingBox = document.getElementById('waiting-box');
+            if (waitingBox) {
+              waitingBox.style.display = 'block';
+              waitingBox.innerHTML = `⌛ <b>HẾT THỜI GIAN!</b> Đang tải câu tiếp theo...`;
+            }
           }
-
-          const restInterval = setInterval(() => {
-            restSeconds--;
-            if (waitingBox && restSeconds > 0) {
-              waitingBox.innerHTML = `⌛ <b>ĐÃ HẾT GIỜ!</b> Chuẩn bị câu tiếp theo sau <b>${restSeconds}s</b>...`;
-            }
-            if (restSeconds <= 0) {
-              clearInterval(restInterval);
-              if (waitingBox) waitingBox.innerHTML = `🚀 Đang tải câu hỏi mới...`;
-            }
-          }, 1000);
 
           if (!timeUpFired) {
             timeUpFired = true;
@@ -793,7 +772,7 @@
       });
     }
 
-    // KẾT THÚC BÀI THI & TỔNG KẾT CHI TIẾT
+    // KẾT THÚC BÀI THI & TỔNG KẾT
     socket.on('quiz_ended', ({ leaderboard, quizName }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
@@ -827,9 +806,9 @@
 
         const myRecord = leaderboard.find(s => s.id === socket.id);
         const score = myRecord ? myRecord.score : 0;
-        const correct = myRecord ? myRecord.correctCount : 0;
-        const wrong = myRecord ? myRecord.wrongCount : 0;
-        const unanswered = myRecord ? myRecord.unansweredCount : 0;
+        const correct = myRecord ? (myRecord.correctCount || 0) : 0;
+        const wrong = myRecord ? (myRecord.wrongCount || 0) : 0;
+        const unanswered = myRecord ? (myRecord.unansweredCount || 0) : 0;
 
         document.getElementById('my-student-name').innerText = currentStudentName || 'Em';
         document.getElementById('my-final-score').innerText = score;
