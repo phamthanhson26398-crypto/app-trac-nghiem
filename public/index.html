@@ -98,21 +98,22 @@
   <div id="role-screen" class="card">
     <div class="header-banner">Xứ đoàn TNTT Thái Hà</div>
     <h2 style="text-align: center;">🎯 BẠN LÀ AI?</h2>
-    <button onclick="selectRole('teacher')" style="background: #28a745; width: 100%;">Tôi là Giáo Viên / Huynh Trưởng</button>
+    <button onclick="selectRole('teacher')" style="background: #28a745; width: 100%;">Tôi là Giáo Lý Viên / Huynh Trưởng</button>
     <button onclick="selectRole('student')" style="width: 100%; margin-top: 10px;">Tôi là Học Sinh / Đoàn Sinh</button>
   </div>
 
-  <!-- 2. MÀN HÌNH GIÁO VIÊN -->
+  <!-- 2. MÀN HÌNH GIÁO LÝ VIÊN -->
   <div id="teacher-screen" class="card" style="display: none;">
     <div class="header-banner">Xứ đoàn TNTT Thái Hà</div>
     <h2>👨‍🏫 Quản Trị Phòng Thi</h2>
     
     <div id="qrcode-box">
       <h3 style="margin: 0; color: #007bff;">📲 QUÉT MÃ QR ĐỂ VÀO THI</h3>
-      <p style="margin: 5px 0; font-size: 13px; color: #6c757d;">(Đoàn sinh dùng camera quét mã để tham gia)</p>
+      <p style="margin: 5px 0; font-size: 13px; color: #6c757d;">(Đoàn sinh dùng camera điện thoại quét mã để tham gia)</p>
       <div id="qrcode"></div>
     </div>
 
+    <!-- DANH SÁCH BÀI KIỂM TRA -->
     <div class="quiz-manager">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h3 style="margin: 0;">📁 Danh Sách Bài Kiểm Tra</h3>
@@ -121,6 +122,7 @@
       <div id="quiz-list-container" style="margin-top: 10px;"></div>
     </div>
 
+    <!-- KHUNG SOẠN ĐỀ -->
     <div id="editor-section" style="display: none; border: 2px solid #007bff; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #f8f9fa;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h3 id="current-quiz-title" style="margin: 0; color: #007bff;">📝 Soạn Đề Thi</h3>
@@ -136,6 +138,7 @@
       <button onclick="saveCurrentQuiz()" style="background: #28a745; width: 100%; font-size: 16px;">💾 LƯU BÀI KIỂM TRA</button>
     </div>
 
+    <!-- LỊCH SỬ KẾT QUẢ -->
     <div class="quiz-manager">
       <h3>📊 Vùng Chọn Kết Quả Thi</h3>
       <label><strong>Chọn Bài Kiểm Tra Muốn Xem Kết Quả:</strong></label>
@@ -145,6 +148,7 @@
       <div id="history-display-area" style="margin-top: 10px;"></div>
     </div>
 
+    <!-- KHỞI ĐỘNG PHÒNG THI -->
     <div style="border-top: 2px dashed #ccc; padding-top: 15px; margin-top: 15px;">
       <label><strong>Bài thi chuẩn bị phát:</strong></label>
       <select id="active-quiz-select" style="font-weight: bold; color: #007bff;"></select>
@@ -155,8 +159,9 @@
       <button id="start-btn" onclick="startQuiz()" style="background: #dc3545; font-size: 18px; width: 100%;">🚀 BẮT ĐẦU LÀM BÀI</button>
     </div>
 
+    <!-- THEO DÕI TIẾN ĐỘ CHO GIÁO VIÊN -->
     <div id="teacher-live-box" style="display: none; margin-top: 20px; background: #e8f4fd; padding: 15px; border-radius: 8px; border: 2px solid #007bff; text-align: center;">
-      <h3 style="margin: 0; color: #007bff;">📡 BÀI THI ĐANG DIỄN RA TRỰC TIẾP</h3>
+      <h3 style="margin: 0; color: #007bff;">📡 BÀI THI ĐANG DIỄN RA</h3>
       <h4 id="teacher-current-q" style="margin: 10px 0;">--</h4>
       <h1 style="color: #dc3545; font-size: 40px; margin: 5px 0;">⏰ <span id="teacher-timer">--</span>s</h1>
     </div>
@@ -193,6 +198,7 @@
   <div id="result-screen" class="card" style="display: none;">
     <div class="header-banner">Xứ đoàn TNTT Thái Hà</div>
     
+    <!-- Bảng vinh danh của Giáo lý viên -->
     <div id="teacher-result-view" style="display: none;">
       <h2 style="text-align: center; color: #d9534f;">🏆 BẢNG VINH DANH THÀNH TÍCH</h2>
       <p style="text-align: center; color: #6c757d; margin-top: -10px; font-size: 14px;">(Điểm = Tổng số giây còn lại khi nộp đáp án đúng)</p>
@@ -209,14 +215,16 @@
       <button onclick="location.reload()" style="background: #007bff; width: 100%; margin-top: 15px;">Quay Lại Màn Hình Quản Lý</button>
     </div>
 
+    <!-- Bảng chúc mừng & thông báo điểm của Học sinh -->
     <div id="student-result-view" style="display: none; text-align: center; padding: 10px 0;">
-      <h2 style="color: #28a745;">🎉 HOÀN THÀNH BÀI THI!</h2>
-      <p style="font-size: 18px;">Xin chúc mừng đoàn sinh <strong><span id="my-student-name">--</span></strong>,</p>
+      <h2 style="color: #28a745;">🎉 CHÚC MỪNG EM ĐÃ HOÀN THÀNH BÀI THI!</h2>
+      <p style="font-size: 18px;">Đoàn sinh: <strong><span id="my-student-name">--</span></strong></p>
       <div style="background: #e9ecef; border-radius: 10px; padding: 20px; margin: 15px 0;">
-        <span style="font-size: 16px; color: #555;">TỔNG ĐIỂM CỦA EM:</span>
+        <span style="font-size: 16px; color: #555;">TỔNG ĐIỂM THI ĐUA CỦA EM:</span>
         <h1 style="font-size: 48px; color: #d9534f; margin: 10px 0;"><span id="my-final-score">0</span> điểm</h1>
+        <p style="margin: 0; font-size: 13px; color: #6c757d;">(Trả lời đúng càng nhanh thì điểm tích lũy càng cao)</p>
       </div>
-      <p style="color: #6c757d; font-size: 14px;">Em hãy chú ý quan sát màn hình của Huynh Trưởng để xem bảng tổng kết trao giải nhé!</p>
+      <p style="color: #6c757d; font-size: 14px;">Em hãy quan sát màn hình của Giáo lý viên để xem thứ hạng trao giải nhé!</p>
     </div>
   </div>
 
@@ -574,7 +582,7 @@
       currentStudentName = name;
       myRole = 'student';
       socket.emit('join_room', { name: name, role: 'student' });
-      alert('Đã báo danh thành công! Em hãy chú ý màn hình, khi Thầy/Cô bấm Bắt đầu bài thi sẽ hiện lên ngay.');
+      alert('Đã báo danh thành công! Em hãy chú ý màn hình, khi Giáo Lý Viên bấm Bắt đầu câu hỏi sẽ hiện lên ngay.');
     }
 
     function startQuiz() {
@@ -601,7 +609,7 @@
       }
     });
 
-    // MỖI KHI CÂU HỎI MỚI ĐƯỢC PHÁT -> ĐỒNG BỘ ĐẾM NGƯỢC CHUẨN TỪNG MÁY
+    // 1. NHẬN CÂU HỎI VÀ ĐỒNG BỘ MÀN HÌNH HỌC SINH TỨC THÌ
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
       if (myRole === 'teacher') {
         const liveBox = document.getElementById('teacher-live-box');
@@ -609,9 +617,8 @@
           liveBox.style.display = 'block';
           document.getElementById('teacher-current-q').innerText = `${item.partTitle} - Câu ${item.questionIndex} (Tổng: ${currentIndex + 1}/${totalQuestions})`;
         }
-      }
-
-      if (myRole !== 'teacher') {
+      } else {
+        // Tự động chuyển thẳng vào màn hình làm bài
         document.getElementById('role-screen').style.display = 'none';
         document.getElementById('student-screen').style.display = 'none';
         document.getElementById('quiz-screen').style.display = 'block';
@@ -643,7 +650,7 @@
         container.innerHTML = html;
       }
 
-      // TỰ TÍNH MỐC KẾT THÚC DỰA TRÊN ĐỒNG HỒ CỦA MÁY HIỆN TẠI
+      // 2. ĐỒNG HỒ ĐẾM NGƯỢC NỘI BỘ (Chuẩn xác 100% từ duration về 0)
       const localEndTime = Date.now() + (duration * 1000);
 
       if (localTimerLoop) {
@@ -694,6 +701,7 @@
       }
     }
 
+    // 3. NỘP ĐÁP ÁN: KHÓA NÚT VÀ LỰA CHỌN, ĐỒNG HỒ VẪN TIẾP TỤC ĐẾM ĐẾN HẾT GIỜ
     function submitCurrentAnswer() {
       if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0) return;
       if (!hasSelectedAnOption) {
@@ -725,6 +733,7 @@
       });
     }
 
+    // 4. KẾT THÚC BÀI THI: HIỂN THỊ BẢNG VINH DANH VÀ THÔNG BÁO ĐIỂM
     socket.on('quiz_ended', ({ leaderboard, quizName }) => {
       if (localTimerLoop) {
         clearInterval(localTimerLoop);
