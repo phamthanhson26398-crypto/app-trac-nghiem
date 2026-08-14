@@ -2,51 +2,31 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const os = require('os');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// CẤU HÌNH PHỤC VỤ CÁC FILE TĨNH TRONG THƯ MỤC PUBLIC
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ĐẢM BẢO MÁY CHỦ CLOUD TRẢ VỀ FILE INDEX.HTML KHI TRUY CẬP TRANG CHỦ
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// HÀM TỰ ĐỘNG TÌM ĐỊA CHỈ IPV4 KHI CHẠY Ở MÁY CÁ NHÂN
-function getLocalIpAddress() {
-  const interfaces = os.networkInterfaces();
-  for (const devName in interfaces) {
-    const ifaceList = interfaces[devName];
-    for (let i = 0; i < ifaceList.length; i++) {
-      const alias = ifaceList[i];
-      if (alias.family === 'IPv4' && !alias.internal) {
-        return alias.address;
-      }
-    }
-  }
-  return 'localhost';
-}
-
 const PORT = process.env.PORT || 3000;
-
-app.get('/api/server-info', (req, res) => {
-  res.json({
-    ip: getLocalIpAddress(),
-    port: PORT
-  });
-});
-
 const rooms = {};
 
 io.on('connection', (socket) => {
   socket.on('join_room', ({ code, name, role }) => {
     socket.join(code);
     if (!rooms[code]) {
-      rooms[code] = { students: [], status: 'waiting' };
+      rooms[code] = { 
+        students: [], 
+        status: 'waiting',
+        timer: null,
+        currentItemIndex: 0,
+        queue: []
+      };
     }
 
     if (role === 'student') {
@@ -61,7 +41,18 @@ io.on('connection', (socket) => {
   socket.on('start_quiz', ({ code, parts, quizName }) => {
     if (!rooms[code] || !parts || parts.length === 0) return;
 
-    rooms[code].students.forEach(s => {
+    const currentRoom = rooms[code];
+
+    // 1. DỌN SẠCH TIMER CŨ ĐANG CHẠY (NẾU CÓ) ĐỂ KHÔNG BỊ TRÙNG LẶP
+    if (currentRoom.timer) {
+      clearInterval(currentRoom.timer);
+      currentRoom.timer = null;
+    }
+
+    // 2. RESET ĐIỂM SỐ VÀ TRẠNG THÁI
+    currentRoom.status = 'playing';
+    currentRoom.currentItemIndex = 0;
+    currentRoom.students.forEach(s => {
       s.score = 0;
       s.currentChoiceIsCorrect = false;
       s.timeRemainingAtAnswer = 0;
@@ -80,17 +71,25 @@ io.on('connection', (socket) => {
         });
       });
     });
-
-    let currentItemIndex = 0;
+    currentRoom.queue = queue;
 
     function runNextQuestion() {
-      if (currentItemIndex >= queue.length) {
-        io.to(code).emit('quiz_ended', { leaderboard: rooms[code].students, quizName });
+      // HỦY BỎ BẤT KỲ TIMER NÀO TRƯỚC ĐÓ KHI CHUYỂN CÂU
+      if (currentRoom.timer) {
+        clearInterval(currentRoom.timer);
+        currentRoom.timer = null;
+      }
+
+      if (currentRoom.currentItemIndex >= currentRoom.queue.length) {
+        currentRoom.status = 'finished';
+        io.to(code).emit('quiz_ended', { leaderboard: currentRoom.students, quizName });
         return;
       }
 
-      const item = queue[currentItemIndex];
-      rooms[code].students.forEach(s => { 
+      const item = currentRoom.queue[currentRoom.currentItemIndex];
+      
+      // Reset lượt trả lời của câu này
+      currentRoom.students.forEach(s => { 
         s.currentChoiceIsCorrect = false; 
         s.timeRemainingAtAnswer = 0;
       });
@@ -98,23 +97,27 @@ io.on('connection', (socket) => {
       io.to(code).emit('question_started', item);
 
       let timeLeft = parseInt(item.question.duration) || 10;
-      rooms[code].currentTimeLeft = timeLeft;
+      currentRoom.currentTimeLeft = timeLeft;
       io.to(code).emit('timer_tick', { timeLeft });
 
-      const timer = setInterval(() => {
+      // KHỞI ĐỘNG BỘ ĐẾM RIÊNG CỦA PHÒNG THI
+      currentRoom.timer = setInterval(() => {
         timeLeft--;
-        rooms[code].currentTimeLeft = timeLeft;
+        currentRoom.currentTimeLeft = timeLeft;
         io.to(code).emit('timer_tick', { timeLeft });
 
         if (timeLeft <= 0) {
-          clearInterval(timer);
-          rooms[code].students.forEach(s => {
+          clearInterval(currentRoom.timer);
+          currentRoom.timer = null;
+
+          // Hết giờ: Cộng điểm cho các bạn chọn đúng theo số giây còn lại
+          currentRoom.students.forEach(s => {
             if (s.currentChoiceIsCorrect) {
               s.score += s.timeRemainingAtAnswer;
             }
           });
 
-          currentItemIndex++;
+          currentRoom.currentItemIndex++;
           runNextQuestion();
         }
       }, 1000);
@@ -125,13 +128,17 @@ io.on('connection', (socket) => {
 
   socket.on('update_choice', ({ code, isCorrect }) => {
     const room = rooms[code];
-    if (room) {
+    if (room && room.status === 'playing') {
       const student = room.students.find(s => s.id === socket.id);
       if (student) {
         student.currentChoiceIsCorrect = isCorrect;
         student.timeRemainingAtAnswer = room.currentTimeLeft || 0;
       }
     }
+  });
+
+  socket.on('disconnect', () => {
+    // Tự động dọn dẹp khi mất kết nối
   });
 });
 
