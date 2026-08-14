@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 const state = {
-  status: 'waiting',
+  status: 'waiting', // waiting | playing | ended
   quizName: '',
   queue: [],
   currentIndex: 0,
@@ -36,13 +36,14 @@ io.on('connection', (socket) => {
     if (role === 'student') {
       state.students[socket.id] = {
         id: socket.id,
-        name: name || 'Thí sinh',
+        name: name || 'Đoàn sinh',
         score: 0,
         currentScore: 0,
         answered: false
       };
       io.emit('update_students', Object.values(state.students));
 
+      // Học sinh vào sau khi bài đang chạy sẽ nhận ngay câu hỏi hiện tại
       if (state.status === 'playing' && state.currentItem) {
         socket.emit('question_started', {
           item: state.currentItem,
@@ -55,7 +56,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('start_quiz', ({ parts, quizName }) => {
-    if (!parts || parts.length === 0) return;
+    if (!parts || !Array.isArray(parts) || parts.length === 0) return;
 
     if (state.timerTimeout) {
       clearTimeout(state.timerTimeout);
@@ -64,16 +65,18 @@ io.on('connection', (socket) => {
 
     const queue = [];
     parts.forEach((p, pIdx) => {
-      p.questions.forEach((q, qIdx) => {
-        queue.push({
-          partTitle: p.title,
-          partIndex: pIdx + 1,
-          totalParts: parts.length,
-          questionIndex: qIdx + 1,
-          totalQuestionsInPart: p.questions.length,
-          question: q
+      if (p.questions && Array.isArray(p.questions)) {
+        p.questions.forEach((q, qIdx) => {
+          queue.push({
+            partTitle: p.title || `Phần ${pIdx + 1}`,
+            partIndex: pIdx + 1,
+            totalParts: parts.length,
+            questionIndex: qIdx + 1,
+            totalQuestionsInPart: p.questions.length,
+            question: q
+          });
         });
-      });
+      }
     });
 
     if (queue.length === 0) return;
@@ -83,6 +86,7 @@ io.on('connection', (socket) => {
     state.queue = queue;
     state.currentIndex = 0;
 
+    // Reset điểm
     Object.keys(state.students).forEach(id => {
       state.students[id].score = 0;
       state.students[id].currentScore = 0;
@@ -104,12 +108,13 @@ io.on('connection', (socket) => {
       state.currentItem = state.queue[state.currentIndex];
       state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
 
+      // Reset lượt làm câu hiện tại
       Object.keys(state.students).forEach(id => {
         state.students[id].currentScore = 0;
         state.students[id].answered = false;
       });
 
-      // Phát câu hỏi kèm số giây chuẩn
+      // Phát lệnh bắt đầu câu hỏi tới toàn bộ các máy
       io.emit('question_started', {
         item: state.currentItem,
         duration: state.currentDuration,
@@ -117,7 +122,7 @@ io.on('connection', (socket) => {
         totalQuestions: state.queue.length
       });
 
-      // Server đợi đúng hết số giây của câu hỏi -> cộng điểm và chuyển câu
+      // Đợi đúng hết thời gian câu hỏi -> cộng điểm và tự động chuyển câu tiếp theo
       state.timerTimeout = setTimeout(() => {
         Object.keys(state.students).forEach(id => {
           state.students[id].score += state.students[id].currentScore;
@@ -129,6 +134,7 @@ io.on('connection', (socket) => {
       }, state.currentDuration * 1000);
     }
 
+    // Bắt đầu ngay câu đầu tiên
     dispatchQuestion();
   });
 
@@ -146,5 +152,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server running on port: ${PORT}`);
+  console.log(`Server listening on PORT: ${PORT}`);
 });
