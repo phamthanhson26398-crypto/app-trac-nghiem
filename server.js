@@ -5,7 +5,9 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: { origin: "*" }
+});
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -25,7 +27,8 @@ io.on('connection', (socket) => {
         status: 'waiting',
         timer: null,
         queue: [],
-        currentIndex: 0
+        currentIndex: 0,
+        currentRemaining: 0
       };
     }
 
@@ -43,7 +46,7 @@ io.on('connection', (socket) => {
     if (!currentRoom || !parts || parts.length === 0) return;
 
     if (currentRoom.timer) {
-      clearTimeout(currentRoom.timer);
+      clearInterval(currentRoom.timer);
       currentRoom.timer = null;
     }
 
@@ -52,6 +55,7 @@ io.on('connection', (socket) => {
     currentRoom.students.forEach(s => {
       s.score = 0;
       s.currentScoreAwarded = 0;
+      s.hasAnswered = false;
     });
 
     const queue = [];
@@ -69,7 +73,12 @@ io.on('connection', (socket) => {
     });
     currentRoom.queue = queue;
 
-    function runQuestion() {
+    function nextQuestion() {
+      if (currentRoom.timer) {
+        clearInterval(currentRoom.timer);
+        currentRoom.timer = null;
+      }
+
       if (currentRoom.currentIndex >= currentRoom.queue.length) {
         currentRoom.status = 'finished';
         io.to(code).emit('quiz_ended', { leaderboard: currentRoom.students, quizName });
@@ -78,35 +87,49 @@ io.on('connection', (socket) => {
 
       const item = currentRoom.queue[currentRoom.currentIndex];
       const duration = parseInt(item.question.duration) || 10;
+      currentRoom.currentRemaining = duration;
 
       currentRoom.students.forEach(s => {
         s.currentScoreAwarded = 0;
+        s.hasAnswered = false;
       });
 
+      // Phát câu hỏi cho toàn bộ học sinh
       io.to(code).emit('question_started', {
         item: item,
         duration: duration
       });
 
-      currentRoom.timer = setTimeout(() => {
-        currentRoom.students.forEach(s => {
-          s.score += s.currentScoreAwarded;
-        });
+      // Đếm ngược từng giây trên Server để đảm bảo 100% tự động chuyển câu
+      currentRoom.timer = setInterval(() => {
+        currentRoom.currentRemaining--;
+        io.to(code).emit('timer_sync', { timeLeft: currentRoom.currentRemaining });
 
-        currentRoom.currentIndex++;
-        runQuestion();
-      }, (duration + 1) * 1000);
+        if (currentRoom.currentRemaining <= 0) {
+          clearInterval(currentRoom.timer);
+          currentRoom.timer = null;
+
+          // Hết giờ: Cộng điểm cho các bạn đã nộp
+          currentRoom.students.forEach(s => {
+            s.score += s.currentScoreAwarded;
+          });
+
+          currentRoom.currentIndex++;
+          // Nghỉ 1 giây ngắn rồi sang câu tiếp theo
+          setTimeout(nextQuestion, 1000);
+        }
+      }, 1000);
     }
 
-    runQuestion();
+    nextQuestion();
   });
 
-  // NHẬN KẾT QUẢ KHI HỌC SINH BẤM NÚT "NỘP ĐÁP ÁN"
   socket.on('submit_answer', ({ code, isCorrect, remainingTime }) => {
     const room = rooms[code];
     if (room && room.status === 'playing') {
       const student = room.students.find(s => s.id === socket.id);
-      if (student) {
+      if (student && !student.hasAnswered) {
+        student.hasAnswered = true;
         student.currentScoreAwarded = isCorrect ? Math.max(1, remainingTime) : 0;
       }
     }
@@ -116,5 +139,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`>>> SERVER DANG CHAY TAI PORT: ${PORT}`);
+  console.log(`Server running on port: ${PORT}`);
 });
