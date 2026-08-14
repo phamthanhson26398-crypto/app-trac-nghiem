@@ -601,7 +601,7 @@
         document.getElementById('student-screen').style.display = 'none';
         document.getElementById('quiz-screen').style.display = 'block';
 
-        // Reset lại trạng thái câu mới
+        // Reset trạng thái làm bài
         isSelectedChoiceCorrect = false;
         hasSelectedAnOption = false;
         hasSubmittedCurrentQuestion = false;
@@ -633,7 +633,7 @@
       }
     });
 
-    // ĐỒNG BỘ ĐỒNG HỒ TỪ SERVER VỀ ĐIỆN THOẠI
+    // ĐỒNG BỘ ĐỒNG HỒ
     socket.on('timer_sync', ({ timeLeft }) => {
       currentRemainingSeconds = timeLeft;
       const timerEl = document.getElementById('timer');
