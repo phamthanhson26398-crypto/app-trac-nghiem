@@ -18,7 +18,6 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-// BỘ TRẠNG THÁI TRUNG TÂM CỦA HỆ THỐNG
 const state = {
   status: 'waiting', // waiting | playing | ended
   quizName: '',
@@ -32,19 +31,7 @@ const state = {
 };
 
 io.on('connection', (socket) => {
-  // Gửi danh sách học sinh hiện tại khi có người vào
   socket.emit('update_students', Object.values(state.students));
-
-  // Nếu bài thi đang chạy mà có học sinh vào hoặc tải lại trang -> đồng bộ ngay câu hỏi hiện tại
-  if (state.status === 'playing' && state.currentItem) {
-    socket.emit('question_started', {
-      item: state.currentItem,
-      duration: state.currentDuration,
-      endTime: state.currentEndTime,
-      currentIndex: state.currentIndex,
-      totalQuestions: state.queue.length
-    });
-  }
 
   socket.on('join_room', ({ name, role }) => {
     if (role === 'student') {
@@ -57,7 +44,7 @@ io.on('connection', (socket) => {
       };
       io.emit('update_students', Object.values(state.students));
 
-      // Nếu đang thi, phát ngay câu hỏi cho thí sinh vừa báo danh xong
+      // Nếu đang thi mà có học sinh vào sau -> nạp ngay câu hỏi hiện tại
       if (state.status === 'playing' && state.currentItem) {
         socket.emit('question_started', {
           item: state.currentItem,
@@ -78,7 +65,6 @@ io.on('connection', (socket) => {
       state.loopInterval = null;
     }
 
-    // Gom toàn bộ câu hỏi của các phần vào hàng đợi
     const queue = [];
     parts.forEach((p, pIdx) => {
       p.questions.forEach((q, qIdx) => {
@@ -100,7 +86,6 @@ io.on('connection', (socket) => {
     state.queue = queue;
     state.currentIndex = 0;
 
-    // Reset điểm
     Object.keys(state.students).forEach(id => {
       state.students[id].score = 0;
       state.students[id].currentScore = 0;
@@ -123,13 +108,13 @@ io.on('connection', (socket) => {
       state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
       state.currentEndTime = Date.now() + (state.currentDuration * 1000);
 
-      // Reset câu này
+      // Reset lượt làm câu hiện tại
       Object.keys(state.students).forEach(id => {
         state.students[id].currentScore = 0;
         state.students[id].answered = false;
       });
 
-      // Phát câu hỏi cho toàn bộ máy (cả giáo viên và học sinh)
+      // Phát câu hỏi cho mọi người
       io.emit('question_started', {
         item: state.currentItem,
         duration: state.currentDuration,
@@ -139,27 +124,27 @@ io.on('connection', (socket) => {
       });
     }
 
-    // Chạy câu 1
+    // Bắt đầu câu 1
     dispatchQuestion();
 
-    // VÒNG ĐIỀU PHỐI THỜI GIAN TRUNG TÂM
+    // VÒNG LẶP KIỂM TRA MỐC HẾT GIỜ (Chính xác từng 200ms)
     state.loopInterval = setInterval(() => {
       if (state.status !== 'playing') return;
 
       const now = Date.now();
-      // Khi đã hết giờ làm bài của câu (+ 1 giây đệm)
-      if (now >= state.currentEndTime + 1000) {
-        // Cộng dồn điểm
+      // Ngay khi vừa chạm hoặc vượt qua mốc hết giờ của câu hỏi
+      if (now >= state.currentEndTime) {
+        // Cộng điểm câu vừa xong vào tổng điểm
         Object.keys(state.students).forEach(id => {
           state.students[id].score += state.students[id].currentScore;
           state.students[id].currentScore = 0;
         });
 
-        // Chuyển sang câu tiếp theo
+        // Tự động chuyển ngay sang câu tiếp theo
         state.currentIndex++;
         dispatchQuestion();
       }
-    }, 400);
+    }, 200);
   });
 
   socket.on('submit_answer', ({ isCorrect, remainingTime }) => {
@@ -176,5 +161,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server listening on PORT: ${PORT}`);
+  console.log(`Server running on port: ${PORT}`);
 });
