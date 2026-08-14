@@ -159,7 +159,7 @@
       <button id="start-btn" onclick="startQuiz()" style="background: #dc3545; font-size: 18px; width: 100%;">🚀 BẮT ĐẦU LÀM BÀI</button>
     </div>
 
-    <!-- BẢNG THEO DÕI TIẾN ĐỘ CHO GIÁO LÝ VIÊN -->
+    <!-- THEO DÕI TIẾN ĐỘ CHO GIÁO LÝ VIÊN -->
     <div id="teacher-live-box" style="display: none; margin-top: 20px; background: #e8f4fd; padding: 15px; border-radius: 8px; border: 2px solid #007bff; text-align: center;">
       <h3 style="margin: 0; color: #007bff;">📡 BÀI THI ĐANG DIỄN RA</h3>
       <h4 id="teacher-current-q" style="margin: 10px 0;">--</h4>
@@ -198,6 +198,7 @@
   <div id="result-screen" class="card" style="display: none;">
     <div class="header-banner">Xứ đoàn TNTT Thái Hà</div>
     
+    <!-- Bảng vinh danh của Giáo lý viên -->
     <div id="teacher-result-view" style="display: none;">
       <h2 style="text-align: center; color: #d9534f;">🏆 BẢNG VINH DANH THÀNH TÍCH</h2>
       <p style="text-align: center; color: #6c757d; margin-top: -10px; font-size: 14px;">(Điểm = Tổng số giây còn lại khi nộp đáp án đúng)</p>
@@ -214,6 +215,7 @@
       <button onclick="location.reload()" style="background: #007bff; width: 100%; margin-top: 15px;">Quay Lại Màn Hình Quản Lý</button>
     </div>
 
+    <!-- Bảng chúc mừng của Học sinh -->
     <div id="student-result-view" style="display: none; text-align: center; padding: 10px 0;">
       <h2 style="color: #28a745;">🎉 CHÚC MỪNG EM ĐÃ HOÀN THÀNH BÀI THI!</h2>
       <p style="font-size: 18px;">Đoàn sinh: <strong><span id="my-student-name">--</span></strong></p>
@@ -222,7 +224,7 @@
         <h1 style="font-size: 48px; color: #d9534f; margin: 10px 0;"><span id="my-final-score">0</span> điểm</h1>
         <p style="margin: 0; font-size: 13px; color: #6c757d;">(Trả lời đúng càng nhanh thì điểm tích lũy càng cao)</p>
       </div>
-      <p style="color: #6c757d; font-size: 14px;">Em hãy quan sát màn hình của Huynh Trưởng để xem thứ hạng trao giải nhé!</p>
+      <p style="color: #6c757d; font-size: 14px;">Em hãy quan sát màn hình của Giáo lý viên để xem thứ hạng trao giải nhé!</p>
     </div>
   </div>
 
@@ -233,6 +235,7 @@
     let allQuizzes = {};
     let partCount = 0;
     let editingQuizKey = null;
+    let localTimerInterval = null;
     let currentRemainingSeconds = 0;
     
     let isSelectedChoiceCorrect = false;
@@ -579,7 +582,7 @@
       currentStudentName = name;
       myRole = 'student';
       socket.emit('join_room', { name: name, role: 'student' });
-      alert('Đã báo danh thành công! Em hãy chú ý màn hình, khi Giáo Lý Viên bấm Bắt đầu bài thi sẽ bắt đầu ngay.');
+      alert('Đã báo danh thành công! Em hãy quan sát màn hình, khi Giáo Lý Viên bấm Bắt đầu bài thi sẽ bắt đầu ngay.');
     }
 
     function startQuiz() {
@@ -606,8 +609,14 @@
       }
     });
 
-    // MỖI KHI SERVER CHUYỂN SANG CÂU HỎI MỚI -> TỰ ĐỘNG VẼ GIAO DIỆN
+    // MỖI KHI CÂU HỎI MỚI BẮT ĐẦU -> TẠO ĐỒNG HỒ NỘI BỘ CHUẨN XÁC
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
+      // DỌN SẠCH ĐỒNG HỒ CŨ TRÁNH CHẠY NHANH GẤP ĐÔI
+      if (localTimerInterval) {
+        clearInterval(localTimerInterval);
+        localTimerInterval = null;
+      }
+
       currentRemainingSeconds = duration;
 
       if (myRole === 'teacher') {
@@ -615,22 +624,20 @@
         if (liveBox) {
           liveBox.style.display = 'block';
           document.getElementById('teacher-current-q').innerText = `${item.partTitle} - Câu ${item.questionIndex} (Tổng: ${currentIndex + 1}/${totalQuestions})`;
-          document.getElementById('teacher-timer').innerText = duration;
+          document.getElementById('teacher-timer').innerText = currentRemainingSeconds;
         }
       } else {
-        // TỰ ĐỘNG CHUYỂN SANG MÀN HÌNH LÀM BÀI CHO HỌC SINH
         document.getElementById('role-screen').style.display = 'none';
         document.getElementById('student-screen').style.display = 'none';
         document.getElementById('quiz-screen').style.display = 'block';
 
-        // Reset trạng thái làm câu mới
         isSelectedChoiceCorrect = false;
         hasSelectedAnOption = false;
         hasSubmittedCurrentQuestion = false;
 
         document.getElementById('student-part-title').innerText = `${item.partTitle}`;
         document.getElementById('student-q-index').innerText = `(Câu ${item.questionIndex}/${item.totalQuestionsInPart})`;
-        document.getElementById('timer').innerText = duration;
+        document.getElementById('timer').innerText = currentRemainingSeconds;
 
         const container = document.getElementById('questions-container');
         const q = item.question;
@@ -651,29 +658,39 @@
 
         container.innerHTML = html;
       }
-    });
 
-    // NHẬN TÍN HIỆU GIÂY TỪ SERVER ĐỒNG BỘ MỌI MÁY
-    socket.on('timer_tick', ({ timeLeft }) => {
-      currentRemainingSeconds = timeLeft;
+      // ĐỒNG HỒ NỘI BỘ TRÊN MÁY: ĐÚNG 1000MS TRỪ 1 GIÂY
+      let timeUpFired = false;
+      localTimerInterval = setInterval(() => {
+        currentRemainingSeconds--;
 
-      const timerEl = document.getElementById('timer');
-      if (timerEl) timerEl.innerText = `${timeLeft}`;
+        const timerEl = document.getElementById('timer');
+        if (timerEl) timerEl.innerText = Math.max(0, currentRemainingSeconds);
 
-      const teacherTimerEl = document.getElementById('teacher-timer');
-      if (teacherTimerEl) teacherTimerEl.innerText = `${timeLeft}`;
+        const teacherTimerEl = document.getElementById('teacher-timer');
+        if (teacherTimerEl) teacherTimerEl.innerText = Math.max(0, currentRemainingSeconds);
 
-      if (timeLeft <= 0) {
-        const submitBtn = document.getElementById('btn-submit');
-        if (submitBtn && !hasSubmittedCurrentQuestion) {
-          submitBtn.style.display = 'none';
-          const waitingBox = document.getElementById('waiting-box');
-          if (waitingBox) {
-            waitingBox.style.display = 'block';
-            waitingBox.innerHTML = `⌛ <b>HẾT THỜI GIAN!</b> Đang tải câu tiếp theo...`;
+        if (currentRemainingSeconds <= 0) {
+          clearInterval(localTimerInterval);
+          localTimerInterval = null;
+
+          const submitBtn = document.getElementById('btn-submit');
+          if (submitBtn && !hasSubmittedCurrentQuestion) {
+            submitBtn.style.display = 'none';
+            const waitingBox = document.getElementById('waiting-box');
+            if (waitingBox) {
+              waitingBox.style.display = 'block';
+              waitingBox.innerHTML = `⌛ <b>HẾT THỜI GIAN!</b> Đang tải câu tiếp theo...`;
+            }
+          }
+
+          // Báo về Server chuyển câu ngay
+          if (!timeUpFired) {
+            timeUpFired = true;
+            socket.emit('time_up');
           }
         }
-      }
+      }, 1000);
     });
 
     function selectChoice(isCorrect, element) {
@@ -720,6 +737,11 @@
     }
 
     socket.on('quiz_ended', ({ leaderboard, quizName }) => {
+      if (localTimerInterval) {
+        clearInterval(localTimerInterval);
+        localTimerInterval = null;
+      }
+
       document.getElementById('quiz-screen').style.display = 'none';
       document.getElementById('teacher-screen').style.display = 'none';
       document.getElementById('result-screen').style.display = 'block';
