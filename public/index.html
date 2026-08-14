@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ứng Dụng Kiểm Tra Trắc Nghiệm</title>
+  <title>Ứng Dụng Kiểm Tra Trắc Nghiệm - TNTT Thái Hà</title>
   <script src="/socket.io/socket.io.js"></script>
-  <!-- THƯ VIỆN TẠO MÃ QR TỰ ĐỘNG -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; max-width: 680px; margin: auto; background: #f0f2f5; }
@@ -44,12 +43,29 @@
       user-select: none;
     }
     .opt-btn.selected { 
-      background-color: #d4edda !important; 
-      border: 2px solid #28a745 !important; 
+      background-color: #e7f1ff !important; 
+      border: 2px solid #007bff !important; 
       font-weight: bold !important; 
-      color: #155724 !important; 
+      color: #0056b3 !important; 
     }
     
+    .btn-submit-answer {
+      background-color: #28a745;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      margin-top: 20px;
+      box-shadow: 0 4px 6px rgba(40,167,69,0.2);
+    }
+    .btn-submit-answer:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
     .btn-delete { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto; }
     .btn-edit { background: #ffc107; color: #212529; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto; margin-right: 8px; font-weight: 500; }
     
@@ -81,14 +97,12 @@
     <div class="header-banner">Xứ đoàn TNTT Thái Hà</div>
     <h2>👨‍🏫 Quản Trị Phòng Thi</h2>
     
-    <!-- KHU VỰC HIỂN THỊ MÃ QR PHÒNG THI -->
     <div id="qrcode-box">
       <h3 style="margin: 0; color: #007bff;">📲 QUÉT MÃ QR ĐỂ VÀO THI</h3>
       <p style="margin: 5px 0; font-size: 13px; color: #6c757d;">(Đoàn sinh dùng camera điện thoại quét mã để tham gia)</p>
       <div id="qrcode"></div>
     </div>
 
-    <!-- 1. DANH SÁCH BÀI KIỂM TRA ĐÃ LƯU -->
     <div class="quiz-manager">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h3 style="margin: 0;">📁 Danh Sách Bài Kiểm Tra</h3>
@@ -97,7 +111,6 @@
       <div id="quiz-list-container" style="margin-top: 10px;"></div>
     </div>
 
-    <!-- 2. KHU VỰC SOẠN / CHỈNH SỬA ĐỀ THI -->
     <div id="editor-section" style="display: none; border: 2px solid #007bff; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #f8f9fa;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h3 id="current-quiz-title" style="margin: 0; color: #007bff;">📝 Soạn Đề Thi</h3>
@@ -113,7 +126,6 @@
       <button onclick="saveCurrentQuiz()" style="background: #28a745; width: 100%; font-size: 16px;">💾 LƯU BÀI KIỂM TRA</button>
     </div>
 
-    <!-- 3. KHU VỰC KẾT QUẢ THI & BẢNG CHỌN -->
     <div class="quiz-manager">
       <h3>📊 Vùng Chọn Kết Quả Thi</h3>
       <label><strong>Chọn Bài Kiểm Tra Muốn Xem Kết Quả:</strong></label>
@@ -123,7 +135,6 @@
       <div id="history-display-area" style="margin-top: 10px;"></div>
     </div>
 
-    <!-- 4. DANH SÁCH ĐOÀN SINH VÀO PHÒNG & NÚT BẮT ĐẦU -->
     <div style="border-top: 2px dashed #ccc; padding-top: 15px; margin-top: 15px;">
       <label><strong>Bài thi chuẩn bị phát:</strong></label>
       <select id="active-quiz-select" style="font-weight: bold; color: #007bff;"></select>
@@ -135,10 +146,10 @@
     </div>
   </div>
 
-  <!-- MÀN HÌNH HỌC SINH -->
+  <!-- MÀN HÌNH HỌC SINH (NHẬP TÊN) -->
   <div id="student-screen" class="card" style="display: none; text-align: center;">
     <div class="header-banner">Xứ đoàn TNTT Thái Hà</div>
-    <h2 style="margin-top: 5px;">👋 Xin chào các bạn</h2>
+    <h2 style="margin-top: 5px; text-align: center;">👋 Xin chào các bạn</h2>
     
     <div style="text-align: left; margin-top: 15px;">
       <label><strong>Nhập họ và tên của em:</strong></label>
@@ -158,7 +169,11 @@
       <h2 style="margin: 0; color: #d9534f;">⏰ <span id="timer">--</span>s</h2>
     </div>
     <hr>
+    
     <div id="questions-container"></div>
+
+    <!-- NÚT NỘP ĐÁP ÁN CHỐT ĐIỂM -->
+    <button id="btn-submit" class="btn-submit-answer" onclick="submitCurrentAnswer()">📤 NỘP ĐÁP ÁN</button>
   </div>
 
   <!-- MÀN HÌNH KẾT QUẢ -->
@@ -167,7 +182,7 @@
     
     <div id="teacher-result-view" style="display: none;">
       <h2 style="text-align: center; color: #d9534f;">🏆 BẢNG VINH DANH THÀNH TÍCH</h2>
-      <p style="text-align: center; color: #6c757d; margin-top: -10px; font-size: 14px;">(Điểm = Tổng số giây còn lại khi chọn đáp án đúng)</p>
+      <p style="text-align: center; color: #6c757d; margin-top: -10px; font-size: 14px;">(Điểm = Tổng số giây còn lại khi nộp đáp án đúng)</p>
       <table>
         <thead>
           <tr>
@@ -202,6 +217,11 @@
     let editingQuizKey = null;
     let localTimerInterval = null;
     let currentRemainingSeconds = 0;
+    
+    // Biến lưu trạng thái câu hỏi hiện tại
+    let isSelectedChoiceCorrect = false;
+    let hasSelectedAnOption = false;
+    let hasSubmittedCurrentQuestion = false;
 
     function getRankBadge(idx) {
       if (idx === 0) return '🥇 <b>Giải Nhất</b>';
@@ -532,7 +552,7 @@
         document.getElementById('teacher-screen').style.display = 'block';
         generateRoomQRCode();
         loadSavedQuizzes();
-        socket.emit('join_room', { code: DEFAULT_CODE, name: 'Giáo Viên', role: 'teacher' });
+        socket.emit('join_room', { code: DEFAULT_CODE, name: 'Huynh Trưởng', role: 'teacher' });
       } else {
         document.getElementById('student-screen').style.display = 'block';
       }
@@ -543,7 +563,7 @@
       if (!name) return alert('Vui lòng nhập họ tên!');
       currentStudentName = name;
       socket.emit('join_room', { code: DEFAULT_CODE, name: name, role: 'student' });
-      alert('Đã báo danh thành công! Vui lòng đợi giáo viên bấm Bắt đầu.');
+      alert('Đã báo danh thành công! Vui lòng đợi Huynh Trưởng / Giáo Viên bấm Bắt đầu.');
     }
 
     function startQuiz() {
@@ -580,6 +600,16 @@
           localTimerInterval = null;
         }
 
+        // Reset trạng thái chọn câu hỏi
+        isSelectedChoiceCorrect = false;
+        hasSelectedAnOption = false;
+        hasSubmittedCurrentQuestion = false;
+
+        const submitBtn = document.getElementById('btn-submit');
+        submitBtn.disabled = false;
+        submitBtn.innerText = '📤 NỘP ĐÁP ÁN';
+        submitBtn.style.background = '#28a745';
+
         document.getElementById('student-part-title').innerText = `${item.partTitle}`;
         document.getElementById('student-q-index').innerText = `(Câu ${item.questionIndex}/${item.totalQuestionsInPart})`;
 
@@ -614,17 +644,47 @@
       }
     });
 
+    // CHỌN PHƯƠNG ÁN (CHƯA NỘP)
     function selectChoice(isCorrect, element) {
-      socket.emit('submit_answer', { 
-        code: DEFAULT_CODE, 
-        isCorrect: isCorrect, 
-        remainingTime: currentRemainingSeconds 
-      });
+      if (hasSubmittedCurrentQuestion) return;
+
+      isSelectedChoiceCorrect = isCorrect;
+      hasSelectedAnOption = true;
 
       if (element.tagName === 'BUTTON') {
         element.parentNode.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
         element.classList.add('selected');
       }
+    }
+
+    // BẤM NÚT "NỘP ĐÁP ÁN" (CHỐT ĐIỂM THEO SỐ GIÂY)
+    function submitCurrentAnswer() {
+      if (hasSubmittedCurrentQuestion) return;
+      if (!hasSelectedAnOption) {
+        return alert('Em hãy chọn một đáp án trước khi bấm Nộp!');
+      }
+
+      hasSubmittedCurrentQuestion = true;
+
+      // Khóa nút nộp
+      const submitBtn = document.getElementById('btn-submit');
+      submitBtn.disabled = true;
+      submitBtn.innerText = `✅ ĐÃ NỘP (Ghi nhận ở giây thứ ${currentRemainingSeconds})`;
+      submitBtn.style.background = '#6c757d';
+
+      // Khóa tất cả các nút đáp án không cho đổi lại
+      const optButtons = document.querySelectorAll('.opt-btn');
+      optButtons.forEach(b => {
+        b.style.pointerEvents = 'none';
+        b.style.opacity = '0.7';
+      });
+
+      // Bắn kết quả lên server để cộng điểm
+      socket.emit('submit_answer', { 
+        code: DEFAULT_CODE, 
+        isCorrect: isSelectedChoiceCorrect, 
+        remainingTime: currentRemainingSeconds 
+      });
     }
 
     socket.on('quiz_ended', ({ leaderboard, quizName }) => {
