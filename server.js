@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 const state = {
-  status: 'waiting',
+  status: 'waiting', // waiting | playing | ended
   quizName: '',
   queue: [],
   currentIndex: 0,
@@ -39,26 +39,15 @@ function advanceToNextQuestion() {
     state.timerTimeout = null;
   }
 
-  // Cộng dồn điểm và tính số câu Đúng / Sai / Bỏ trống
+  // Cộng dồn điểm câu vừa xong
   Object.keys(state.students).forEach(id => {
-    const st = state.students[id];
-    st.score += st.currentScore;
-
-    if (st.answered) {
-      if (st.currentScore > 0) {
-        st.correctCount = (st.correctCount || 0) + 1;
-      } else {
-        st.wrongCount = (st.wrongCount || 0) + 1;
-      }
-    } else {
-      st.unansweredCount = (st.unansweredCount || 0) + 1;
-    }
-
-    st.currentScore = 0;
+    state.students[id].score += state.students[id].currentScore;
+    state.students[id].currentScore = 0;
   });
 
   state.currentIndex++;
 
+  // Nếu đã hết câu hỏi -> Kết thúc bài thi
   if (state.currentIndex >= state.queue.length) {
     state.status = 'ended';
     state.currentItem = null;
@@ -69,26 +58,32 @@ function advanceToNextQuestion() {
     return;
   }
 
-  state.currentItem = state.queue[state.currentIndex];
-  state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
+  // NGHỈ 3 GIÂY ĐỆM TRƯỚC KHI BẮT ĐẦU CÂU TIẾP THEO
+  setTimeout(() => {
+    state.currentItem = state.queue[state.currentIndex];
+    state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
 
-  Object.keys(state.students).forEach(id => {
-    state.students[id].currentScore = 0;
-    state.students[id].answered = false;
-  });
+    // Reset lượt làm câu mới
+    Object.keys(state.students).forEach(id => {
+      state.students[id].currentScore = 0;
+      state.students[id].answered = false;
+    });
 
-  state.isAdvancing = false;
+    state.isAdvancing = false;
 
-  io.emit('question_started', {
-    item: state.currentItem,
-    duration: state.currentDuration,
-    currentIndex: state.currentIndex,
-    totalQuestions: state.queue.length
-  });
+    // Phát câu hỏi mới
+    io.emit('question_started', {
+      item: state.currentItem,
+      duration: state.currentDuration,
+      currentIndex: state.currentIndex,
+      totalQuestions: state.queue.length
+    });
 
-  state.timerTimeout = setTimeout(() => {
-    advanceToNextQuestion();
-  }, (state.currentDuration + 1) * 1000);
+    // Hẹn giờ dự phòng ở Server (Thời gian làm bài + 3s nghỉ + 1s đệm mạng)
+    state.timerTimeout = setTimeout(() => {
+      advanceToNextQuestion();
+    }, (state.currentDuration + 4) * 1000);
+  }, 3000);
 }
 
 io.on('connection', (socket) => {
@@ -101,10 +96,7 @@ io.on('connection', (socket) => {
         name: name || 'Đoàn sinh',
         score: 0,
         currentScore: 0,
-        answered: false,
-        correctCount: 0,
-        wrongCount: 0,
-        unansweredCount: 0
+        answered: false
       };
       io.emit('update_students', Object.values(state.students));
 
@@ -155,14 +147,31 @@ io.on('connection', (socket) => {
       state.students[id].score = 0;
       state.students[id].currentScore = 0;
       state.students[id].answered = false;
-      state.students[id].correctCount = 0;
-      state.students[id].wrongCount = 0;
-      state.students[id].unansweredCount = 0;
     });
 
-    advanceToNextQuestion();
+    // Câu đầu tiên bắt đầu ngay
+    advanceToNextQuestionDirect();
   });
 
+  function advanceToNextQuestionDirect() {
+    state.currentIndex = 0;
+    state.currentItem = state.queue[0];
+    state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
+    state.isAdvancing = false;
+
+    io.emit('question_started', {
+      item: state.currentItem,
+      duration: state.currentDuration,
+      currentIndex: state.currentIndex,
+      totalQuestions: state.queue.length
+    });
+
+    state.timerTimeout = setTimeout(() => {
+      advanceToNextQuestion();
+    }, (state.currentDuration + 4) * 1000);
+  }
+
+  // Khi học sinh đếm về 0s
   socket.on('time_up', () => {
     if (state.status === 'playing') {
       advanceToNextQuestion();
