@@ -39,20 +39,19 @@ function advanceToNextQuestion() {
     state.timerTimeout = null;
   }
 
-  // Tổng kết câu vừa xong cho từng học sinh
+  // Cộng dồn điểm và tính số câu Đúng / Sai / Bỏ trống
   Object.keys(state.students).forEach(id => {
     const st = state.students[id];
     st.score += st.currentScore;
-    
-    // Thống kê đúng / sai / bỏ trống
+
     if (st.answered) {
       if (st.currentScore > 0) {
-        st.correctCount++;
+        st.correctCount = (st.correctCount || 0) + 1;
       } else {
-        st.wrongCount++;
+        st.wrongCount = (st.wrongCount || 0) + 1;
       }
     } else {
-      st.unansweredCount++;
+      st.unansweredCount = (st.unansweredCount || 0) + 1;
     }
 
     st.currentScore = 0;
@@ -60,41 +59,36 @@ function advanceToNextQuestion() {
 
   state.currentIndex++;
 
-  // Nếu hết câu hỏi -> Kết thúc bài thi
   if (state.currentIndex >= state.queue.length) {
     state.status = 'ended';
     state.currentItem = null;
     io.emit('quiz_ended', { 
       leaderboard: Object.values(state.students), 
-      quizName: state.quizName,
-      totalQuestions: state.queue.length
+      quizName: state.quizName 
     });
     return;
   }
 
-  // 3s đệm nghỉ trước khi sang câu mới
-  setTimeout(() => {
-    state.currentItem = state.queue[state.currentIndex];
-    state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
+  state.currentItem = state.queue[state.currentIndex];
+  state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
 
-    Object.keys(state.students).forEach(id => {
-      state.students[id].currentScore = 0;
-      state.students[id].answered = false;
-    });
+  Object.keys(state.students).forEach(id => {
+    state.students[id].currentScore = 0;
+    state.students[id].answered = false;
+  });
 
-    state.isAdvancing = false;
+  state.isAdvancing = false;
 
-    io.emit('question_started', {
-      item: state.currentItem,
-      duration: state.currentDuration,
-      currentIndex: state.currentIndex,
-      totalQuestions: state.queue.length
-    });
+  io.emit('question_started', {
+    item: state.currentItem,
+    duration: state.currentDuration,
+    currentIndex: state.currentIndex,
+    totalQuestions: state.queue.length
+  });
 
-    state.timerTimeout = setTimeout(() => {
-      advanceToNextQuestion();
-    }, (state.currentDuration + 4) * 1000);
-  }, 3000);
+  state.timerTimeout = setTimeout(() => {
+    advanceToNextQuestion();
+  }, (state.currentDuration + 1) * 1000);
 }
 
 io.on('connection', (socket) => {
@@ -157,7 +151,6 @@ io.on('connection', (socket) => {
     state.currentIndex = -1;
     state.isAdvancing = false;
 
-    // Reset toàn bộ thông số học sinh
     Object.keys(state.students).forEach(id => {
       state.students[id].score = 0;
       state.students[id].currentScore = 0;
@@ -167,27 +160,8 @@ io.on('connection', (socket) => {
       state.students[id].unansweredCount = 0;
     });
 
-    // Câu đầu tiên chạy ngay
-    advanceToNextQuestionDirect();
+    advanceToNextQuestion();
   });
-
-  function advanceToNextQuestionDirect() {
-    state.currentIndex = 0;
-    state.currentItem = state.queue[0];
-    state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
-    state.isAdvancing = false;
-
-    io.emit('question_started', {
-      item: state.currentItem,
-      duration: state.currentDuration,
-      currentIndex: state.currentIndex,
-      totalQuestions: state.queue.length
-    });
-
-    state.timerTimeout = setTimeout(() => {
-      advanceToNextQuestion();
-    }, (state.currentDuration + 4) * 1000);
-  }
 
   socket.on('time_up', () => {
     if (state.status === 'playing') {
