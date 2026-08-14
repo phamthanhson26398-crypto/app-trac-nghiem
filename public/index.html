@@ -109,7 +109,7 @@
     
     <div id="qrcode-box">
       <h3 style="margin: 0; color: #007bff;">📲 QUÉT MÃ QR ĐỂ VÀO THI</h3>
-      <p style="margin: 5px 0; font-size: 13px; color: #6c757d;">(Đoàn sinh dùng camera điện thoại quét mã để tham gia)</p>
+      <p style="margin: 5px 0; font-size: 13px; color: #6c757d;">(Đoàn sinh dùng camera quét mã để tham gia)</p>
       <div id="qrcode"></div>
     </div>
 
@@ -609,7 +609,7 @@
       }
     });
 
-    // 1. NHẬN CÂU HỎI VÀ ĐỒNG BỘ MÀN HÌNH HỌC SINH TỨC THÌ
+    // MỖI KHI CÂU HỎI MỚI ĐƯỢC PHÁT
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
       if (myRole === 'teacher') {
         const liveBox = document.getElementById('teacher-live-box');
@@ -618,7 +618,6 @@
           document.getElementById('teacher-current-q').innerText = `${item.partTitle} - Câu ${item.questionIndex} (Tổng: ${currentIndex + 1}/${totalQuestions})`;
         }
       } else {
-        // Tự động chuyển thẳng vào màn hình làm bài
         document.getElementById('role-screen').style.display = 'none';
         document.getElementById('student-screen').style.display = 'none';
         document.getElementById('quiz-screen').style.display = 'block';
@@ -650,13 +649,15 @@
         container.innerHTML = html;
       }
 
-      // 2. ĐỒNG HỒ ĐẾM NGƯỢC NỘI BỘ (Chuẩn xác 100% từ duration về 0)
+      // ĐẾM NGƯỢC THỜI GIAN
       const localEndTime = Date.now() + (duration * 1000);
 
       if (localTimerLoop) {
         clearInterval(localTimerLoop);
         localTimerLoop = null;
       }
+
+      let timeUpSent = false;
 
       function updateClock() {
         const now = Date.now();
@@ -682,6 +683,12 @@
               waitingBox.innerHTML = `⌛ <b>HẾT THỜI GIAN!</b> Đang tải câu tiếp theo...`;
             }
           }
+
+          // KÍCH HOẠT CHUYỂN CÂU NGAY TỨC KHẮC
+          if (!timeUpSent) {
+            timeUpSent = true;
+            socket.emit('time_up');
+          }
         }
       }
 
@@ -701,7 +708,6 @@
       }
     }
 
-    // 3. NỘP ĐÁP ÁN: KHÓA NÚT VÀ LỰA CHỌN, ĐỒNG HỒ VẪN TIẾP TỤC ĐẾM ĐẾN HẾT GIỜ
     function submitCurrentAnswer() {
       if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0) return;
       if (!hasSelectedAnOption) {
@@ -733,7 +739,6 @@
       });
     }
 
-    // 4. KẾT THÚC BÀI THI: HIỂN THỊ BẢNG VINH DANH VÀ THÔNG BÁO ĐIỂM
     socket.on('quiz_ended', ({ leaderboard, quizName }) => {
       if (localTimerLoop) {
         clearInterval(localTimerLoop);
