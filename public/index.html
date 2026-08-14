@@ -574,7 +574,7 @@
       currentStudentName = name;
       myRole = 'student';
       socket.emit('join_room', { name: name, role: 'student' });
-      alert('Đã báo danh thành công! Em hãy quan sát màn hình, khi Thầy/Cô bấm Bắt đầu câu hỏi sẽ hiện lên ngay.');
+      alert('Đã báo danh thành công! Em hãy chú ý màn hình, khi Thầy/Cô bấm Bắt đầu bài thi sẽ hiện lên ngay.');
     }
 
     function startQuiz() {
@@ -601,8 +601,8 @@
       }
     });
 
-    // MỖI KHI CÂU HỎI MỚI BẮT ĐẦU
-    socket.on('question_started', ({ item, duration, endTime, currentIndex, totalQuestions }) => {
+    // MỖI KHI CÂU HỎI MỚI ĐƯỢC PHÁT -> ĐỒNG BỘ ĐẾM NGƯỢC CHUẨN TỪNG MÁY
+    socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
       if (myRole === 'teacher') {
         const liveBox = document.getElementById('teacher-live-box');
         if (liveBox) {
@@ -643,8 +643,8 @@
         container.innerHTML = html;
       }
 
-      // ĐỒNG HỒ ĐẾM NGƯỢC LIÊN TỤC VỀ 0s
-      const targetTime = endTime || (Date.now() + duration * 1000);
+      // TỰ TÍNH MỐC KẾT THÚC DỰA TRÊN ĐỒNG HỒ CỦA MÁY HIỆN TẠI
+      const localEndTime = Date.now() + (duration * 1000);
 
       if (localTimerLoop) {
         clearInterval(localTimerLoop);
@@ -653,7 +653,7 @@
 
       function updateClock() {
         const now = Date.now();
-        const remain = Math.max(0, Math.ceil((targetTime - now) / 1000));
+        const remain = Math.max(0, Math.ceil((localEndTime - now) / 1000));
         currentRemainingSeconds = remain;
 
         const timerEl = document.getElementById('timer');
@@ -694,7 +694,6 @@
       }
     }
 
-    // KHI BẤM NỘP: KHÓA NÚT VÀ LỰA CHỌN, ĐỒNG HỒ VẪN CHẠY TIẾP ĐẾN HẾT GIỜ
     function submitCurrentAnswer() {
       if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0) return;
       if (!hasSelectedAnOption) {
@@ -711,7 +710,7 @@
       const waitingBox = document.getElementById('waiting-box');
       if (waitingBox) {
         waitingBox.style.display = 'block';
-        waitingBox.innerHTML = `✅ <b>ĐÃ NỘP THÀNH CÔNG</b> ở giây thứ <b>${currentRemainingSeconds}</b>!<br><small>Thời gian vẫn đang đếm ngược để đợi các bạn khác làm bài...</small>`;
+        waitingBox.innerHTML = `✅ <b>ĐÃ NỘP THÀNH CÔNG</b> ở giây thứ <b>${currentRemainingSeconds}</b>!<br><small>Thời gian vẫn đang đếm ngược để đợi các bạn khác...</small>`;
       }
 
       const optButtons = document.querySelectorAll('.opt-btn');
