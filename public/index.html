@@ -301,7 +301,7 @@
     <button onclick="backToRoleScreen()" style="background: transparent; color: var(--text-muted); border: 1px solid #e2e8f0; width: 100%; margin-top: 15px;">← Quay Lại</button>
   </div>
 
-  <!-- 3. MÀN HÌNH QUẢN TRỊ VIÊN CẤP CAO (ADMIN XEM VÀ ĐỔI MẬT KHẨU) -->
+  <!-- 3. MÀN HÌNH QUẢN TRỊ VIÊN CẤP CAO (ADMIN) -->
   <div id="admin-screen" class="card" style="display: none;">
     <div class="header-banner">🇻🇳 Xứ đoàn TNTT Thái Hà</div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -957,7 +957,8 @@
         document.getElementById('student-screen').style.display = 'block';
       } else if (role === 'admin') {
         const adminPass = prompt('Nhập mật khẩu quản trị viên (Admin):');
-        if (adminPass === 'admin123' || adminPass === 'admin') {
+        // MẬT KHẨU QUẢN TRỊ VIÊN ĐƯỢC ĐẶT TRỰC TIẾP TẠI ĐÂY:
+        if (adminPass === 'tnttthaiha') {
           document.getElementById('admin-screen').style.display = 'block';
           loadAdminUserTable();
         } else {
