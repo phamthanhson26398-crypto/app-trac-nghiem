@@ -18,6 +18,26 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
+// DANH SÁCH LINH VẬT ĐẠI DIỆN PHONG CÁCH QUIZIZZ
+const MASCOTS = [
+  { icon: '🦁', title: 'Sư Tử Dũng Mãnh' },
+  { icon: '🐯', title: 'Hổ Con Nhanh Nhẹn' },
+  { icon: '🦊', title: 'Cáo Thông Thái' },
+  { icon: '🐼', title: 'Gấu Trúc Cute' },
+  { icon: '🦄', title: 'Kỳ Lân Phép Thuật' },
+  { icon: '🐬', title: 'Cá Heo Thân Thiện' },
+  { icon: '🦅', title: 'Đại Bàng Tinh Anh' },
+  { icon: '🐲', title: 'Rồng Lửa Uy Lực' },
+  { icon: '🐨', title: 'Koala Hiền Lành' },
+  { icon: '🦉', title: 'Cú Mèo Tri Thức' },
+  { icon: '🐺', title: 'Sói Đầu Đàn' },
+  { icon: '🦖', title: 'Khủng Long Bạo Chúa' },
+  { icon: '🚀', title: 'Phi Hành Gia' },
+  { icon: '⚡', title: 'Tia Chớp Thần Tốc' },
+  { icon: '🌟', title: 'Ngôi Sao May Mắn' },
+  { icon: '🦹', title: 'Siêu Anh Hùng' }
+];
+
 const state = {
   status: 'waiting',
   quizName: '',
@@ -39,7 +59,7 @@ function advanceToNextQuestion() {
     state.timerTimeout = null;
   }
 
-  // Tổng kết câu vừa xong cho từng học sinh
+  // Cộng dồn điểm và thống kê
   Object.keys(state.students).forEach(id => {
     const st = state.students[id];
     st.score += st.currentScore;
@@ -69,7 +89,7 @@ function advanceToNextQuestion() {
     return;
   }
 
-  // Nghỉ 3 giây chuyển tiếp
+  // 3 giây chuyển tiếp
   setTimeout(() => {
     state.currentItem = state.queue[state.currentIndex];
     state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
@@ -99,9 +119,13 @@ io.on('connection', (socket) => {
 
   socket.on('join_room', ({ name, role }) => {
     if (role === 'student') {
+      // Gán ngẫu nhiên một linh vật độc đáo
+      const randomMascot = MASCOTS[Math.floor(Math.random() * MASCOTS.length)];
+
       state.students[socket.id] = {
         id: socket.id,
         name: name || 'Đoàn sinh',
+        mascot: randomMascot,
         score: 0,
         currentScore: 0,
         answered: false,
@@ -109,6 +133,11 @@ io.on('connection', (socket) => {
         wrongCount: 0,
         unansweredCount: 0
       };
+      
+      // Báo riêng cho học sinh biết linh vật của chính mình
+      socket.emit('my_mascot_assigned', randomMascot);
+
+      // Cập nhật danh sách phòng chờ có linh vật cho tất cả mọi người
       io.emit('update_students', Object.values(state.students));
 
       if (state.status === 'playing' && state.currentItem) {
