@@ -109,7 +109,6 @@
       margin-bottom: 12px; 
     }
 
-    /* Các nút chọn đáp án */
     .opt-btn { 
       background: white !important; 
       color: var(--text) !important; 
@@ -169,7 +168,6 @@
       50% { opacity: 0.85; }
     }
 
-    /* GIAO DIỆN PHÒNG CHỜ LINH VẬT (QUIZIZZ STYLE) */
     .my-mascot-card {
       background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
       color: white;
@@ -230,7 +228,6 @@
       max-width: 110px;
     }
 
-    /* BẢNG THỐNG KÊ CHI TIẾT */
     .stat-grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
@@ -277,6 +274,9 @@
     <button onclick="selectRole('student')" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); width: 100%; margin-top: 12px; padding: 15px; font-size: 16px;">
       🙋‍♂️ Tôi là Học Sinh / Đoàn Sinh
     </button>
+    <button onclick="selectRole('admin')" style="background: #334155; width: 100%; margin-top: 12px; padding: 12px; font-size: 14px;">
+      ⚙️ Quản Trị Viên (Admin Quản Lý Mật Khẩu)
+    </button>
   </div>
 
   <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ CỦA GLV -->
@@ -301,7 +301,33 @@
     <button onclick="backToRoleScreen()" style="background: transparent; color: var(--text-muted); border: 1px solid #e2e8f0; width: 100%; margin-top: 15px;">← Quay Lại</button>
   </div>
 
-  <!-- 3. MÀN HÌNH QUẢN TRỊ CỦA GLV -->
+  <!-- 3. MÀN HÌNH QUẢN TRỊ VIÊN CẤP CAO (ADMIN XEM VÀ ĐỔI MẬT KHẨU) -->
+  <div id="admin-screen" class="card" style="display: none;">
+    <div class="header-banner">🇻🇳 Xứ đoàn TNTT Thái Hà</div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <div>
+        <h2 style="margin: 0; font-size: 20px; color: #334155;">⚙️ Quản Trị Hệ Thống (Admin)</h2>
+        <small style="color: var(--text-muted);">Quản lý danh sách tài khoản & mật khẩu GLV</small>
+      </div>
+      <button onclick="backToRoleScreen()" style="background: #f1f5f9; color: var(--danger); font-size: 13px; padding: 6px 12px;">Đăng Xuất</button>
+    </div>
+
+    <div style="background: #f8fafc; padding: 15px; border-radius: 16px; border: 1px solid #e2e8f0;">
+      <h3 style="margin: 0 0 10px 0; font-size: 16px;">📋 Danh Sách Tài Khoản GLV Đã Đăng Ký</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Tài Khoản</th>
+            <th>Mật Khẩu Hiện Tại</th>
+            <th style="text-align: right;">Hành Động</th>
+          </tr>
+        </thead>
+        <tbody id="admin-user-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV -->
   <div id="teacher-screen" class="card" style="display: none;">
     <div class="header-banner">🇻🇳 Xứ đoàn TNTT Thái Hà</div>
     
@@ -374,7 +400,7 @@
     </div>
   </div>
 
-  <!-- 4. MÀN HÌNH HỌC SINH NHẬP TÊN -->
+  <!-- 5. MÀN HÌNH HỌC SINH NHẬP TÊN -->
   <div id="student-screen" class="card" style="display: none; text-align: center;">
     <div class="header-banner">🇻🇳 Xứ đoàn TNTT Thái Hà</div>
     <h2 style="margin: 0 0 5px 0; font-size: 24px; font-weight: 900;">👋 Báo Danh Tham Gia</h2>
@@ -389,11 +415,10 @@
     </button>
   </div>
 
-  <!-- 5. PHÒNG CHỜ LINH VẬT SINH ĐỘNG (LOBBY QUIZIZZ STYLE) -->
+  <!-- 6. PHÒNG CHỜ LINH VẬT SINH ĐỘNG (LOBBY) -->
   <div id="lobby-screen" class="card" style="display: none; text-align: center;">
     <div class="header-banner">🇻🇳 Xứ đoàn TNTT Thái Hà</div>
     
-    <!-- THẺ LINH VẬT CỦA BẢN THÂN -->
     <div class="my-mascot-card">
       <div id="my-mascot-icon" class="my-mascot-icon">🦁</div>
       <h2 id="my-mascot-title" style="margin: 6px 0 0 0; font-size: 20px; font-weight: 900;">Linh vật: Sư Tử Dũng Mãnh</h2>
@@ -413,7 +438,7 @@
     </div>
   </div>
 
-  <!-- 6. MÀN HÌNH LÀM BÀI -->
+  <!-- 7. MÀN HÌNH LÀM BÀI -->
   <div id="quiz-screen" class="card" style="display: none;">
     <div class="header-banner" style="font-size: 13px; padding-bottom: 6px; margin-bottom: 10px;">🇻🇳 Xứ đoàn TNTT Thái Hà</div>
     <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 14px; border-radius: 14px; border: 1px solid #edf2f7;">
@@ -428,11 +453,10 @@
     <div id="questions-container"></div>
   </div>
 
-  <!-- 7. MÀN HÌNH KẾT QUẢ -->
+  <!-- 8. MÀN HÌNH KẾT QUẢ -->
   <div id="result-screen" class="card" style="display: none;">
     <div class="header-banner">🇻🇳 Xứ đoàn TNTT Thái Hà</div>
     
-    <!-- Bảng vinh danh của GLV -->
     <div id="teacher-result-view" style="display: none;">
       <h2 style="text-align: center; color: var(--danger); margin: 0; font-size: 22px; font-weight: 900;">🏆 BẢNG VINH DANH THÀNH TÍCH</h2>
       <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin: 4px 0 15px 0;">(Điểm = Tổng số giây còn lại khi nộp đáp án đúng)</p>
@@ -450,19 +474,16 @@
       <button onclick="location.reload()" style="background: var(--primary); width: 100%; margin-top: 20px; padding: 14px;">Quay Lại Màn Hình Quản Trị</button>
     </div>
 
-    <!-- Bảng chúc mừng của Học sinh -->
     <div id="student-result-view" style="display: none; text-align: center; padding: 10px 0;">
       <div id="result-my-mascot" style="font-size: 56px; margin-bottom: 5px;">🦁</div>
       <h2 style="color: #10b981; margin: 0; font-size: 22px; font-weight: 900;">🎉 CHÚC MỪNG EM ĐÃ HOÀN THÀNH!</h2>
       <p style="font-size: 17px; margin: 6px 0 15px 0; color: var(--text);">Đoàn sinh: <strong><span id="my-student-name">--</span></strong></p>
       
-      <!-- KHUNG TỔNG ĐIỂM -->
       <div style="background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%); border-radius: 18px; padding: 18px; margin: 15px 0; border: 1px solid #e2e8f0;">
         <span style="font-size: 14px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">TỔNG ĐIỂM TÍCH LŨY</span>
         <h1 style="font-size: 46px; color: var(--danger); margin: 6px 0 4px 0; font-weight: 900;"><span id="my-final-score">0</span> <small style="font-size: 20px;">điểm</small></h1>
       </div>
 
-      <!-- KHUNG THỐNG KÊ CHI TIẾT: ĐÚNG - SAI - BỎ TRỐNG -->
       <div class="stat-grid">
         <div class="stat-box stat-box-correct">
           <div>✅ Câu Đúng</div>
@@ -525,6 +546,55 @@
       }
     });
 
+    /* QUẢN TRỊ VIÊN HỆ THỐNG */
+    function loadAdminUserTable() {
+      const users = JSON.parse(localStorage.getItem('tntt_teachers_db') || '{}');
+      const tbody = document.getElementById('admin-user-table-body');
+      tbody.innerHTML = '';
+
+      const userKeys = Object.keys(users);
+      if (userKeys.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted); font-style: italic;">Chưa có tài khoản nào đăng ký.</td></tr>`;
+        return;
+      }
+
+      userKeys.forEach(username => {
+        const pass = users[username].password;
+        tbody.innerHTML += `
+          <tr>
+            <td><b>${username}</b></td>
+            <td><code style="background: #e2e8f0; padding: 4px 8px; border-radius: 6px; color: #d9534f; font-weight: bold;">${pass}</code></td>
+            <td style="text-align: right;">
+              <button onclick="adminResetPass('${username}')" style="background: #f59e0b; padding: 5px 10px; font-size: 12px; border-radius: 6px;">Đổi MK</button>
+              <button onclick="adminDeleteUser('${username}')" style="background: #ef4444; padding: 5px 10px; font-size: 12px; border-radius: 6px;">Xóa</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function adminResetPass(username) {
+      const newPass = prompt(`Nhập mật khẩu mới cho tài khoản "${username}":`);
+      if (newPass && newPass.trim() !== '') {
+        const users = JSON.parse(localStorage.getItem('tntt_teachers_db') || '{}');
+        users[username].password = newPass.trim();
+        localStorage.setItem('tntt_teachers_db', JSON.stringify(users));
+        alert(`Đã đổi mật khẩu cho "${username}" thành: ${newPass.trim()}`);
+        loadAdminUserTable();
+      }
+    }
+
+    function adminDeleteUser(username) {
+      if (confirm(`Bạn có chắc muốn xóa tài khoản "${username}" cùng toàn bộ đề thi của họ?`)) {
+        const users = JSON.parse(localStorage.getItem('tntt_teachers_db') || '{}');
+        delete users[username];
+        localStorage.setItem('tntt_teachers_db', JSON.stringify(users));
+        localStorage.removeItem(`all_quizzes_user_${username}`);
+        localStorage.removeItem(`quiz_history_user_${username}`);
+        loadAdminUserTable();
+      }
+    }
+
     /* HỆ THỐNG XÁC THỰC TÀI KHOẢN GLV */
     function toggleAuthMode() {
       isAuthRegisterMode = !isAuthRegisterMode;
@@ -568,10 +638,10 @@
 
     function backToRoleScreen() {
       document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('admin-screen').style.display = 'none';
       document.getElementById('role-screen').style.display = 'block';
     }
 
-    /* QUẢN LÝ TÀI LIỆU RIÊNG */
     function getTeacherQuizStorageKey() {
       return `all_quizzes_user_${currentTeacherUser}`;
     }
@@ -883,8 +953,17 @@
       document.getElementById('role-screen').style.display = 'none';
       if (role === 'teacher') {
         document.getElementById('auth-screen').style.display = 'block';
-      } else {
+      } else if (role === 'student') {
         document.getElementById('student-screen').style.display = 'block';
+      } else if (role === 'admin') {
+        const adminPass = prompt('Nhập mật khẩu quản trị viên (Admin):');
+        if (adminPass === 'admin123' || adminPass === 'admin') {
+          document.getElementById('admin-screen').style.display = 'block';
+          loadAdminUserTable();
+        } else {
+          alert('Sai mật khẩu quản trị!');
+          document.getElementById('role-screen').style.display = 'block';
+        }
       }
     }
 
@@ -902,7 +981,6 @@
       socket.emit('join_room', { name: name, role: 'student' });
     }
 
-    // NHẬN LINH VẬT ĐƯỢC GÁN TỪ MÁY CHỦ
     socket.on('my_mascot_assigned', (mascot) => {
       myAssignedMascot = mascot;
       document.getElementById('my-mascot-icon').innerText = mascot.icon;
@@ -927,9 +1005,7 @@
       socket.emit('start_quiz', { parts, quizName: selectedQuizName });
     }
 
-    // CẬP NHẬT DANH SÁCH LINH VẬT CỦA CẢ PHÒNG CHỜ
     socket.on('update_students', (students) => {
-      // Cập nhật màn hình GLV
       if (myRole === 'teacher') {
         document.getElementById('count').innerText = students.length;
         const grid = document.getElementById('teacher-student-grid');
@@ -941,7 +1017,6 @@
         `).join('');
       }
 
-      // Cập nhật màn hình Phòng Chờ Học Sinh (Quizizz Lobby)
       if (myRole === 'student') {
         document.getElementById('lobby-count').innerText = students.length;
         const container = document.getElementById('lobby-students-container');
@@ -954,7 +1029,6 @@
       }
     });
 
-    // BẮT ĐẦU CÂU HỎI -> CHUYỂN TỪ PHÒNG CHỜ VÀO LÀM BÀI
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
@@ -1004,7 +1078,6 @@
         container.innerHTML = html;
       }
 
-      // ĐỒNG HỒ NỘI BỘ (Chạy chuẩn 1000ms từng giây)
       let timeUpFired = false;
       localTimerInterval = setInterval(() => {
         currentRemainingSeconds--;
@@ -1028,7 +1101,6 @@
             b.style.opacity = '0.5';
           });
 
-          // Nghỉ 3 giây chuyển tiếp
           let restSeconds = 3;
           const waitingBox = document.getElementById('waiting-box');
           if (waitingBox) {
@@ -1098,7 +1170,6 @@
       });
     }
 
-    // KẾT THÚC BÀI THI & HIỂN THỊ THÀNH TÍCH
     socket.on('quiz_ended', ({ leaderboard, quizName }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
