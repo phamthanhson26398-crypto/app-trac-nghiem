@@ -6,143 +6,276 @@
   <title>Ứng Dụng Kiểm Tra Trắc Nghiệm - TNTT Thái Hà</title>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 680px; margin: auto; background: #f0f2f5; }
-    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
-    button { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 15px; margin-top: 5px; }
-    input, select, textarea { width: 95%; padding: 10px; margin-top: 5px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; font-family: inherit; }
-    
-    .header-banner {
-      font-size: 16px;
-      font-weight: bold;
-      color: #b71c1c;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      border-bottom: 2px solid #b71c1c;
-      padding-bottom: 8px;
-      margin-bottom: 15px;
-      text-align: center;
+    :root {
+      --primary: #4361ee;
+      --primary-hover: #3a56d4;
+      --secondary: #7209b7;
+      --success: #2ec4b6;
+      --danger: #e63946;
+      --warning: #ffb703;
+      --bg: #f4f7fb;
+      --card-bg: #ffffff;
+      --text: #2b2d42;
+      --text-muted: #8d99ae;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
     }
 
-    .part-block { background: #eef2f5; border: 2px solid #b8c6d1; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-    .q-block { background: white; border: 1px solid #ddd; padding: 12px; border-radius: 8px; margin-bottom: 12px; margin-top: 10px; }
-    
+    * { box-sizing: border-box; }
+    body { 
+      font-family: 'Nunito', sans-serif; 
+      padding: 15px; 
+      max-width: 650px; 
+      margin: auto; 
+      background: linear-gradient(135deg, #eef2f7 0%, #e5ebf4 100%); 
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .card { 
+      background: var(--card-bg); 
+      padding: 24px; 
+      border-radius: 20px; 
+      box-shadow: var(--shadow); 
+      margin-bottom: 20px; 
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-banner {
+      font-size: 15px;
+      font-weight: 900;
+      color: #b71c1c;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      padding-bottom: 10px;
+      margin-bottom: 18px;
+      text-align: center;
+      border-bottom: 2px dashed rgba(183, 28, 28, 0.2);
+    }
+
+    button { 
+      background: var(--primary); 
+      color: white; 
+      border: none; 
+      padding: 12px 18px; 
+      border-radius: 12px; 
+      cursor: pointer; 
+      font-size: 15px; 
+      font-weight: 700;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    button:hover { 
+      transform: translateY(-1px); 
+      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3); 
+    }
+    button:active { transform: translateY(0); }
+
+    input, select, textarea { 
+      width: 100%; 
+      padding: 12px 15px; 
+      margin-top: 6px; 
+      margin-bottom: 14px; 
+      border: 2px solid #edf2f7; 
+      border-radius: 12px; 
+      font-family: inherit; 
+      font-size: 15px;
+      background: #f8fafc;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: #fff;
+    }
+
+    .part-block { 
+      background: #f8fafc; 
+      border: 2px solid #e2e8f0; 
+      padding: 16px; 
+      border-radius: 14px; 
+      margin-bottom: 16px; 
+    }
+    .q-block { 
+      background: white; 
+      border: 1px solid #edf2f7; 
+      padding: 14px; 
+      border-radius: 12px; 
+      margin-bottom: 12px; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    /* Các nút chọn đáp án */
     .opt-btn { 
-      background-color: #ffffff !important; 
-      color: #333333 !important; 
-      border: 1px solid #cccccc !important; 
+      background: white !important; 
+      color: var(--text) !important; 
+      border: 2px solid #e2e8f0 !important; 
       text-align: left; 
       margin-top: 10px; 
       width: 100%; 
       font-size: 16px; 
-      padding: 14px 15px; 
-      border-radius: 8px; 
+      font-weight: 700;
+      padding: 15px 18px; 
+      border-radius: 14px; 
       cursor: pointer; 
       display: block;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-      user-select: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+      transition: all 0.15s ease;
+    }
+    .opt-btn:hover {
+      border-color: #cbd5e1 !important;
+      background: #f8fafc !important;
     }
     .opt-btn.selected { 
-      background-color: #e7f1ff !important; 
-      border: 2px solid #007bff !important; 
-      font-weight: bold !important; 
-      color: #0056b3 !important; 
+      background: #eef2ff !important; 
+      border-color: var(--primary) !important; 
+      color: var(--primary) !important; 
+      transform: scale(1.01);
+      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
     }
-    
+
     .btn-submit-answer {
-      background-color: #28a745 !important;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
       color: white !important;
       font-size: 18px !important;
-      font-weight: bold !important;
+      font-weight: 800 !important;
       width: 100% !important;
-      padding: 15px !important;
-      border-radius: 8px !important;
+      padding: 16px !important;
+      border-radius: 14px !important;
       margin-top: 20px !important;
       border: none !important;
-      cursor: pointer;
-      display: block !important;
-      box-shadow: 0 4px 6px rgba(40,167,69,0.3);
+      box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3) !important;
     }
 
     .waiting-status-box {
-      background: #e8f4fd;
-      border: 1px solid #b6d4fe;
-      color: #084298;
-      padding: 12px;
-      border-radius: 8px;
+      background: #fef3c7;
+      border: 2px solid #fde68a;
+      color: #92400e;
+      padding: 14px;
+      border-radius: 12px;
       text-align: center;
       margin-top: 15px;
       font-size: 15px;
-      font-weight: 500;
+      font-weight: 700;
+      animation: pulse 1.5s infinite;
     }
 
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    /* Bảng thống kê số câu */
     .stat-grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-      margin: 15px 0;
+      gap: 12px;
+      margin: 18px 0;
     }
     .stat-box {
-      padding: 12px 5px;
-      border-radius: 8px;
+      padding: 14px 8px;
+      border-radius: 14px;
       text-align: center;
+      font-weight: 700;
     }
-    .stat-box-correct { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
-    .stat-box-wrong { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
-    .stat-box-empty { background: #e2e3e5; border: 1px solid #d6d8db; color: #383d41; }
-    .stat-num { font-size: 24px; font-weight: bold; margin-top: 4px; }
+    .stat-box-correct { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .stat-box-wrong { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .stat-box-empty { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+    .stat-num { font-size: 26px; font-weight: 900; margin-top: 4px; }
 
-    .btn-delete { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto; }
-    .btn-edit { background: #ffc107; color: #212529; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; width: auto; margin-right: 8px; font-weight: 500; }
-    
-    .quiz-manager { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-    .quiz-item { background: white; padding: 12px 15px; border-radius: 8px; margin-top: 10px; display: flex; flex-direction: column; gap: 10px; border: 1px solid #ddd; }
-    .quiz-item-actions { display: flex; justify-content: flex-end; align-items: center; border-top: 1px dashed #eee; padding-top: 8px; }
-    
-    .history-card { background: #fff3cd; border: 1px solid #ffeeba; padding: 12px; border-radius: 6px; margin-bottom: 10px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-    th, td { border: 1px solid #ddd; padding: 10px 8px; text-align: left; font-size: 14px; }
-    th { background-color: #f2f2f2; }
+    .btn-delete { background: #ef4444; padding: 6px 12px; border-radius: 8px; font-size: 13px; }
+    .btn-edit { background: #f59e0b; color: white; padding: 6px 12px; border-radius: 8px; font-size: 13px; margin-right: 6px; }
 
-    #qrcode-box { background: #f8f9fa; border: 2px dashed #007bff; padding: 15px; border-radius: 10px; text-align: center; margin: 15px 0; }
-    #qrcode img { margin: 10px auto; }
+    .quiz-manager { background: #f8fafc; padding: 18px; border-radius: 14px; margin-bottom: 16px; border: 1px solid #edf2f7; }
+    .quiz-item { background: white; padding: 14px 16px; border-radius: 12px; margin-top: 10px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; }
+    .quiz-item-actions { display: flex; justify-content: flex-end; border-top: 1px dashed #edf2f7; padding-top: 8px; }
+
+    .history-card { background: white; border: 1px solid #e2e8f0; padding: 14px; border-radius: 12px; margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #edf2f7; padding: 10px 8px; text-align: left; font-size: 14px; }
+    th { background: #f8fafc; font-weight: 800; }
+
+    #qrcode-box { background: white; border: 2px dashed #cbd5e1; padding: 18px; border-radius: 16px; text-align: center; margin: 15px 0; }
+    #qrcode img { margin: 12px auto; }
   </style>
 </head>
 <body>
 
   <!-- 1. MÀN HÌNH CHỌN VAI TRÒ -->
   <div id="role-screen" class="card">
-    <div class="header-banner">Xứ đoàn TNTT Thái Hà</div>
-    <h2 style="text-align: center;">Xin Chào Bạn </h2>
-    <button onclick="selectRole('teacher')" style="background: #28a745; width: 100%;">Tôi là Giáo Lý Viên / Huynh Trưởng</button>
-    <button onclick="selectRole('student')" style="width: 100%; margin-top: 10px;">Tôi là Học Sinh / Đoàn Sinh</button>
+    <div class="header-banner">🇻🇳 Xứ đoàn TNTT Thái Hà</div>
+    <h2 style="text-align: center; margin-top: 0; font-size: 24px; font-weight: 900;">🎯 BẠN LÀ AI?</h2>
+    <p style="text-align: center; color: var(--text-muted); margin-top: -8px; margin-bottom: 20px;">Vui lòng chọn vai trò để tiếp tục</p>
+    <button onclick="selectRole('teacher')" style="background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%); width: 100%; padding: 15px; font-size: 16px;">
+      👨‍🏫 Tôi là Giáo Lý Viên / Huynh Trưởng
+    </button>
+    <button onclick="selectRole('student')" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); width: 100%; margin-top: 12px; padding: 15px; font-size: 16px;">
+      🙋‍♂️ Tôi là Học Sinh / Đoàn Sinh
+    </button>
   </div>
 
-  <!-- 2. MÀN HÌNH GIÁO LÝ VIÊN -->
+  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ CỦA GIÁO LÝ VIÊN -->
+  <div id="auth-screen" class="card" style="display: none;">
+    <div class="header-banner">🇻🇳 Xứ đoàn TNTT Thái Hà</div>
+    <h2 id="auth-title" style="text-align: center; margin: 0 0 5px 0; font-weight: 900;">🔐 Đăng Nhập Giáo Lý Viên</h2>
+    <p style="text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Đăng nhập để quản lý tài liệu và bài thi riêng của thầy/cô</p>
+
+    <label><strong>Tài khoản (Tên đăng nhập):</strong></label>
+    <input type="text" id="auth-username" placeholder="Ví dụ: huynh_truong_01">
+
+    <label><strong>Mật khẩu:</strong></label>
+    <input type="password" id="auth-password" placeholder="••••••••">
+
+    <button id="auth-submit-btn" onclick="handleAuthSubmit()" style="width: 100%; padding: 14px; font-size: 16px; margin-top: 5px;">Đăng Nhập Ngay</button>
+
+    <div style="text-align: center; margin-top: 15px; font-size: 14px;">
+      <span id="auth-toggle-text">Chưa có tài khoản?</span>
+      <a href="javascript:void(0)" onclick="toggleAuthMode()" style="color: var(--primary); font-weight: bold; text-decoration: none; margin-left: 5px;">Đăng Ký Mới</a>
+    </div>
+
+    <button onclick="backToRoleScreen()" style="background: transparent; color: var(--text-muted); border: 1px solid #e2e8f0; width: 100%; margin-top: 15px;">← Quay Lại</button>
+  </div>
+
+  <!-- 3. MÀN HÌNH QUẢN TRỊ CỦA GIÁO LÝ VIÊN -->
   <div id="teacher-screen" class="card" style="display: none;">
-    <div class="header-banner">Xứ đoàn TNTT Thái Hà</div>
-    <h2>👨‍🏫 Quản Trị Phòng Thi</h2>
+    <div class="header-banner">🇻🇳 Xứ đoàn TNTT Thái Hà</div>
     
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <div>
+        <h2 style="margin: 0; font-size: 20px;">👨‍🏫 Xin chào, <span id="logged-user-name" style="color: var(--primary);">GLV</span></h2>
+        <small style="color: var(--text-muted);">Tài liệu được lưu an toàn trên tài khoản này</small>
+      </div>
+      <button onclick="logoutTeacher()" style="background: #f1f5f9; color: var(--danger); font-size: 13px; padding: 6px 12px;">Đăng Xuất</button>
+    </div>
+
+    <!-- MÃ QR PHÒNG THI -->
     <div id="qrcode-box">
-      <h3 style="margin: 0; color: #007bff;">📲 QUÉT MÃ QR ĐỂ VÀO THI</h3>
-      <p style="margin: 5px 0; font-size: 13px; color: #6c757d;">(Đoàn sinh dùng camera quét mã để tham gia)</p>
+      <h3 style="margin: 0; color: var(--primary); font-size: 17px;">📲 QUÉT MÃ QR THAM GIA</h3>
+      <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">(Đoàn sinh mở Camera điện thoại quét mã để vào phòng)</p>
       <div id="qrcode"></div>
     </div>
 
     <!-- DANH SÁCH BÀI KIỂM TRA -->
     <div class="quiz-manager">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin: 0;">📁 Danh Sách Bài Kiểm Tra</h3>
-        <button onclick="createNewQuizSection()" style="background: #28a745; width: auto;">➕ Tạo Bài Mới</button>
+        <h3 style="margin: 0; font-size: 16px;">📁 Kho Bài Thi Của Bạn</h3>
+        <button onclick="createNewQuizSection()" style="background: #10b981; font-size: 13px; padding: 8px 14px;">➕ Soạn Bài Mới</button>
       </div>
       <div id="quiz-list-container" style="margin-top: 10px;"></div>
     </div>
 
     <!-- KHUNG SOẠN ĐỀ -->
-    <div id="editor-section" style="display: none; border: 2px solid #007bff; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #f8f9fa;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <h3 id="current-quiz-title" style="margin: 0; color: #007bff;">📝 Soạn Đề Thi</h3>
-        <button onclick="closeEditor()" style="background: #6c757d; width: auto;">❌ Đóng</button>
+    <div id="editor-section" style="display: none; border: 2px solid var(--primary); padding: 18px; border-radius: 14px; margin-bottom: 16px; background: white;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 id="current-quiz-title" style="margin: 0; color: var(--primary); font-size: 16px;">📝 Soạn Đề Thi</h3>
+        <button onclick="closeEditor()" style="background: #e2e8f0; color: #475569; font-size: 12px; padding: 5px 10px;">❌ Đóng</button>
       </div>
 
       <label><strong>Tên Bài Kiểm Tra:</strong></label>
@@ -150,78 +283,81 @@
 
       <div id="parts-list"></div>
       
-      <button onclick="addPartInput()" style="background: #17a2b8; width: 100%; margin-bottom: 10px;">➕ THÊM PHẦN MỚI</button>
-      <button onclick="saveCurrentQuiz()" style="background: #28a745; width: 100%; font-size: 16px;">💾 LƯU BÀI KIỂM TRA</button>
+      <button onclick="addPartInput()" style="background: #0284c7; width: 100%; margin-bottom: 10px; font-size: 14px;">➕ THÊM PHẦN MỚI</button>
+      <button onclick="saveCurrentQuiz()" style="background: #10b981; width: 100%; font-size: 16px; padding: 14px;">💾 LƯU BÀI KIỂM TRA</button>
     </div>
 
     <!-- LỊCH SỬ KẾT QUẢ -->
     <div class="quiz-manager">
-      <h3>📊 Vùng Chọn Kết Quả Thi</h3>
-      <label><strong>Chọn Bài Kiểm Tra Muốn Xem Kết Quả:</strong></label>
+      <h3 style="margin: 0 0 10px 0; font-size: 16px;">📊 Bảng Điểm & Lịch Sử Thi</h3>
       <select id="history-quiz-select" onchange="renderHistoryUI()">
-        <option value="">-- Chọn bài kiểm tra --</option>
+        <option value="">-- Chọn bài kiểm tra để xem điểm --</option>
       </select>
       <div id="history-display-area" style="margin-top: 10px;"></div>
     </div>
 
-    <!-- KHỞI ĐỘNG PHÒNG THI -->
-    <div style="border-top: 2px dashed #ccc; padding-top: 15px; margin-top: 15px;">
-      <label><strong>Bài thi chuẩn bị phát:</strong></label>
-      <select id="active-quiz-select" style="font-weight: bold; color: #007bff;"></select>
+    <!-- PHÁT ĐỀ & BẮT ĐẦU -->
+    <div style="border-top: 2px dashed #cbd5e1; padding-top: 16px; margin-top: 16px;">
+      <label><strong>Chọn bài thi chuẩn bị phát:</strong></label>
+      <select id="active-quiz-select" style="font-weight: 800; color: var(--primary);"></select>
 
-      <h3>👨‍🎓 Đoàn sinh đã vào phòng (<span id="count">0</span>):</h3>
-      <ul id="student-list"></ul>
+      <h3 style="margin: 10px 0; font-size: 16px;">👨‍🎓 Đoàn sinh đã vào phòng (<span id="count" style="color: var(--primary);">0</span>):</h3>
+      <ul id="student-list" style="margin: 0 0 15px 0; padding-left: 20px; font-weight: 600; color: var(--text);"></ul>
       
-      <button id="start-btn" onclick="startQuiz()" style="background: #dc3545; font-size: 18px; width: 100%;">🚀 BẮT ĐẦU LÀM BÀI</button>
+      <button id="start-btn" onclick="startQuiz()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); font-size: 18px; width: 100%; padding: 16px; box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);">
+        🚀 BẮT ĐẦU LÀM BÀI
+      </button>
     </div>
 
-    <!-- THEO DÕI TIẾN ĐỘ CHO GIÁO LÝ VIÊN -->
-    <div id="teacher-live-box" style="display: none; margin-top: 20px; background: #e8f4fd; padding: 15px; border-radius: 8px; border: 2px solid #007bff; text-align: center;">
-      <h3 style="margin: 0; color: #007bff;">📡 BÀI THI ĐANG DIỄN RA</h3>
-      <h4 id="teacher-current-q" style="margin: 10px 0;">--</h4>
-      <h1 style="color: #dc3545; font-size: 40px; margin: 5px 0;">⏰ <span id="teacher-timer">--</span>s</h1>
+    <div id="teacher-live-box" style="display: none; margin-top: 20px; background: #eef2ff; padding: 16px; border-radius: 14px; border: 2px solid var(--primary); text-align: center;">
+      <h3 style="margin: 0; color: var(--primary); font-size: 16px;">📡 BÀI THI ĐANG DIỄN RA TRỰC TIẾP</h3>
+      <h4 id="teacher-current-q" style="margin: 8px 0; font-size: 15px;">--</h4>
+      <h1 style="color: var(--danger); font-size: 42px; margin: 0;">⏰ <span id="teacher-timer">--</span>s</h1>
     </div>
   </div>
 
-  <!-- 3. MÀN HÌNH HỌC SINH NHẬP TÊN -->
+  <!-- 4. MÀN HÌNH HỌC SINH NHẬP TÊN -->
   <div id="student-screen" class="card" style="display: none; text-align: center;">
-    <div class="header-banner">Xứ đoàn TNTT Thái Hà</div>
-    <h2 style="margin-top: 5px;">👋 Xin chào các bạn</h2>
+    <div class="header-banner">🇻🇳 Xứ đoàn TNTT Thái Hà</div>
+    <h2 style="margin: 0 0 5px 0; font-size: 24px; font-weight: 900;">👋 Xin chào bạn!</h2>
+    <p style="color: var(--text-muted); font-size: 14px; margin-top: 0; margin-bottom: 20px;">Nhập họ tên để tham gia trả lời câu hỏi thi đua</p>
     
-    <div style="text-align: left; margin-top: 15px;">
-      <label><strong>Nhập tên thánh & họ và tên của em:</strong></label>
-      <input type="text" id="student-name" placeholder="Ví dụ: Giuse Nguyễn Văn A">
+    <div style="text-align: left;">
+      <label><strong>Họ và tên của em (kèm Tên Thánh):</strong></label>
+      <input type="text" id="student-name" placeholder="Ví dụ: Maria Nguyễn Thị A">
     </div>
-    <button onclick="joinQuiz()" style="background: #28a745; width: 100%; font-size: 16px; padding: 12px; margin-top: 10px;">Bắt Đầu Làm Bài</button>
+    <button onclick="joinQuiz()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); width: 100%; font-size: 16px; padding: 15px; margin-top: 10px;">
+      Vào Phòng Thi Ngay
+    </button>
   </div>
 
-  <!-- 4. MÀN HÌNH LÀM BÀI -->
+  <!-- 5. MÀN HÌNH LÀM BÀI -->
   <div id="quiz-screen" class="card" style="display: none;">
-    <div class="header-banner" style="font-size: 14px; padding-bottom: 5px; margin-bottom: 10px;">Xứ đoàn TNTT Thái Hà</div>
-    <div style="display: flex; justify-content: space-between; align-items: center; background: #e9ecef; padding: 10px; border-radius: 5px;">
+    <div class="header-banner" style="font-size: 13px; padding-bottom: 6px; margin-bottom: 10px;">🇻🇳 Xứ đoàn TNTT Thái Hà</div>
+    <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 14px; border-radius: 12px; border: 1px solid #edf2f7;">
       <div>
-        <span id="student-part-title" style="font-weight: bold; color: #007bff;">PHẦN 1</span>
-        <span id="student-q-index" style="margin-left: 10px; font-weight: bold;">(Câu 1/5)</span>
+        <span id="student-part-title" style="font-weight: 800; color: var(--primary);">PHẦN 1</span>
+        <span id="student-q-index" style="margin-left: 8px; font-weight: 800; color: var(--text-muted);">(Câu 1/5)</span>
       </div>
-      <h2 style="margin: 0; color: #d9534f;">⏰ <span id="timer">--</span>s</h2>
+      <h2 style="margin: 0; color: var(--danger); font-size: 22px;">⏰ <span id="timer">--</span>s</h2>
     </div>
-    <hr>
+    <hr style="border: none; border-top: 1px solid #edf2f7; margin: 15px 0;">
     
     <div id="questions-container"></div>
   </div>
 
-  <!-- 5. MÀN HÌNH KẾT QUẢ -->
+  <!-- 6. MÀN HÌNH KẾT QUẢ -->
   <div id="result-screen" class="card" style="display: none;">
-    <div class="header-banner">Xứ đoàn TNTT Thái Hà</div>
+    <div class="header-banner">🇻🇳 Xứ đoàn TNTT Thái Hà</div>
     
     <!-- Bảng vinh danh của Giáo lý viên -->
     <div id="teacher-result-view" style="display: none;">
-      <h2 style="text-align: center; color: #d9534f;">🏆 BẢNG VINH DANH THÀNH TÍCH</h2>
-      <p style="text-align: center; color: #6c757d; margin-top: -10px; font-size: 14px;">(Điểm = Tổng số giây còn lại khi nộp đáp án đúng)</p>
+      <h2 style="text-align: center; color: var(--danger); margin: 0; font-size: 22px; font-weight: 900;">🏆 BẢNG VINH DANH THÀNH TÍCH</h2>
+      <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin: 4px 0 15px 0;">(Điểm = Tổng số giây còn lại khi nộp đáp án đúng)</p>
       <table>
         <thead>
           <tr>
-            <th style="text-align: center; width: 80px;">Giải</th>
+            <th style="text-align: center; width: 70px;">Giải</th>
             <th>Họ và Tên Thí Sinh</th>
             <th style="text-align: center;">Đúng / Sai / Bỏ</th>
             <th style="text-align: right;">Tổng Điểm</th>
@@ -229,18 +365,18 @@
         </thead>
         <tbody id="teacher-leaderboard-body"></tbody>
       </table>
-      <button onclick="location.reload()" style="background: #007bff; width: 100%; margin-top: 15px;">Quay Lại Màn Hình Quản Lý</button>
+      <button onclick="location.reload()" style="background: var(--primary); width: 100%; margin-top: 20px; padding: 14px;">Quay Lại Màn Hình Quản Trị</button>
     </div>
 
     <!-- Bảng chúc mừng & thông báo chi tiết của Học sinh -->
     <div id="student-result-view" style="display: none; text-align: center; padding: 10px 0;">
-      <h2 style="color: #28a745; margin-bottom: 5px;">🎉 CHÚC MỪNG EM ĐÃ HOÀN THÀNH BÀI THI!</h2>
-      <p style="font-size: 18px; margin-top: 0;">Đoàn sinh: <strong><span id="my-student-name">--</span></strong></p>
+      <h2 style="color: #10b981; margin: 0; font-size: 22px; font-weight: 900;">🎉 CHÚC MỪNG EM ĐÃ HOÀN THÀNH!</h2>
+      <p style="font-size: 17px; margin: 6px 0 15px 0; color: var(--text);">Đoàn sinh: <strong><span id="my-student-name">--</span></strong></p>
       
       <!-- KHUNG TỔNG ĐIỂM -->
-      <div style="background: #e9ecef; border-radius: 10px; padding: 15px; margin: 15px 0;">
-        <span style="font-size: 15px; color: #555;">TỔNG ĐIỂM THI ĐUA CỦA EM:</span>
-        <h1 style="font-size: 42px; color: #d9534f; margin: 8px 0;"><span id="my-final-score">0</span> điểm</h1>
+      <div style="background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%); border-radius: 16px; padding: 18px; margin: 15px 0; border: 1px solid #e2e8f0;">
+        <span style="font-size: 14px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">TỔNG ĐIỂM TÍCH LŨY</span>
+        <h1 style="font-size: 46px; color: var(--danger); margin: 6px 0 4px 0; font-weight: 900;"><span id="my-final-score">0</span> <small style="font-size: 20px;">điểm</small></h1>
       </div>
 
       <!-- KHUNG THỐNG KÊ CHI TIẾT: ĐÚNG - SAI - BỎ TRỐNG -->
@@ -259,7 +395,7 @@
         </div>
       </div>
 
-      <p style="color: #6c757d; font-size: 14px;">Em hãy quan sát màn hình của Giáo lý viên để xem thứ hạng trao giải nhé!</p>
+      <p style="color: var(--text-muted); font-size: 13px; margin-top: 15px;">Em hãy quan sát màn hình của Giáo lý viên để xem trao thưởng giải Nhất, Nhì, Ba nhé!</p>
     </div>
   </div>
 
@@ -267,20 +403,22 @@
     const socket = io({ transports: ['websocket', 'polling'] });
     let myRole = '';
     let currentStudentName = '';
+    let currentTeacherUser = '';
     let allQuizzes = {};
     let partCount = 0;
     let editingQuizKey = null;
     let localTimerInterval = null;
     let currentRemainingSeconds = 0;
+    let isAuthRegisterMode = false;
     
     let isSelectedChoiceCorrect = false;
     let hasSelectedAnOption = false;
     let hasSubmittedCurrentQuestion = false;
 
     function getRankBadge(idx) {
-      if (idx === 0) return '🥇 <b>Giải Nhất</b>';
-      if (idx === 1) return '🥈 <b>Giải Nhì</b>';
-      if (idx === 2) return '🥉 <b>Giải Ba</b>';
+      if (idx === 0) return '🥇 <b>Nhất</b>';
+      if (idx === 1) return '🥈 <b>Nhì</b>';
+      if (idx === 2) return '🥉 <b>Ba</b>';
       return `#${idx + 1}`;
     }
 
@@ -303,8 +441,63 @@
       }
     });
 
+    /* HỆ THỐNG XÁC THỰC TÀI KHOẢN GIÁO LÝ VIÊN */
+    function toggleAuthMode() {
+      isAuthRegisterMode = !isAuthRegisterMode;
+      document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
+      document.getElementById('auth-submit-btn').innerText = isAuthRegisterMode ? 'Tạo Tài Khoản Mới' : 'Đăng Nhập Ngay';
+      document.getElementById('auth-toggle-text').innerText = isAuthRegisterMode ? 'Đã có tài khoản?' : 'Chưa có tài khoản?';
+      document.querySelector('#auth-screen a').innerText = isAuthRegisterMode ? 'Đăng Nhập' : 'Đăng Ký Mới';
+    }
+
+    function handleAuthSubmit() {
+      const username = document.getElementById('auth-username').value.trim();
+      const pass = document.getElementById('auth-password').value.trim();
+
+      if (!username || !pass) return alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
+
+      const users = JSON.parse(localStorage.getItem('tntt_teachers_db') || '{}');
+
+      if (isAuthRegisterMode) {
+        if (users[username]) return alert('Tên tài khoản này đã tồn tại! Vui lòng chọn tên khác.');
+        users[username] = { password: pass };
+        localStorage.setItem('tntt_teachers_db', JSON.stringify(users));
+        alert('Tạo tài khoản thành công! Bây giờ thầy/cô có thể đăng nhập.');
+        toggleAuthMode();
+      } else {
+        if (!users[username] || users[username].password !== pass) {
+          return alert('Sai tên tài khoản hoặc mật khẩu!');
+        }
+        currentTeacherUser = username;
+        document.getElementById('logged-user-name').innerText = username;
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('teacher-screen').style.display = 'block';
+        generateRoomQRCode();
+        loadSavedQuizzes();
+      }
+    }
+
+    function logoutTeacher() {
+      currentTeacherUser = '';
+      location.reload();
+    }
+
+    function backToRoleScreen() {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('role-screen').style.display = 'block';
+    }
+
+    /* QUẢN LÝ DỮ LIỆU TÀI LIỆU RIÊNG THEO TÀI KHOẢN */
+    function getTeacherQuizStorageKey() {
+      return `all_quizzes_user_${currentTeacherUser}`;
+    }
+
+    function getTeacherHistoryStorageKey() {
+      return `quiz_history_user_${currentTeacherUser}`;
+    }
+
     function loadSavedQuizzes() {
-      const saved = localStorage.getItem('all_quizzes_v4');
+      const saved = localStorage.getItem(getTeacherQuizStorageKey());
       allQuizzes = saved ? JSON.parse(saved) : {};
 
       const listContainer = document.getElementById('quiz-list-container');
@@ -312,12 +505,12 @@
       const activeSelect = document.getElementById('active-quiz-select');
 
       listContainer.innerHTML = '';
-      historySelect.innerHTML = '<option value="">-- Chọn bài kiểm tra --</option>';
+      historySelect.innerHTML = '<option value="">-- Chọn bài kiểm tra để xem điểm --</option>';
       activeSelect.innerHTML = '';
 
       const keys = Object.keys(allQuizzes);
       if (keys.length === 0) {
-        listContainer.innerHTML = '<p style="color: #6c757d; font-style: italic;">Chưa có bài kiểm tra nào.</p>';
+        listContainer.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-size: 14px; margin: 5px 0;">Chưa có bài thi nào được lưu trên tài khoản này.</p>';
         activeSelect.innerHTML = '<option value="">(Chưa có bài)</option>';
         return;
       }
@@ -328,7 +521,7 @@
         item.innerHTML = `
           <div><strong style="font-size: 15px;">📌 ${name}</strong></div>
           <div class="quiz-item-actions">
-            <button class="btn-edit" onclick="editQuiz('${name}')">✏️ Chỉnh Sửa</button>
+            <button class="btn-edit" onclick="editQuiz('${name}')">✏️ Sửa</button>
             <button class="btn-delete" onclick="deleteQuiz('${name}')">🗑️ Xóa</button>
           </div>
         `;
@@ -379,8 +572,8 @@
       }
 
       allQuizzes[newName] = parts;
-      localStorage.setItem('all_quizzes_v4', JSON.stringify(allQuizzes));
-      alert(`Đã lưu thành công bài kiểm tra "${newName}"!`);
+      localStorage.setItem(getTeacherQuizStorageKey(), JSON.stringify(allQuizzes));
+      alert(`Đã lưu thành công bài thi "${newName}" vào tài khoản của thầy/cô!`);
 
       closeEditor();
       loadSavedQuizzes();
@@ -389,11 +582,11 @@
     function deleteQuiz(name) {
       if (confirm(`Bạn có chắc muốn xóa bài "${name}" không?`)) {
         delete allQuizzes[name];
-        localStorage.setItem('all_quizzes_v4', JSON.stringify(allQuizzes));
+        localStorage.setItem(getTeacherQuizStorageKey(), JSON.stringify(allQuizzes));
 
-        const historyData = JSON.parse(localStorage.getItem('quiz_history_records') || '{}');
+        const historyData = JSON.parse(localStorage.getItem(getTeacherHistoryStorageKey()) || '{}');
         delete historyData[name];
-        localStorage.setItem('quiz_history_records', JSON.stringify(historyData));
+        localStorage.setItem(getTeacherHistoryStorageKey(), JSON.stringify(historyData));
 
         loadSavedQuizzes();
         renderHistoryUI();
@@ -413,7 +606,7 @@
         <label><strong>Tên Phần:</strong></label>
         <input type="text" class="part-title" value="${partTitle}">
         <div class="q-container" style="margin-top: 10px;"></div>
-        <button onclick="addQuestionToPart(this.previousElementSibling)" style="background: #6c757d; font-size: 13px;">➕ Thêm Câu Hỏi Vào Phần Này</button>
+        <button onclick="addQuestionToPart(this.previousElementSibling)" style="background: #64748b; font-size: 13px; padding: 8px 12px;">➕ Thêm Câu Hỏi</button>
       `;
       container.appendChild(pDiv);
 
@@ -434,7 +627,7 @@
       const duration = data ? data.duration : 10;
 
       qDiv.innerHTML = `
-        <button class="btn-delete" style="float:right;" onclick="this.parentElement.remove()">❌ Xóa Câu</button>
+        <button class="btn-delete" style="float:right;" onclick="this.parentElement.remove()">❌ Xóa</button>
         <div style="display: flex; gap: 10px;">
           <div style="flex: 2;">
             <label><strong>Dạng câu hỏi:</strong></label>
@@ -444,7 +637,7 @@
             </select>
           </div>
           <div style="flex: 1;">
-            <label style="color: #d9534f;"><strong>⏱️ Thời gian (giây):</strong></label>
+            <label style="color: var(--danger);"><strong>⏱️ Giây:</strong></label>
             <input type="number" class="q-duration" value="${duration}">
           </div>
         </div>
@@ -535,27 +728,27 @@
       const displayArea = document.getElementById('history-display-area');
 
       if (!quizName) {
-        displayArea.innerHTML = '<p style="color: #6c757d; font-style: italic;">Vui lòng chọn bài kiểm tra ở trên.</p>';
+        displayArea.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-size: 14px;">Vui lòng chọn bài kiểm tra ở trên.</p>';
         return;
       }
 
-      const historyData = JSON.parse(localStorage.getItem('quiz_history_records') || '{}');
+      const historyData = JSON.parse(localStorage.getItem(getTeacherHistoryStorageKey()) || '{}');
       const records = historyData[quizName] || [];
 
       if (records.length === 0) {
-        displayArea.innerHTML = `<p style="color: #6c757d; font-style: italic;">Chưa có lượt thi nào cho bài "${quizName}".</p>`;
+        displayArea.innerHTML = `<p style="color: var(--text-muted); font-style: italic; font-size: 14px;">Chưa có lượt thi nào cho bài "${quizName}".</p>`;
         return;
       }
 
-      let html = `<button onclick="clearQuizHistory('${quizName}')" style="background: #dc3545; font-size: 12px; width: auto; margin-bottom: 10px;">🗑️ Xóa Lịch Sử Bài Này</button>`;
+      let html = `<button onclick="clearQuizHistory('${quizName}')" style="background: var(--danger); font-size: 12px; padding: 6px 12px; margin-bottom: 10px;">🗑️ Xóa Lịch Sử Bài Này</button>`;
       records.forEach(rec => {
         html += `
           <div class="history-card">
-            <strong>📌 Lần thi thứ ${rec.attempt}</strong> - <small>(${rec.time})</small>
+            <strong>📌 Lần thi thứ ${rec.attempt}</strong> - <small style="color: var(--text-muted);">(${rec.time})</small>
             <table>
               <thead>
                 <tr>
-                  <th style="text-align: center; width: 80px;">Giải</th>
+                  <th style="text-align: center; width: 70px;">Giải</th>
                   <th>Họ và Tên Thí Sinh</th>
                   <th style="text-align: center;">Đúng / Sai / Bỏ</th>
                   <th style="text-align: right;">Điểm Số</th>
@@ -565,9 +758,9 @@
                 ${rec.results.sort((a,b) => b.score - a.score).map((s, idx) => `
                   <tr>
                     <td style="text-align: center;">${getRankBadge(idx)}</td>
-                    <td>${s.name}</td>
+                    <td><b>${s.name}</b></td>
                     <td style="text-align: center;"><small>✅${s.correctCount || 0} | ❌${s.wrongCount || 0} | ⚪${s.unansweredCount || 0}</small></td>
-                    <td style="text-align: right;"><strong style="color: #28a745;">${s.score}</strong> điểm</td>
+                    <td style="text-align: right;"><strong style="color: #10b981;">${s.score}</strong> điểm</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -580,8 +773,8 @@
     }
 
     function saveHistoryRecord(quizName, leaderboard) {
-      if (!quizName) return;
-      const historyData = JSON.parse(localStorage.getItem('quiz_history_records') || '{}');
+      if (!quizName || !currentTeacherUser) return;
+      const historyData = JSON.parse(localStorage.getItem(getTeacherHistoryStorageKey()) || '{}');
       if (!historyData[quizName]) historyData[quizName] = [];
 
       historyData[quizName].push({
@@ -589,14 +782,14 @@
         time: new Date().toLocaleString('vi-VN'),
         results: leaderboard
       });
-      localStorage.setItem('quiz_history_records', JSON.stringify(historyData));
+      localStorage.setItem(getTeacherHistoryStorageKey(), JSON.stringify(historyData));
     }
 
     function clearQuizHistory(quizName) {
       if (confirm(`Bạn có chắc muốn xóa lịch sử bài "${quizName}"?`)) {
-        const historyData = JSON.parse(localStorage.getItem('quiz_history_records') || '{}');
+        const historyData = JSON.parse(localStorage.getItem(getTeacherHistoryStorageKey()) || '{}');
         delete historyData[quizName];
-        localStorage.setItem('quiz_history_records', JSON.stringify(historyData));
+        localStorage.setItem(getTeacherHistoryStorageKey(), JSON.stringify(historyData));
         renderHistoryUI();
       }
     }
@@ -605,9 +798,7 @@
       myRole = role;
       document.getElementById('role-screen').style.display = 'none';
       if (role === 'teacher') {
-        document.getElementById('teacher-screen').style.display = 'block';
-        generateRoomQRCode();
-        loadSavedQuizzes();
+        document.getElementById('auth-screen').style.display = 'block';
       } else {
         document.getElementById('student-screen').style.display = 'block';
       }
@@ -619,7 +810,7 @@
       currentStudentName = name;
       myRole = 'student';
       socket.emit('join_room', { name: name, role: 'student' });
-      alert('Đã báo danh thành công! Em hãy quan sát màn hình, khi Giáo Lý Viên bấm Bắt đầu bài thi sẽ bắt đầu ngay.');
+      alert('Đã báo danh thành công! Em hãy chú ý màn hình, khi Giáo Lý Viên bấm Bắt đầu bài thi sẽ bắt đầu ngay.');
     }
 
     function startQuiz() {
@@ -633,7 +824,7 @@
       const btn = document.getElementById('start-btn');
       btn.disabled = true;
       btn.innerText = '⏳ BÀI THI ĐANG DIỄN RA...';
-      btn.style.background = '#6c757d';
+      btn.style.background = '#64748b';
 
       const parts = allQuizzes[selectedQuizName];
       socket.emit('start_quiz', { parts, quizName: selectedQuizName });
@@ -678,7 +869,7 @@
         const container = document.getElementById('questions-container');
         const q = item.question;
         
-        let html = `<h3 style="margin-top: 0; font-size: 18px;">${q.title}</h3>`;
+        let html = `<h3 style="margin-top: 0; font-size: 19px; line-height: 1.4;">${q.title}</h3>`;
 
         if (q.type === 'multiple') {
           q.options.forEach((opt, optIdx) => {
@@ -706,7 +897,6 @@
         const teacherTimerEl = document.getElementById('teacher-timer');
         if (teacherTimerEl) teacherTimerEl.innerText = Math.max(0, currentRemainingSeconds);
 
-        // KHI HẾT GIỜ LÀM BÀI -> NGHỈ 3 GIÂY ĐỆM
         if (currentRemainingSeconds <= 0) {
           clearInterval(localTimerInterval);
           localTimerInterval = null;
@@ -720,14 +910,10 @@
             b.style.opacity = '0.5';
           });
 
-          // Đếm ngược 3 giây nghỉ trước khi chuyển câu
           let restSeconds = 3;
           const waitingBox = document.getElementById('waiting-box');
           if (waitingBox) {
             waitingBox.style.display = 'block';
-            waitingBox.style.background = '#fff3cd';
-            waitingBox.style.color = '#856404';
-            waitingBox.style.borderColor = '#ffeeba';
             waitingBox.innerHTML = `⌛ <b>ĐÃ HẾT GIỜ!</b> Chuẩn bị câu tiếp theo sau <b>${restSeconds}s</b>...`;
           }
 
@@ -742,7 +928,6 @@
             }
           }, 1000);
 
-          // Báo về server để chuyển câu sau 3s
           if (!timeUpFired) {
             timeUpFired = true;
             socket.emit('time_up');
@@ -818,7 +1003,7 @@
             <td style="text-align: center;">${getRankBadge(idx)}</td>
             <td><strong>${s.name}</strong></td>
             <td style="text-align: center;"><small>✅${s.correctCount || 0} | ❌${s.wrongCount || 0} | ⚪${s.unansweredCount || 0}</small></td>
-            <td style="text-align: right;"><strong style="color: #28a745; font-size: 16px;">${s.score}</strong> điểm</td>
+            <td style="text-align: right;"><strong style="color: #10b981; font-size: 16px;">${s.score}</strong> điểm</td>
           </tr>
         `).join('');
 
