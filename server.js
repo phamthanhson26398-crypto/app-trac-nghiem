@@ -39,7 +39,7 @@ function advanceToNextQuestion() {
     state.timerTimeout = null;
   }
 
-  // Cộng dồn điểm và tính số câu Đúng / Sai / Bỏ trống
+  // Tổng kết câu vừa xong cho từng học sinh
   Object.keys(state.students).forEach(id => {
     const st = state.students[id];
     st.score += st.currentScore;
@@ -59,7 +59,6 @@ function advanceToNextQuestion() {
 
   state.currentIndex++;
 
-  // Hết đề thi -> kết thúc
   if (state.currentIndex >= state.queue.length) {
     state.status = 'ended';
     state.currentItem = null;
@@ -70,7 +69,7 @@ function advanceToNextQuestion() {
     return;
   }
 
-  // NGHỈ ĐÚNG 3 GIÂY ĐỆM TRƯỚC KHI BẮT ĐẦU CÂU MỚI
+  // Nghỉ 3 giây chuyển tiếp
   setTimeout(() => {
     state.currentItem = state.queue[state.currentIndex];
     state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
@@ -82,7 +81,6 @@ function advanceToNextQuestion() {
 
     state.isAdvancing = false;
 
-    // Phát câu hỏi mới
     io.emit('question_started', {
       item: state.currentItem,
       duration: state.currentDuration,
@@ -90,7 +88,6 @@ function advanceToNextQuestion() {
       totalQuestions: state.queue.length
     });
 
-    // Hẹn giờ dự phòng ở Server
     state.timerTimeout = setTimeout(() => {
       advanceToNextQuestion();
     }, (state.currentDuration + 4) * 1000);
@@ -166,7 +163,6 @@ io.on('connection', (socket) => {
       state.students[id].unansweredCount = 0;
     });
 
-    // Bắt đầu câu số 1 ngay lập tức
     advanceToFirstQuestion();
   });
 
