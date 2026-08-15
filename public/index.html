@@ -168,64 +168,77 @@
       50% { opacity: 0.85; }
     }
 
+    /* CARD LINH VẬT CỦA BẢN THÂN */
     .my-mascot-card {
       background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
       color: white;
-      padding: 22px;
+      padding: 18px;
       border-radius: 20px;
       text-align: center;
-      margin: 15px 0 20px 0;
-      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
-      position: relative;
+      margin: 10px 0 15px 0;
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.25);
     }
     .my-mascot-icon {
-      font-size: 68px;
+      font-size: 54px;
       filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
       animation: floatMascot 2.5s ease-in-out infinite;
       display: inline-block;
     }
     @keyframes floatMascot {
       0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-8px) rotate(4deg); }
+      50% { transform: translateY(-6px) rotate(4deg); }
     }
 
+    /* GIAO DIỆN PHÒNG CHỜ DẠNG HÌNH TRÒN GỌN GÀNG */
     .lobby-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
-      gap: 12px;
-      margin-top: 15px;
-      max-height: 250px;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+      max-height: 240px;
       overflow-y: auto;
-      padding: 4px;
+      padding: 8px 4px;
     }
     .lobby-student-chip {
-      background: #ffffff;
-      border: 2px solid #e2e8f0;
-      padding: 10px;
-      border-radius: 14px;
-      text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+      background: transparent;
+      border: none;
+      padding: 0;
       transition: all 0.2s;
     }
     .lobby-student-chip:hover {
-      transform: translateY(-2px);
-      border-color: var(--primary);
+      transform: scale(1.08);
     }
-    .lobby-student-icon {
-      font-size: 32px;
+    /* VÒNG TRÒN AVATAR LINH VẬT */
+    .lobby-student-avatar {
+      width: 48px;
+      height: 48px;
+      background: white;
+      border: 2px solid var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.06);
     }
+    /* TÊN ĐOÀN SINH DƯỚI AVATAR TRÒN */
     .lobby-student-name {
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 800;
       color: var(--text);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 110px;
+      max-width: 65px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
     }
 
     .stat-grid {
@@ -415,25 +428,27 @@
     </button>
   </div>
 
-  <!-- 6. PHÒNG CHỜ LINH VẬT SINH ĐỘNG (LOBBY) -->
+  <!-- 6. PHÒNG CHỜ LINH VẬT DẠNG AVATAR TRÒN NHỎ GỌN -->
   <div id="lobby-screen" class="card" style="display: none; text-align: center;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
+    <!-- THẺ LINH VẬT RIÊNG CỦA MÌNH -->
     <div class="my-mascot-card">
       <div id="my-mascot-icon" class="my-mascot-icon">🦁</div>
-      <h2 id="my-mascot-title" style="margin: 6px 0 0 0; font-size: 20px; font-weight: 900;">Linh vật: Sư Tử Dũng Mãnh</h2>
-      <p style="margin: 4px 0 0 0; font-size: 16px; opacity: 0.9;">Đoàn sinh: <strong id="lobby-my-name">--</strong></p>
+      <h2 id="my-mascot-title" style="margin: 4px 0 0 0; font-size: 18px; font-weight: 900;">Linh vật: Sư Tử Dũng Mãnh</h2>
+      <p style="margin: 2px 0 0 0; font-size: 15px; opacity: 0.95;">Đoàn sinh: <strong id="lobby-my-name">--</strong></p>
     </div>
 
-    <div style="background: #f8fafc; border: 2px dashed #cbd5e1; padding: 14px; border-radius: 16px;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-weight: 800; font-size: 14px; color: var(--primary);">👥 CÁC BẠN TRONG PHÒNG (<span id="lobby-count">0</span>)</span>
-        <span style="font-size: 12px; color: var(--text-muted);">Đang sẵn sàng...</span>
+    <!-- DANH SÁCH BẠN BÈ VỚI AVATAR HÌNH TRÒN TIẾT KIỆM KHÔNG GIAN -->
+    <div style="background: #f8fafc; border: 2px dashed #cbd5e1; padding: 12px; border-radius: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;">
+        <span style="font-weight: 800; font-size: 13px; color: var(--primary);">👥 CÁC BẠN ĐÃ VÀO PHÒNG (<span id="lobby-count">0</span>)</span>
+        <span style="font-size: 11px; color: var(--text-muted);">Sẵn sàng...</span>
       </div>
       <div id="lobby-students-container" class="lobby-grid"></div>
     </div>
 
-    <div class="waiting-status-box" style="margin-top: 18px;">
+    <div class="waiting-status-box" style="margin-top: 15px; padding: 12px; font-size: 14px;">
       ⏳ Hãy chú ý quan sát màn hình! Bài thi sẽ bắt đầu ngay khi Giáo Lý Viên bấm lệnh...
     </div>
   </div>
@@ -1005,27 +1020,27 @@
       socket.emit('start_quiz', { parts, quizName: selectedQuizName });
     }
 
+    /* CẬP NHẬT DANH SÁCH DẠNG AVATAR HÌNH TRÒN */
     socket.on('update_students', (students) => {
+      const htmlList = students.map(s => `
+        <div class="lobby-student-chip">
+          <div class="lobby-student-avatar">${s.mascot ? s.mascot.icon : '🦁'}</div>
+          <span class="lobby-student-name" title="${s.name}">${s.name}</span>
+        </div>
+      `).join('');
+
+      // Cập nhật màn hình GLV
       if (myRole === 'teacher') {
         document.getElementById('count').innerText = students.length;
         const grid = document.getElementById('teacher-student-grid');
-        grid.innerHTML = students.map(s => `
-          <div class="lobby-student-chip">
-            <span class="lobby-student-icon">${s.mascot ? s.mascot.icon : '🦁'}</span>
-            <span class="lobby-student-name">${s.name}</span>
-          </div>
-        `).join('');
+        grid.innerHTML = htmlList;
       }
 
+      // Cập nhật màn hình Phòng Chờ Học Sinh
       if (myRole === 'student') {
         document.getElementById('lobby-count').innerText = students.length;
         const container = document.getElementById('lobby-students-container');
-        container.innerHTML = students.map(s => `
-          <div class="lobby-student-chip">
-            <span class="lobby-student-icon">${s.mascot ? s.mascot.icon : '🦁'}</span>
-            <span class="lobby-student-name">${s.name}</span>
-          </div>
-        `).join('');
+        container.innerHTML = htmlList;
       }
     });
 
