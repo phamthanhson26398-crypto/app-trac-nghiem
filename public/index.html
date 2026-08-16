@@ -11,8 +11,8 @@
     :root {
       --primary: #4361ee;
       --secondary: #7209b7;
-      --success: #2ec4b6;
-      --danger: #e63946;
+      --success: #10b981;
+      --danger: #ef4444;
       --warning: #ffb703;
       --bg: #f4f7fb;
       --card-bg: #ffffff;
@@ -137,24 +137,33 @@
       box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
     }
 
-    /* HIỆU ỨNG NHẤP NHÁY ĐÁP ÁN ĐÚNG */
-    .opt-btn.correct-reveal {
+    /* HIỆU ỨNG NHẤP NHÁY ĐÁP ÁN ĐÚNG (XANH LÁ) */
+    .opt-btn.reveal-correct {
       background: #d1fae5 !important;
-      border: 2px solid #10b981 !important;
+      border: 3px solid #10b981 !important;
       color: #065f46 !important;
       font-weight: 900 !important;
-      animation: blinkCorrect 0.6s infinite alternate !important;
+      animation: blinkGreen 0.5s infinite alternate !important;
       opacity: 1 !important;
     }
-    @keyframes blinkCorrect {
+    @keyframes blinkGreen {
       0% {
-        box-shadow: 0 0 0px rgba(16, 185, 129, 0.2);
+        box-shadow: 0 0 2px rgba(16, 185, 129, 0.3);
         transform: scale(1);
       }
       100% {
-        box-shadow: 0 0 16px rgba(16, 185, 129, 0.85);
+        box-shadow: 0 0 18px rgba(16, 185, 129, 0.9);
         transform: scale(1.03);
       }
+    }
+
+    /* HIỆU ỨNG ĐÁP ÁN CHỌN SAI (ĐỎ) */
+    .opt-btn.reveal-wrong {
+      background: #fee2e2 !important;
+      border: 3px solid #ef4444 !important;
+      color: #991b1b !important;
+      font-weight: 900 !important;
+      opacity: 1 !important;
     }
 
     .btn-submit-answer {
@@ -553,6 +562,7 @@
     let isSelectedChoiceCorrect = false;
     let hasSelectedAnOption = false;
     let hasSubmittedCurrentQuestion = false;
+    let selectedButtonElement = null;
 
     function getRankBadge(idx) {
       if (idx === 0) return '🥇 <b>Nhất</b>';
@@ -580,7 +590,6 @@
       }
     });
 
-    /* QUẢN TRỊ VIÊN HỆ THỐNG */
     function loadAdminUserTable() {
       const users = JSON.parse(localStorage.getItem('tntt_teachers_db') || '{}');
       const tbody = document.getElementById('admin-user-table-body');
@@ -629,7 +638,6 @@
       }
     }
 
-    /* HỆ THỐNG XÁC THỰC TÀI KHOẢN GLV */
     function toggleAuthMode() {
       isAuthRegisterMode = !isAuthRegisterMode;
       document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
@@ -1001,7 +1009,6 @@
       }
     }
 
-    /* ĐOÀN SINH THAM GIA PHÒNG CHỜ LINH VẬT */
     function joinQuiz() {
       const name = document.getElementById('student-name').value.trim();
       if (!name) return alert('Vui lòng nhập họ tên của em!');
@@ -1039,7 +1046,6 @@
       socket.emit('start_quiz', { parts, quizName: selectedQuizName });
     }
 
-    /* CẬP NHẬT LINH VẬT TRÒN CHO CẢ GIÁO VIÊN VÀ HỌC SINH */
     socket.on('update_students', (students) => {
       const htmlList = students.map(s => `
         <div class="lobby-student-chip">
@@ -1068,6 +1074,10 @@
       }
 
       currentRemainingSeconds = duration;
+      isSelectedChoiceCorrect = false;
+      hasSelectedAnOption = false;
+      hasSubmittedCurrentQuestion = false;
+      selectedButtonElement = null;
 
       if (myRole === 'teacher') {
         const liveBox = document.getElementById('teacher-live-box');
@@ -1082,10 +1092,6 @@
         document.getElementById('lobby-screen').style.display = 'none';
         document.getElementById('quiz-screen').style.display = 'block';
 
-        isSelectedChoiceCorrect = false;
-        hasSelectedAnOption = false;
-        hasSubmittedCurrentQuestion = false;
-
         document.getElementById('student-part-title').innerText = `${item.partTitle}`;
         document.getElementById('student-q-index').innerText = `(Câu ${item.questionIndex}/${item.totalQuestionsInPart})`;
         document.getElementById('timer').innerText = currentRemainingSeconds;
@@ -1097,11 +1103,14 @@
 
         if (q.type === 'multiple') {
           q.options.forEach((opt, optIdx) => {
-            if (opt) html += `<button class="opt-btn" data-correct="${optIdx == q.correct}" type="button" onclick="selectChoice(${optIdx == q.correct}, this)">${opt}</button>`;
+            const isCorrect = (optIdx == q.correct);
+            if (opt) html += `<button class="opt-btn" data-is-correct="${isCorrect}" type="button" onclick="selectChoice(${isCorrect}, this)">${opt}</button>`;
           });
         } else if (q.type === 'tf') {
-          html += `<button class="opt-btn" data-correct="${q.correct === 'Đúng'}" type="button" onclick="selectChoice('${q.correct}' === 'Đúng', this)">Đúng</button>
-                   <button class="opt-btn" data-correct="${q.correct === 'Sai'}" type="button" onclick="selectChoice('${q.correct}' === 'Sai', this)">Sai</button>`;
+          const isTrueCorrect = (q.correct === 'Đúng');
+          const isFalseCorrect = (q.correct === 'Sai');
+          html += `<button class="opt-btn" data-is-correct="${isTrueCorrect}" type="button" onclick="selectChoice(${isTrueCorrect}, this)">Đúng</button>
+                   <button class="opt-btn" data-is-correct="${isFalseCorrect}" type="button" onclick="selectChoice(${isFalseCorrect}, this)">Sai</button>`;
         }
 
         html += `<button id="btn-submit" class="btn-submit-answer" type="button" onclick="submitCurrentAnswer()">📤 NỘP ĐÁP ÁN</button>`;
@@ -1120,7 +1129,7 @@
         const teacherTimerEl = document.getElementById('teacher-timer');
         if (teacherTimerEl) teacherTimerEl.innerText = Math.max(0, currentRemainingSeconds);
 
-        // KHI HẾT GIỜ -> BẬT NHẤP NHÁY ĐÁP ÁN ĐÚNG TRONG 3S
+        // KHI HẾT GIỜ -> KÍCH HOẠT HIỆU ỨNG ĐÚNG/SAI RỰC RỠ TRONG 3 GIÂY
         if (currentRemainingSeconds <= 0) {
           clearInterval(localTimerInterval);
           localTimerInterval = null;
@@ -1128,14 +1137,23 @@
           const submitBtn = document.getElementById('btn-submit');
           if (submitBtn) submitBtn.style.display = 'none';
 
-          // TÌM VÀ BẬT HIỆU ỨNG NHẤP NHÁY XANH CHO ĐÁP ÁN ĐÚNG
           const optButtons = document.querySelectorAll('.opt-btn');
           optButtons.forEach(b => {
             b.style.pointerEvents = 'none';
-            if (b.getAttribute('data-correct') === 'true') {
-              b.classList.add('correct-reveal');
+            const isCorrect = b.getAttribute('data-is-correct') === 'true';
+
+            if (isCorrect) {
+              b.classList.remove('selected');
+              b.classList.add('reveal-correct');
+              if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅ (ĐÚNG)';
             } else {
-              b.style.opacity = '0.4';
+              if (b.classList.contains('selected')) {
+                b.classList.remove('selected');
+                b.classList.add('reveal-wrong');
+                if (!b.innerHTML.includes('❌')) b.innerHTML += ' ❌ (SAI)';
+              } else {
+                b.style.opacity = '0.3';
+              }
             }
           });
 
@@ -1143,17 +1161,20 @@
           const waitingBox = document.getElementById('waiting-box');
           if (waitingBox) {
             waitingBox.style.display = 'block';
-            waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG NHẤP NHÁY!</b> Chuẩn bị câu tiếp theo sau <b>${restSeconds}s</b>...`;
+            waitingBox.style.background = '#eef2ff';
+            waitingBox.style.color = '#3730a3';
+            waitingBox.style.borderColor = '#c7d2fe';
+            waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG PHÁT SÁNG!</b> Câu tiếp theo sau <b>${restSeconds}s</b>...`;
           }
 
           const restInterval = setInterval(() => {
             restSeconds--;
             if (waitingBox && restSeconds > 0) {
-              waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG NHẤP NHÁY!</b> Chuẩn bị câu tiếp theo sau <b>${restSeconds}s</b>...`;
+              waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG PHÁT SÁNG!</b> Câu tiếp theo sau <b>${restSeconds}s</b>...`;
             }
             if (restSeconds <= 0) {
               clearInterval(restInterval);
-              if (waitingBox) waitingBox.innerHTML = `🚀 Đang tải câu hỏi mới...`;
+              if (waitingBox) waitingBox.innerHTML = `🚀 Đang nạp câu hỏi tiếp theo...`;
             }
           }, 1000);
 
@@ -1170,6 +1191,7 @@
 
       isSelectedChoiceCorrect = isCorrect;
       hasSelectedAnOption = true;
+      selectedButtonElement = element;
 
       if (element.tagName === 'BUTTON') {
         element.parentNode.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
@@ -1199,7 +1221,7 @@
       const optButtons = document.querySelectorAll('.opt-btn');
       optButtons.forEach(b => {
         b.style.pointerEvents = 'none';
-        b.style.opacity = '0.6';
+        b.style.opacity = '0.7';
       });
 
       socket.emit('submit_answer', { 
