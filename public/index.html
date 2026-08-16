@@ -137,6 +137,26 @@
       box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
     }
 
+    /* HIỆU ỨNG NHẤP NHÁY ĐÁP ÁN ĐÚNG */
+    .opt-btn.correct-reveal {
+      background: #d1fae5 !important;
+      border: 2px solid #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 900 !important;
+      animation: blinkCorrect 0.6s infinite alternate !important;
+      opacity: 1 !important;
+    }
+    @keyframes blinkCorrect {
+      0% {
+        box-shadow: 0 0 0px rgba(16, 185, 129, 0.2);
+        transform: scale(1);
+      }
+      100% {
+        box-shadow: 0 0 16px rgba(16, 185, 129, 0.85);
+        transform: scale(1.03);
+      }
+    }
+
     .btn-submit-answer {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
       color: white !important;
@@ -168,7 +188,6 @@
       50% { opacity: 0.85; }
     }
 
-    /* CARD LINH VẬT CỦA BẢN THÂN */
     .my-mascot-card {
       background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
       color: white;
@@ -189,7 +208,6 @@
       50% { transform: translateY(-6px) rotate(4deg); }
     }
 
-    /* GIAO DIỆN PHÒNG CHỜ DẠNG HÌNH TRÒN GỌN GÀNG */
     .lobby-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
@@ -210,9 +228,8 @@
       transition: all 0.2s;
     }
     .lobby-student-chip:hover {
-      transform: scale(1.08);
+      transform: scale(1.1);
     }
-    /* VÒNG TRÒN AVATAR LINH VẬT */
     .lobby-student-avatar {
       width: 48px;
       height: 48px;
@@ -225,7 +242,6 @@
       font-size: 24px;
       box-shadow: 0 3px 6px rgba(0,0,0,0.06);
     }
-    /* TÊN ĐOÀN SINH DƯỚI AVATAR TRÒN */
     .lobby-student-name {
       font-size: 11px;
       font-weight: 800;
@@ -235,7 +251,7 @@
       text-overflow: ellipsis;
       max-width: 65px;
       text-align: center;
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.9);
       padding: 2px 6px;
       border-radius: 8px;
       border: 1px solid #e2e8f0;
@@ -393,13 +409,18 @@
       <div id="history-display-area" style="margin-top: 10px;"></div>
     </div>
 
-    <!-- PHÁT ĐỀ & BẮT ĐẦU -->
+    <!-- PHÒNG CHỜ LINH VẬT TRÊN MÀN HÌNH GIÁO VIÊN -->
     <div style="border-top: 2px dashed #cbd5e1; padding-top: 16px; margin-top: 16px;">
       <label><strong>Chọn bài thi chuẩn bị phát:</strong></label>
       <select id="active-quiz-select" style="font-weight: 800; color: var(--primary);"></select>
 
-      <h3 style="margin: 12px 0 6px 0; font-size: 16px;">👨‍🎓 Đoàn sinh đã vào phòng (<span id="count" style="color: var(--primary);">0</span>):</h3>
-      <div id="teacher-student-grid" class="lobby-grid" style="max-height: 180px; margin-bottom: 15px;"></div>
+      <div style="background: #f8fafc; border: 2px dashed #cbd5e1; padding: 12px; border-radius: 16px; margin: 12px 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;">
+          <span style="font-weight: 800; font-size: 14px; color: var(--primary);">🐾 LINH SỦNG CỦA ĐOÀN SINH (<span id="count">0</span>)</span>
+          <span style="font-size: 11px; color: var(--text-muted);">Đã vào phòng...</span>
+        </div>
+        <div id="teacher-student-grid" class="lobby-grid"></div>
+      </div>
       
       <button id="start-btn" onclick="startQuiz()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); font-size: 18px; width: 100%; padding: 16px; box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);">
         🚀 BẮT ĐẦU LÀM BÀI
@@ -428,18 +449,16 @@
     </button>
   </div>
 
-  <!-- 6. PHÒNG CHỜ LINH VẬT DẠNG AVATAR TRÒN NHỎ GỌN -->
+  <!-- 6. PHÒNG CHỜ LINH VẬT CỦA HỌC SINH -->
   <div id="lobby-screen" class="card" style="display: none; text-align: center;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
-    <!-- THẺ LINH VẬT RIÊNG CỦA MÌNH -->
     <div class="my-mascot-card">
       <div id="my-mascot-icon" class="my-mascot-icon">🦁</div>
       <h2 id="my-mascot-title" style="margin: 4px 0 0 0; font-size: 18px; font-weight: 900;">Linh vật: Sư Tử Dũng Mãnh</h2>
       <p style="margin: 2px 0 0 0; font-size: 15px; opacity: 0.95;">Đoàn sinh: <strong id="lobby-my-name">--</strong></p>
     </div>
 
-    <!-- DANH SÁCH BẠN BÈ VỚI AVATAR HÌNH TRÒN TIẾT KIỆM KHÔNG GIAN -->
     <div style="background: #f8fafc; border: 2px dashed #cbd5e1; padding: 12px; border-radius: 16px;">
       <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;">
         <span style="font-weight: 800; font-size: 13px; color: var(--primary);">👥 CÁC BẠN ĐÃ VÀO PHÒNG (<span id="lobby-count">0</span>)</span>
@@ -1020,7 +1039,7 @@
       socket.emit('start_quiz', { parts, quizName: selectedQuizName });
     }
 
-    /* CẬP NHẬT DANH SÁCH DẠNG AVATAR HÌNH TRÒN */
+    /* CẬP NHẬT LINH VẬT TRÒN CHO CẢ GIÁO VIÊN VÀ HỌC SINH */
     socket.on('update_students', (students) => {
       const htmlList = students.map(s => `
         <div class="lobby-student-chip">
@@ -1029,18 +1048,16 @@
         </div>
       `).join('');
 
-      // Cập nhật màn hình GLV
       if (myRole === 'teacher') {
         document.getElementById('count').innerText = students.length;
         const grid = document.getElementById('teacher-student-grid');
-        grid.innerHTML = htmlList;
+        if (grid) grid.innerHTML = htmlList;
       }
 
-      // Cập nhật màn hình Phòng Chờ Học Sinh
       if (myRole === 'student') {
         document.getElementById('lobby-count').innerText = students.length;
         const container = document.getElementById('lobby-students-container');
-        container.innerHTML = htmlList;
+        if (container) container.innerHTML = htmlList;
       }
     });
 
@@ -1080,11 +1097,11 @@
 
         if (q.type === 'multiple') {
           q.options.forEach((opt, optIdx) => {
-            if (opt) html += `<button class="opt-btn" type="button" onclick="selectChoice(${optIdx == q.correct}, this)">${opt}</button>`;
+            if (opt) html += `<button class="opt-btn" data-correct="${optIdx == q.correct}" type="button" onclick="selectChoice(${optIdx == q.correct}, this)">${opt}</button>`;
           });
         } else if (q.type === 'tf') {
-          html += `<button class="opt-btn" type="button" onclick="selectChoice('${q.correct}' === 'Đúng', this)">Đúng</button>
-                   <button class="opt-btn" type="button" onclick="selectChoice('${q.correct}' === 'Sai', this)">Sai</button>`;
+          html += `<button class="opt-btn" data-correct="${q.correct === 'Đúng'}" type="button" onclick="selectChoice('${q.correct}' === 'Đúng', this)">Đúng</button>
+                   <button class="opt-btn" data-correct="${q.correct === 'Sai'}" type="button" onclick="selectChoice('${q.correct}' === 'Sai', this)">Sai</button>`;
         }
 
         html += `<button id="btn-submit" class="btn-submit-answer" type="button" onclick="submitCurrentAnswer()">📤 NỘP ĐÁP ÁN</button>`;
@@ -1103,6 +1120,7 @@
         const teacherTimerEl = document.getElementById('teacher-timer');
         if (teacherTimerEl) teacherTimerEl.innerText = Math.max(0, currentRemainingSeconds);
 
+        // KHI HẾT GIỜ -> BẬT NHẤP NHÁY ĐÁP ÁN ĐÚNG TRONG 3S
         if (currentRemainingSeconds <= 0) {
           clearInterval(localTimerInterval);
           localTimerInterval = null;
@@ -1110,23 +1128,28 @@
           const submitBtn = document.getElementById('btn-submit');
           if (submitBtn) submitBtn.style.display = 'none';
 
+          // TÌM VÀ BẬT HIỆU ỨNG NHẤP NHÁY XANH CHO ĐÁP ÁN ĐÚNG
           const optButtons = document.querySelectorAll('.opt-btn');
           optButtons.forEach(b => {
             b.style.pointerEvents = 'none';
-            b.style.opacity = '0.5';
+            if (b.getAttribute('data-correct') === 'true') {
+              b.classList.add('correct-reveal');
+            } else {
+              b.style.opacity = '0.4';
+            }
           });
 
           let restSeconds = 3;
           const waitingBox = document.getElementById('waiting-box');
           if (waitingBox) {
             waitingBox.style.display = 'block';
-            waitingBox.innerHTML = `⌛ <b>ĐÃ HẾT GIỜ!</b> Chuẩn bị câu tiếp theo sau <b>${restSeconds}s</b>...`;
+            waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG NHẤP NHÁY!</b> Chuẩn bị câu tiếp theo sau <b>${restSeconds}s</b>...`;
           }
 
           const restInterval = setInterval(() => {
             restSeconds--;
             if (waitingBox && restSeconds > 0) {
-              waitingBox.innerHTML = `⌛ <b>ĐÃ HẾT GIỜ!</b> Chuẩn bị câu tiếp theo sau <b>${restSeconds}s</b>...`;
+              waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG NHẤP NHÁY!</b> Chuẩn bị câu tiếp theo sau <b>${restSeconds}s</b>...`;
             }
             if (restSeconds <= 0) {
               clearInterval(restInterval);
