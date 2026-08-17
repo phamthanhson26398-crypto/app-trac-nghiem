@@ -169,7 +169,6 @@
       border: 3px solid #ef4444 !important;
       color: #991b1b !important;
       font-weight: 900 !important;
-      opacity: 1 !important;
     }
 
     .btn-submit-answer {
@@ -523,7 +522,10 @@
         </thead>
         <tbody id="teacher-leaderboard-body"></tbody>
       </table>
-      <button onclick="location.reload()" style="background: var(--primary); width: 100%; margin-top: 20px; padding: 14px;">Quay Lại Màn Hình Quản Trị</button>
+      <!-- NÚT QUAY LẠI TRỰC TIẾP TÀI KHOẢN GIÁO VIÊN KHÔNG CẦN ĐĂNG NHẬP LẠI -->
+      <button onclick="backToTeacherDashboard()" style="background: var(--primary); width: 100%; margin-top: 20px; padding: 14px; font-size: 16px;">
+        ↩️ Quay Lại Màn Hình Quản Trị
+      </button>
     </div>
 
     <div id="student-result-view" style="display: none; text-align: center; padding: 10px 0;">
@@ -580,7 +582,6 @@
       return `#${idx + 1}`;
     }
 
-    // TẠO MÃ QR ĐỘC QUYỀN GẮN THEO PHÒNG CỦA GIÁO VIÊN
     function generateRoomQRCode(roomId) {
       const qrContainer = document.getElementById("qrcode");
       qrContainer.innerHTML = "";
@@ -594,7 +595,27 @@
       });
     }
 
+    // TỰ ĐỘNG KHÔI PHỤC PHIÊN ĐĂNG NHẬP CỦA GLV NẾU TẢI LẠI TRANG
     window.addEventListener('DOMContentLoaded', () => {
+      const savedTeacher = sessionStorage.getItem('tntt_current_teacher');
+      if (savedTeacher) {
+        currentTeacherUser = savedTeacher;
+        activeRoomId = savedTeacher;
+        myRole = 'teacher';
+
+        document.getElementById('logged-user-name').innerText = savedTeacher;
+        document.getElementById('teacher-room-id-badge').innerText = activeRoomId;
+        document.getElementById('teacher-room-code-txt').innerText = activeRoomId;
+
+        document.getElementById('role-screen').style.display = 'none';
+        document.getElementById('teacher-screen').style.display = 'block';
+
+        generateRoomQRCode(activeRoomId);
+        loadSavedQuizzes();
+        socket.emit('join_room', { role: 'teacher', roomId: activeRoomId });
+        return;
+      }
+
       const urlParams = new URLSearchParams(window.location.search);
       const roomParam = urlParams.get('room');
       if (roomParam) {
@@ -604,6 +625,25 @@
         selectRole('student');
       }
     });
+
+    /* HÀM QUAY LẠI GIAO DIỆN QUẢN TRỊ CỦA GLV KHÔNG CẦN ĐĂNG NHẬP LẠI */
+    function backToTeacherDashboard() {
+      document.getElementById('result-screen').style.display = 'none';
+      document.getElementById('teacher-screen').style.display = 'block';
+
+      const btn = document.getElementById('start-btn');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = '🚀 BẮT ĐẦU LÀM BÀI';
+        btn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+      }
+
+      const liveBox = document.getElementById('teacher-live-box');
+      if (liveBox) liveBox.style.display = 'none';
+
+      loadSavedQuizzes();
+      renderHistoryUI();
+    }
 
     /* QUẢN TRỊ VIÊN HỆ THỐNG */
     function loadAdminUserTable() {
@@ -682,7 +722,8 @@
           return alert('Sai tên tài khoản hoặc mật khẩu!');
         }
         currentTeacherUser = username;
-        activeRoomId = username; // Mã phòng chính là tên tài khoản độc quyền của GLV
+        activeRoomId = username;
+        sessionStorage.setItem('tntt_current_teacher', username); // Lưu lại phiên đăng nhập
 
         document.getElementById('logged-user-name').innerText = username;
         document.getElementById('teacher-room-id-badge').innerText = activeRoomId;
@@ -694,12 +735,12 @@
         generateRoomQRCode(activeRoomId);
         loadSavedQuizzes();
 
-        // Tham gia socket với phòng riêng của GLV
         socket.emit('join_room', { role: 'teacher', roomId: activeRoomId });
       }
     }
 
     function logoutTeacher() {
+      sessionStorage.removeItem('tntt_current_teacher'); // Xóa phiên đăng nhập
       currentTeacherUser = '';
       activeRoomId = '';
       location.reload();
@@ -1036,7 +1077,6 @@
       }
     }
 
-    /* ĐOÀN SINH THAM GIA PHÒNG CHỜ THEO MÃ PHÒNG RIÊNG */
     function joinQuiz() {
       const roomInput = document.getElementById('student-room-input').value.trim();
       const name = document.getElementById('student-name').value.trim();
