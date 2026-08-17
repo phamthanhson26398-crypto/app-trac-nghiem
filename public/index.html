@@ -240,9 +240,10 @@
       border: none;
       padding: 0;
       transition: all 0.2s;
+      position: relative;
     }
     .lobby-student-chip:hover {
-      transform: scale(1.1);
+      transform: scale(1.08);
     }
     .lobby-student-avatar {
       width: 48px;
@@ -255,6 +256,7 @@
       justify-content: center;
       font-size: 24px;
       box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+      position: relative;
     }
     .lobby-student-name {
       font-size: 11px;
@@ -269,6 +271,32 @@
       padding: 2px 6px;
       border-radius: 8px;
       border: 1px solid #e2e8f0;
+    }
+
+    /* NÚT XÓA ĐOÀN SINH TRÊN MÀN HÌNH GIÁO VIÊN */
+    .btn-kick-student {
+      position: absolute;
+      top: -4px;
+      right: 6px;
+      background: #ef4444;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      font-weight: 900;
+      border: 2px solid white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      padding: 0;
+      z-index: 5;
+    }
+    .btn-kick-student:hover {
+      background: #b91c1c;
+      transform: scale(1.2);
     }
 
     .stat-grid {
@@ -423,15 +451,15 @@
       <div id="history-display-area" style="margin-top: 10px;"></div>
     </div>
 
-    <!-- PHÒNG CHỜ LINH VẬT TRÊN MÀN HÌNH GIÁO VIÊN -->
+    <!-- PHÒNG CHỜ LINH VẬT TRÊN MÀN HÌNH GIÁO VIÊN (CÓ NÚT XÓA ĐOÀN SINH) -->
     <div style="border-top: 2px dashed #cbd5e1; padding-top: 16px; margin-top: 16px;">
       <label><strong>Chọn bài thi chuẩn bị phát:</strong></label>
       <select id="active-quiz-select" style="font-weight: 800; color: var(--primary);"></select>
 
       <div style="background: #f8fafc; border: 2px dashed #cbd5e1; padding: 12px; border-radius: 16px; margin: 12px 0;">
         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;">
-          <span style="font-weight: 800; font-size: 14px; color: var(--primary);">🐾 LINH SỦNG CỦA ĐOÀN SINH (<span id="count">0</span>)</span>
-          <span style="font-size: 11px; color: var(--text-muted);">Đã vào phòng...</span>
+          <span style="font-weight: 800; font-size: 14px; color: var(--primary);">🐾 ĐOÀN SINH TRONG PHÒNG (<span id="count">0</span>)</span>
+          <span style="font-size: 11px; color: var(--text-muted);">(Bấm ❌ để mời ra khỏi phòng)</span>
         </div>
         <div id="teacher-student-grid" class="lobby-grid"></div>
       </div>
@@ -522,7 +550,6 @@
         </thead>
         <tbody id="teacher-leaderboard-body"></tbody>
       </table>
-      <!-- NÚT QUAY LẠI TRỰC TIẾP TÀI KHOẢN GIÁO VIÊN KHÔNG CẦN ĐĂNG NHẬP LẠI -->
       <button onclick="backToTeacherDashboard()" style="background: var(--primary); width: 100%; margin-top: 20px; padding: 14px; font-size: 16px;">
         ↩️ Quay Lại Màn Hình Quản Trị
       </button>
@@ -595,7 +622,6 @@
       });
     }
 
-    // TỰ ĐỘNG KHÔI PHỤC PHIÊN ĐĂNG NHẬP CỦA GLV NẾU TẢI LẠI TRANG
     window.addEventListener('DOMContentLoaded', () => {
       const savedTeacher = sessionStorage.getItem('tntt_current_teacher');
       if (savedTeacher) {
@@ -612,6 +638,9 @@
 
         generateRoomQRCode(activeRoomId);
         loadSavedQuizzes();
+        
+        // Khi F5 tải lại trang: Giải tán toàn bộ học sinh cũ trong phòng để bắt quét mã lại
+        socket.emit('clear_room_students', { roomId: activeRoomId });
         socket.emit('join_room', { role: 'teacher', roomId: activeRoomId });
         return;
       }
@@ -626,7 +655,12 @@
       }
     });
 
-    /* HÀM QUAY LẠI GIAO DIỆN QUẢN TRỊ CỦA GLV KHÔNG CẦN ĐĂNG NHẬP LẠI */
+    /* NẾU HỌC SINH BỊ GIÁO VIÊN KICK HOẶC PHÒNG BỊ GIẢI TÁN */
+    socket.on('kicked_by_teacher', () => {
+      alert('Phòng thi đã được làm mới hoặc em đã bị mời ra khỏi phòng! Vui lòng quét mã QR để tham gia lại.');
+      location.href = window.location.origin + '?role=student';
+    });
+
     function backToTeacherDashboard() {
       document.getElementById('result-screen').style.display = 'none';
       document.getElementById('teacher-screen').style.display = 'block';
@@ -643,6 +677,13 @@
 
       loadSavedQuizzes();
       renderHistoryUI();
+    }
+
+    /* GIÁO VIÊN XÓA TỪNG ĐOÀN SINH */
+    function kickStudent(studentId, studentName) {
+      if (confirm(`Bạn có chắc muốn mời "${studentName}" ra khỏi phòng thi không?`)) {
+        socket.emit('kick_student', { studentId: studentId, roomId: activeRoomId });
+      }
     }
 
     /* QUẢN TRỊ VIÊN HỆ THỐNG */
@@ -723,7 +764,7 @@
         }
         currentTeacherUser = username;
         activeRoomId = username;
-        sessionStorage.setItem('tntt_current_teacher', username); // Lưu lại phiên đăng nhập
+        sessionStorage.setItem('tntt_current_teacher', username);
 
         document.getElementById('logged-user-name').innerText = username;
         document.getElementById('teacher-room-id-badge').innerText = activeRoomId;
@@ -735,12 +776,18 @@
         generateRoomQRCode(activeRoomId);
         loadSavedQuizzes();
 
+        // Xóa sạch đoàn sinh cũ trong phòng khi đăng nhập mới
+        socket.emit('clear_room_students', { roomId: activeRoomId });
         socket.emit('join_room', { role: 'teacher', roomId: activeRoomId });
       }
     }
 
     function logoutTeacher() {
-      sessionStorage.removeItem('tntt_current_teacher'); // Xóa phiên đăng nhập
+      if (activeRoomId) {
+        // Đăng xuất: Tự động kick toàn bộ đoàn sinh đang trong phòng
+        socket.emit('clear_room_students', { roomId: activeRoomId });
+      }
+      sessionStorage.removeItem('tntt_current_teacher');
       currentTeacherUser = '';
       activeRoomId = '';
       location.reload();
@@ -1120,24 +1167,29 @@
       socket.emit('start_quiz', { parts, quizName: selectedQuizName, roomId: activeRoomId });
     }
 
+    /* HIỂN THỊ DANH SÁCH ĐOÀN SINH (CÓ NÚT XÓA ĐÍCH DANH TRÊN MÁY GLV) */
     socket.on('update_students', (students) => {
-      const htmlList = students.map(s => `
-        <div class="lobby-student-chip">
-          <div class="lobby-student-avatar">${s.mascot ? s.mascot.icon : '🦁'}</div>
-          <span class="lobby-student-name" title="${s.name}">${s.name}</span>
-        </div>
-      `).join('');
-
       if (myRole === 'teacher') {
         document.getElementById('count').innerText = students.length;
         const grid = document.getElementById('teacher-student-grid');
-        if (grid) grid.innerHTML = htmlList;
+        grid.innerHTML = students.map(s => `
+          <div class="lobby-student-chip">
+            <button class="btn-kick-student" onclick="kickStudent('${s.id}', '${s.name}')" title="Mời bạn này ra khỏi phòng">✕</button>
+            <div class="lobby-student-avatar">${s.mascot ? s.mascot.icon : '🦁'}</div>
+            <span class="lobby-student-name" title="${s.name}">${s.name}</span>
+          </div>
+        `).join('');
       }
 
       if (myRole === 'student') {
         document.getElementById('lobby-count').innerText = students.length;
         const container = document.getElementById('lobby-students-container');
-        if (container) container.innerHTML = htmlList;
+        container.innerHTML = students.map(s => `
+          <div class="lobby-student-chip">
+            <div class="lobby-student-avatar">${s.mascot ? s.mascot.icon : '🦁'}</div>
+            <span class="lobby-student-name" title="${s.name}">${s.name}</span>
+          </div>
+        `).join('');
       }
     });
 
