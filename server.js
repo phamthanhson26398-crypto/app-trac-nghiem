@@ -45,7 +45,6 @@ const state = {
   currentItem: null,
   currentDuration: 0,
   students: {},
-  essaySubmissions: [],
   timerTimeout: null,
   isAdvancing: false
 };
@@ -59,21 +58,19 @@ function advanceToNextQuestion() {
     state.timerTimeout = null;
   }
 
-  // Cộng dồn điểm trắc nghiệm
+  // Cộng dồn điểm và thống kê số câu
   Object.keys(state.students).forEach(id => {
     const st = state.students[id];
     st.score += st.currentScore;
 
-    if (state.currentItem && state.currentItem.question.type !== 'essay') {
-      if (st.answered) {
-        if (st.currentScore > 0) {
-          st.correctCount = (st.correctCount || 0) + 1;
-        } else {
-          st.wrongCount = (st.wrongCount || 0) + 1;
-        }
+    if (st.answered) {
+      if (st.currentScore > 0) {
+        st.correctCount = (st.correctCount || 0) + 1;
       } else {
-        st.unansweredCount = (st.unansweredCount || 0) + 1;
+        st.wrongCount = (st.wrongCount || 0) + 1;
       }
+    } else {
+      st.unansweredCount = (st.unansweredCount || 0) + 1;
     }
 
     st.currentScore = 0;
@@ -86,13 +83,12 @@ function advanceToNextQuestion() {
     state.currentItem = null;
     io.emit('quiz_ended', { 
       leaderboard: Object.values(state.students), 
-      quizName: state.quizName,
-      essaySubmissions: state.essaySubmissions
+      quizName: state.quizName 
     });
     return;
   }
 
-  // 3s đệm chuyển câu
+  // Nghỉ 3 giây đệm trước khi sang câu mới
   setTimeout(() => {
     state.currentItem = state.queue[state.currentIndex];
     state.currentDuration = parseInt(state.currentItem.question.duration) || 10;
@@ -119,7 +115,6 @@ function advanceToNextQuestion() {
 
 io.on('connection', (socket) => {
   socket.emit('update_students', Object.values(state.students));
-  socket.emit('update_essay_submissions', state.essaySubmissions);
 
   socket.on('join_room', ({ name, role }) => {
     if (role === 'student') {
@@ -182,7 +177,6 @@ io.on('connection', (socket) => {
     state.queue = queue;
     state.currentIndex = -1;
     state.isAdvancing = false;
-    state.essaySubmissions = [];
 
     Object.keys(state.students).forEach(id => {
       state.students[id].score = 0;
@@ -227,42 +221,6 @@ io.on('connection', (socket) => {
         student.answered = true;
         student.currentScore = isCorrect ? Math.max(1, parseInt(remainingTime) || 0) : 0;
       }
-    }
-  });
-
-  // NHẬN BÀI NỘP TỰ LUẬN TỪ ĐOÀN SINH
-  socket.on('submit_essay_answer', ({ questionTitle, essayText, remainingTime }) => {
-    if (state.status === 'playing' && state.students[socket.id]) {
-      const student = state.students[socket.id];
-      student.answered = true;
-
-      const submission = {
-        studentId: socket.id,
-        studentName: student.name,
-        mascot: student.mascot,
-        questionTitle: questionTitle,
-        essayText: essayText || '(Không có nội dung)',
-        submittedAt: new Date().toLocaleTimeString('vi-VN'),
-        score: 0
-      };
-
-      state.essaySubmissions.push(submission);
-      io.emit('update_essay_submissions', state.essaySubmissions);
-    }
-  });
-
-  // GIÁO VIÊN CHẤM ĐIỂM BÀI TỰ LUẬN
-  socket.on('grade_essay', ({ submissionIndex, score }) => {
-    if (state.essaySubmissions[submissionIndex]) {
-      const sub = state.essaySubmissions[submissionIndex];
-      const point = parseInt(score) || 0;
-      sub.score = point;
-
-      if (state.students[sub.studentId]) {
-        state.students[sub.studentId].score += point;
-      }
-      io.emit('update_students', Object.values(state.students));
-      io.emit('update_essay_submissions', state.essaySubmissions);
     }
   });
 
