@@ -145,7 +145,6 @@
       box-shadow: 0 4px 12px rgba(14, 107, 71, 0.18);
     }
 
-    /* HIỆU ỨNG NHẤP NHÁY ĐÁP ÁN ĐÚNG TRONG 3 GIÂY */
     .opt-btn.reveal-correct {
       background: #d1fae5 !important;
       border: 3px solid #10b981 !important;
@@ -165,7 +164,6 @@
       }
     }
 
-    /* HIỆU ỨNG ĐÁP ÁN CHỌN SAI (ĐỎ) */
     .opt-btn.reveal-wrong {
       background: #fee2e2 !important;
       border: 3px solid #ef4444 !important;
@@ -225,7 +223,6 @@
       50% { transform: translateY(-6px) rotate(4deg); }
     }
 
-    /* GIAO DIỆN HIỂN THỊ LINH VẬT TRÒN CHO CẢ GIÁO VIÊN VÀ HỌC SINH */
     .lobby-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
@@ -330,7 +327,7 @@
   <div id="auth-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 id="auth-title" style="text-align: center; margin: 0 0 5px 0; font-weight: 900;">🔐 Đăng Nhập Giáo Lý Viên</h2>
-    <p style="text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Đăng nhập để quản lý kho tài liệu và đề thi riêng của thầy/cô</p>
+    <p style="text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Mỗi tài khoản sẽ sở hữu một Phòng Thi & Mã QR riêng biệt</p>
 
     <label><strong>Tài khoản (Tên đăng nhập):</strong></label>
     <input type="text" id="auth-username" placeholder="Ví dụ: huynh_truong_01">
@@ -381,22 +378,22 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
       <div>
         <h2 style="margin: 0; font-size: 20px;">👨‍🏫 Xin chào, <span id="logged-user-name" style="color: var(--primary);">GLV</span></h2>
-        <small style="color: var(--text-muted);">Tài liệu được bảo mật trên tài khoản này</small>
+        <small style="color: var(--text-muted);">Mã Phòng: <b id="teacher-room-id-badge" style="color: var(--danger); font-size: 14px;">--</b></small>
       </div>
       <button onclick="logoutTeacher()" style="background: #f1f5f9; color: var(--danger); font-size: 13px; padding: 6px 12px;">Đăng Xuất</button>
     </div>
 
-    <!-- MÃ QR PHÒNG THI -->
+    <!-- MÃ QR PHÒNG THI RIÊNG BIỆT -->
     <div id="qrcode-box">
-      <h3 style="margin: 0; color: var(--primary); font-size: 17px;">📲 QUÉT MÃ QR THAM GIA</h3>
-      <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">(Đoàn sinh mở Camera điện thoại quét mã để vào phòng)</p>
+      <h3 style="margin: 0; color: var(--primary); font-size: 17px;">📲 QUÉT MÃ QR VÀO PHÒNG RIÊNG</h3>
+      <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">Mã phòng: <strong id="teacher-room-code-txt" style="color: var(--danger); font-size: 16px;">--</strong></p>
       <div id="qrcode"></div>
     </div>
 
     <!-- DANH SÁCH BÀI THI -->
     <div class="quiz-manager">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin: 0; font-size: 16px;">📁 Kho Bài Thi Trắc Nghiệm</h3>
+        <h3 style="margin: 0; font-size: 16px;">📁 Kho Bài Thi Của Bạn</h3>
         <button onclick="createNewQuizSection()" style="background: #10b981; font-size: 13px; padding: 8px 14px;">➕ Soạn Bài Mới</button>
       </div>
       <div id="quiz-list-container" style="margin-top: 10px;"></div>
@@ -452,13 +449,16 @@
     </div>
   </div>
 
-  <!-- 5. MÀN HÌNH HỌC SINH NHẬP TÊN -->
+  <!-- 5. MÀN HÌNH HỌC SINH NHẬP TÊN & MÃ PHÒNG -->
   <div id="student-screen" class="card" style="display: none; text-align: center;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 style="margin: 0 0 5px 0; font-size: 24px; font-weight: 900;">👋 Báo Danh Tham Gia</h2>
-    <p style="color: var(--text-muted); font-size: 14px; margin-top: 0; margin-bottom: 20px;">Nhập tên của em để nhận Linh Vật may mắn</p>
+    <p style="color: var(--text-muted); font-size: 14px; margin-top: 0; margin-bottom: 20px;">Nhập tên và mã phòng để vào đúng lớp của em</p>
     
     <div style="text-align: left;">
+      <label><strong>Mã Phòng Thi:</strong></label>
+      <input type="text" id="student-room-input" placeholder="Ví dụ: huynh_truong_01" style="font-weight: bold; color: var(--primary);">
+
       <label><strong>Họ và tên của em:</strong></label>
       <input type="text" id="student-name" placeholder="Ví dụ: Maria Nguyễn Thị A">
     </div>
@@ -474,12 +474,12 @@
     <div class="my-mascot-card">
       <div id="my-mascot-icon" class="my-mascot-icon">🦁</div>
       <h2 id="my-mascot-title" style="margin: 4px 0 0 0; font-size: 18px; font-weight: 900;">Linh vật: Sư Tử Dũng Mãnh</h2>
-      <p style="margin: 2px 0 0 0; font-size: 15px; opacity: 0.95;">Đoàn sinh: <strong id="lobby-my-name">--</strong></p>
+      <p style="margin: 2px 0 0 0; font-size: 15px; opacity: 0.95;">Đoàn sinh: <strong id="lobby-my-name">--</strong> (Phòng: <span id="lobby-my-room">--</span>)</p>
     </div>
 
     <div style="background: #f8fafc; border: 2px dashed #cbd5e1; padding: 12px; border-radius: 16px;">
       <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;">
-        <span style="font-weight: 800; font-size: 13px; color: var(--primary);">👥 CÁC BẠN ĐÃ VÀO PHÒNG (<span id="lobby-count">0</span>)</span>
+        <span style="font-weight: 800; font-size: 13px; color: var(--primary);">👥 CÁC BẠN TRONG LỚP (<span id="lobby-count">0</span>)</span>
         <span style="font-size: 11px; color: var(--text-muted);">Sẵn sàng...</span>
       </div>
       <div id="lobby-students-container" class="lobby-grid"></div>
@@ -560,6 +560,7 @@
     let myRole = '';
     let currentStudentName = '';
     let currentTeacherUser = '';
+    let activeRoomId = '';
     let myAssignedMascot = { icon: '🦁', title: 'Sư Tử Dũng Mãnh' };
     let allQuizzes = {};
     let partCount = 0;
@@ -579,13 +580,15 @@
       return `#${idx + 1}`;
     }
 
-    async function generateRoomQRCode() {
+    // TẠO MÃ QR ĐỘC QUYỀN GẮN THEO PHÒNG CỦA GIÁO VIÊN
+    function generateRoomQRCode(roomId) {
       const qrContainer = document.getElementById("qrcode");
       qrContainer.innerHTML = "";
       let hostUrl = window.location.origin;
+      const roomUrl = `${hostUrl}?role=student&room=${encodeURIComponent(roomId)}`;
 
       new QRCode(qrContainer, {
-        text: `${hostUrl}?role=student`,
+        text: roomUrl,
         width: 160,
         height: 160
       });
@@ -593,6 +596,10 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
+      const roomParam = urlParams.get('room');
+      if (roomParam) {
+        document.getElementById('student-room-input').value = roomParam;
+      }
       if (urlParams.get('role') === 'student') {
         selectRole('student');
       }
@@ -675,16 +682,26 @@
           return alert('Sai tên tài khoản hoặc mật khẩu!');
         }
         currentTeacherUser = username;
+        activeRoomId = username; // Mã phòng chính là tên tài khoản độc quyền của GLV
+
         document.getElementById('logged-user-name').innerText = username;
+        document.getElementById('teacher-room-id-badge').innerText = activeRoomId;
+        document.getElementById('teacher-room-code-txt').innerText = activeRoomId;
+
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('teacher-screen').style.display = 'block';
-        generateRoomQRCode();
+
+        generateRoomQRCode(activeRoomId);
         loadSavedQuizzes();
+
+        // Tham gia socket với phòng riêng của GLV
+        socket.emit('join_room', { role: 'teacher', roomId: activeRoomId });
       }
     }
 
     function logoutTeacher() {
       currentTeacherUser = '';
+      activeRoomId = '';
       location.reload();
     }
 
@@ -1019,17 +1036,24 @@
       }
     }
 
+    /* ĐOÀN SINH THAM GIA PHÒNG CHỜ THEO MÃ PHÒNG RIÊNG */
     function joinQuiz() {
+      const roomInput = document.getElementById('student-room-input').value.trim();
       const name = document.getElementById('student-name').value.trim();
+
+      if (!roomInput) return alert('Vui lòng nhập Mã Phòng thi của Giáo Lý Viên!');
       if (!name) return alert('Vui lòng nhập họ tên của em!');
+
+      activeRoomId = roomInput;
       currentStudentName = name;
       myRole = 'student';
 
       document.getElementById('student-screen').style.display = 'none';
       document.getElementById('lobby-screen').style.display = 'block';
       document.getElementById('lobby-my-name').innerText = name;
+      document.getElementById('lobby-my-room').innerText = activeRoomId;
 
-      socket.emit('join_room', { name: name, role: 'student' });
+      socket.emit('join_room', { name: name, role: 'student', roomId: activeRoomId });
     }
 
     socket.on('my_mascot_assigned', (mascot) => {
@@ -1053,7 +1077,7 @@
       btn.style.background = '#64748b';
 
       const parts = allQuizzes[selectedQuizName];
-      socket.emit('start_quiz', { parts, quizName: selectedQuizName });
+      socket.emit('start_quiz', { parts, quizName: selectedQuizName, roomId: activeRoomId });
     }
 
     socket.on('update_students', (students) => {
@@ -1138,7 +1162,6 @@
         const teacherTimerEl = document.getElementById('teacher-timer');
         if (teacherTimerEl) teacherTimerEl.innerText = Math.max(0, currentRemainingSeconds);
 
-        // KHI HẾT GIỜ -> KÍCH HOẠT HIỆU ỨNG ĐÚNG (XANH NHẤP NHÁY) / SAI (ĐỎ) TRONG 3 GIÂY
         if (currentRemainingSeconds <= 0) {
           clearInterval(localTimerInterval);
           localTimerInterval = null;
