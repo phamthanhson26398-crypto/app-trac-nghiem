@@ -9,16 +9,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #4361ee;
+      --primary: #0e6b47;
+      --primary-hover: #0a5236;
       --secondary: #7209b7;
       --success: #10b981;
       --danger: #ef4444;
       --warning: #ffb703;
-      --bg: #f4f7fb;
-      --card-bg: #ffffff;
-      --text: #2b2d42;
-      --text-muted: #8d99ae;
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+      --bg: #0d4e34;
+      --card-bg: rgba(255, 255, 255, 0.96);
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
     }
 
     * { box-sizing: border-box; }
@@ -27,18 +28,25 @@
       padding: 15px; 
       max-width: 650px; 
       margin: auto; 
-      background: linear-gradient(135deg, #eef2f7 0%, #e5ebf4 100%); 
+      /* HÌNH NỀN ABBA LẠY CHA */
+      background-color: var(--bg);
+      background-image: url('/bg.png');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
       color: var(--text);
       min-height: 100vh;
     }
 
     .card { 
       background: var(--card-bg); 
+      backdrop-filter: blur(10px);
       padding: 24px; 
-      border-radius: 22px; 
+      border-radius: 24px; 
       box-shadow: var(--shadow); 
       margin-bottom: 20px; 
-      border: 1px solid rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.9);
       position: relative;
     }
 
@@ -59,7 +67,7 @@
       color: white; 
       border: none; 
       padding: 12px 18px; 
-      border-radius: 12px; 
+      border-radius: 14px; 
       cursor: pointer; 
       font-size: 15px; 
       font-weight: 800;
@@ -71,8 +79,9 @@
       gap: 6px;
     }
     button:hover { 
+      background: var(--primary-hover);
       transform: translateY(-2px); 
-      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3); 
+      box-shadow: 0 4px 12px rgba(14, 107, 71, 0.35); 
     }
     button:active { transform: translateY(0); }
 
@@ -81,11 +90,11 @@
       padding: 13px 16px; 
       margin-top: 6px; 
       margin-bottom: 14px; 
-      border: 2px solid #edf2f7; 
+      border: 2px solid #e5e7eb; 
       border-radius: 14px; 
       font-family: inherit; 
       font-size: 15px;
-      background: #f8fafc;
+      background: #f9fafb;
       transition: border-color 0.2s;
     }
     input:focus, select:focus, textarea:focus {
@@ -95,15 +104,15 @@
     }
 
     .part-block { 
-      background: #f8fafc; 
-      border: 2px solid #e2e8f0; 
+      background: #f9fafb; 
+      border: 2px solid #e5e7eb; 
       padding: 16px; 
       border-radius: 16px; 
       margin-bottom: 16px; 
     }
     .q-block { 
       background: white; 
-      border: 1px solid #edf2f7; 
+      border: 1px solid #e5e7eb; 
       padding: 14px; 
       border-radius: 12px; 
       margin-bottom: 12px; 
@@ -112,7 +121,7 @@
     .opt-btn { 
       background: white !important; 
       color: var(--text) !important; 
-      border: 2px solid #e2e8f0 !important; 
+      border: 2px solid #e5e7eb !important; 
       text-align: left; 
       margin-top: 10px; 
       width: 100%; 
@@ -130,14 +139,14 @@
       background: #f8fafc !important;
     }
     .opt-btn.selected { 
-      background: #eef2ff !important; 
+      background: #ecfdf5 !important; 
       border-color: var(--primary) !important; 
       color: var(--primary) !important; 
       transform: scale(1.01);
-      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
+      box-shadow: 0 4px 12px rgba(14, 107, 71, 0.18);
     }
 
-    /* HIỆU ỨNG NHẤP NHÁY ĐÁP ÁN ĐÚNG (XANH LÁ) */
+    /* HIỆU ỨNG NHẤP NHÁY ĐÁP ÁN ĐÚNG (XANH LÁ RỰC RỠ) */
     .opt-btn.reveal-correct {
       background: #d1fae5 !important;
       border: 3px solid #10b981 !important;
@@ -176,7 +185,7 @@
       border-radius: 14px !important;
       margin-top: 20px !important;
       border: none !important;
-      box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3) !important;
+      box-shadow: 0 6px 15px rgba(16, 185, 129, 0.35) !important;
     }
 
     .waiting-status-box {
@@ -184,7 +193,7 @@
       border: 2px solid #fde68a;
       color: #92400e;
       padding: 14px;
-      border-radius: 12px;
+      border-radius: 14px;
       text-align: center;
       margin-top: 15px;
       font-size: 15px;
@@ -198,17 +207,17 @@
     }
 
     .my-mascot-card {
-      background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+      background: linear-gradient(135deg, #0e6b47 0%, #083c27 100%);
       color: white;
       padding: 18px;
       border-radius: 20px;
       text-align: center;
       margin: 10px 0 15px 0;
-      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.25);
+      box-shadow: 0 10px 20px rgba(14, 107, 71, 0.3);
     }
     .my-mascot-icon {
       font-size: 54px;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
       animation: floatMascot 2.5s ease-in-out infinite;
       display: inline-block;
     }
@@ -249,7 +258,7 @@
       align-items: center;
       justify-content: center;
       font-size: 24px;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.06);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.08);
     }
     .lobby-student-name {
       font-size: 11px;
@@ -260,10 +269,10 @@
       text-overflow: ellipsis;
       max-width: 65px;
       text-align: center;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       padding: 2px 6px;
       border-radius: 8px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid #e5e7eb;
     }
 
     .stat-grid {
@@ -280,20 +289,20 @@
     }
     .stat-box-correct { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
     .stat-box-wrong { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-    .stat-box-empty { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+    .stat-box-empty { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
     .stat-num { font-size: 26px; font-weight: 900; margin-top: 4px; }
 
     .btn-delete { background: #ef4444; padding: 6px 12px; border-radius: 8px; font-size: 13px; }
     .btn-edit { background: #f59e0b; color: white; padding: 6px 12px; border-radius: 8px; font-size: 13px; margin-right: 6px; }
 
-    .quiz-manager { background: #f8fafc; padding: 18px; border-radius: 16px; margin-bottom: 16px; border: 1px solid #edf2f7; }
-    .quiz-item { background: white; padding: 14px 16px; border-radius: 12px; margin-top: 10px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; }
-    .quiz-item-actions { display: flex; justify-content: flex-end; border-top: 1px dashed #edf2f7; padding-top: 8px; }
+    .quiz-manager { background: #f9fafb; padding: 18px; border-radius: 16px; margin-bottom: 16px; border: 1px solid #e5e7eb; }
+    .quiz-item { background: white; padding: 14px 16px; border-radius: 12px; margin-top: 10px; border: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 8px; }
+    .quiz-item-actions { display: flex; justify-content: flex-end; border-top: 1px dashed #e5e7eb; padding-top: 8px; }
 
-    .history-card { background: white; border: 1px solid #e2e8f0; padding: 14px; border-radius: 12px; margin-bottom: 10px; }
+    .history-card { background: white; border: 1px solid #e5e7eb; padding: 14px; border-radius: 12px; margin-bottom: 10px; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #edf2f7; padding: 10px 8px; text-align: left; font-size: 14px; }
-    th { background: #f8fafc; font-weight: 800; }
+    th, td { border: 1px solid #e5e7eb; padding: 10px 8px; text-align: left; font-size: 14px; }
+    th { background: #f9fafb; font-weight: 800; }
 
     #qrcode-box { background: white; border: 2px dashed #cbd5e1; padding: 18px; border-radius: 16px; text-align: center; margin: 15px 0; }
     #qrcode img { margin: 12px auto; }
@@ -306,13 +315,13 @@
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 style="text-align: center; margin-top: 0; font-size: 24px; font-weight: 900;">🎯 BẠN LÀ AI?</h2>
     <p style="text-align: center; color: var(--text-muted); margin-top: -8px; margin-bottom: 20px;">Vui lòng chọn vai trò để tiếp tục</p>
-    <button onclick="selectRole('teacher')" style="background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%); width: 100%; padding: 15px; font-size: 16px;">
+    <button onclick="selectRole('teacher')" style="background: linear-gradient(135deg, #0e6b47 0%, #09472f 100%); width: 100%; padding: 15px; font-size: 16px;">
       👨‍🏫 Tôi là Giáo Lý Viên / Huynh Trưởng
     </button>
     <button onclick="selectRole('student')" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); width: 100%; margin-top: 12px; padding: 15px; font-size: 16px;">
       🙋‍♂️ Tôi là Học Sinh / Đoàn Sinh
     </button>
-    <button onclick="selectRole('admin')" style="background: #334155; width: 100%; margin-top: 12px; padding: 12px; font-size: 14px;">
+    <button onclick="selectRole('admin')" style="background: #374151; width: 100%; margin-top: 12px; padding: 12px; font-size: 14px;">
       ⚙️ Quản Trị Viên (Admin Quản Lý Mật Khẩu)
     </button>
   </div>
@@ -336,7 +345,7 @@
       <a href="javascript:void(0)" onclick="toggleAuthMode()" style="color: var(--primary); font-weight: bold; text-decoration: none; margin-left: 5px;">Đăng Ký Mới</a>
     </div>
 
-    <button onclick="backToRoleScreen()" style="background: transparent; color: var(--text-muted); border: 1px solid #e2e8f0; width: 100%; margin-top: 15px;">← Quay Lại</button>
+    <button onclick="backToRoleScreen()" style="background: transparent; color: var(--text-muted); border: 1px solid #e5e7eb; width: 100%; margin-top: 15px;">← Quay Lại</button>
   </div>
 
   <!-- 3. MÀN HÌNH QUẢN TRỊ VIÊN CẤP CAO (ADMIN) -->
@@ -344,13 +353,13 @@
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
       <div>
-        <h2 style="margin: 0; font-size: 20px; color: #334155;">⚙️ Quản Trị Hệ Thống (Admin)</h2>
+        <h2 style="margin: 0; font-size: 20px; color: #374151;">⚙️ Quản Trị Hệ Thống (Admin)</h2>
         <small style="color: var(--text-muted);">Quản lý danh sách tài khoản & mật khẩu GLV</small>
       </div>
-      <button onclick="backToRoleScreen()" style="background: #f1f5f9; color: var(--danger); font-size: 13px; padding: 6px 12px;">Đăng Xuất</button>
+      <button onclick="backToRoleScreen()" style="background: #f3f4f6; color: var(--danger); font-size: 13px; padding: 6px 12px;">Đăng Xuất</button>
     </div>
 
-    <div style="background: #f8fafc; padding: 15px; border-radius: 16px; border: 1px solid #e2e8f0;">
+    <div style="background: #f9fafb; padding: 15px; border-radius: 16px; border: 1px solid #e5e7eb;">
       <h3 style="margin: 0 0 10px 0; font-size: 16px;">📋 Danh Sách Tài Khoản GLV Đã Đăng Ký</h3>
       <table>
         <thead>
@@ -374,7 +383,7 @@
         <h2 style="margin: 0; font-size: 20px;">👨‍🏫 Xin chào, <span id="logged-user-name" style="color: var(--primary);">GLV</span></h2>
         <small style="color: var(--text-muted);">Tài liệu được bảo mật trên tài khoản này</small>
       </div>
-      <button onclick="logoutTeacher()" style="background: #f1f5f9; color: var(--danger); font-size: 13px; padding: 6px 12px;">Đăng Xuất</button>
+      <button onclick="logoutTeacher()" style="background: #f3f4f6; color: var(--danger); font-size: 13px; padding: 6px 12px;">Đăng Xuất</button>
     </div>
 
     <!-- MÃ QR PHÒNG THI -->
@@ -397,7 +406,7 @@
     <div id="editor-section" style="display: none; border: 2px solid var(--primary); padding: 18px; border-radius: 16px; margin-bottom: 16px; background: white;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
         <h3 id="current-quiz-title" style="margin: 0; color: var(--primary); font-size: 16px;">📝 Soạn Đề Thi</h3>
-        <button onclick="closeEditor()" style="background: #e2e8f0; color: #475569; font-size: 12px; padding: 5px 10px;">❌ Đóng</button>
+        <button onclick="closeEditor()" style="background: #e5e7eb; color: #4b5563; font-size: 12px; padding: 5px 10px;">❌ Đóng</button>
       </div>
 
       <label><strong>Tên Bài Kiểm Tra:</strong></label>
@@ -423,7 +432,7 @@
       <label><strong>Chọn bài thi chuẩn bị phát:</strong></label>
       <select id="active-quiz-select" style="font-weight: 800; color: var(--primary);"></select>
 
-      <div style="background: #f8fafc; border: 2px dashed #cbd5e1; padding: 12px; border-radius: 16px; margin: 12px 0;">
+      <div style="background: #f9fafb; border: 2px dashed #cbd5e1; padding: 12px; border-radius: 16px; margin: 12px 0;">
         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;">
           <span style="font-weight: 800; font-size: 14px; color: var(--primary);">🐾 LINH SỦNG CỦA ĐOÀN SINH (<span id="count">0</span>)</span>
           <span style="font-size: 11px; color: var(--text-muted);">Đã vào phòng...</span>
@@ -431,12 +440,12 @@
         <div id="teacher-student-grid" class="lobby-grid"></div>
       </div>
       
-      <button id="start-btn" onclick="startQuiz()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); font-size: 18px; width: 100%; padding: 16px; box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);">
+      <button id="start-btn" onclick="startQuiz()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); font-size: 18px; width: 100%; padding: 16px; box-shadow: 0 6px 15px rgba(239, 68, 68, 0.35);">
         🚀 BẮT ĐẦU LÀM BÀI
       </button>
     </div>
 
-    <div id="teacher-live-box" style="display: none; margin-top: 20px; background: #eef2ff; padding: 16px; border-radius: 16px; border: 2px solid var(--primary); text-align: center;">
+    <div id="teacher-live-box" style="display: none; margin-top: 20px; background: #ecfdf5; padding: 16px; border-radius: 16px; border: 2px solid var(--primary); text-align: center;">
       <h3 style="margin: 0; color: var(--primary); font-size: 16px;">📡 BÀI THI ĐANG DIỄN RA</h3>
       <h4 id="teacher-current-q" style="margin: 8px 0; font-size: 15px;">--</h4>
       <h1 style="color: var(--danger); font-size: 42px; margin: 0;">⏰ <span id="teacher-timer">--</span>s</h1>
@@ -468,7 +477,7 @@
       <p style="margin: 2px 0 0 0; font-size: 15px; opacity: 0.95;">Đoàn sinh: <strong id="lobby-my-name">--</strong></p>
     </div>
 
-    <div style="background: #f8fafc; border: 2px dashed #cbd5e1; padding: 12px; border-radius: 16px;">
+    <div style="background: #f9fafb; border: 2px dashed #cbd5e1; padding: 12px; border-radius: 16px;">
       <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;">
         <span style="font-weight: 800; font-size: 13px; color: var(--primary);">👥 CÁC BẠN ĐÃ VÀO PHÒNG (<span id="lobby-count">0</span>)</span>
         <span style="font-size: 11px; color: var(--text-muted);">Sẵn sàng...</span>
@@ -484,14 +493,14 @@
   <!-- 7. MÀN HÌNH LÀM BÀI -->
   <div id="quiz-screen" class="card" style="display: none;">
     <div class="header-banner" style="font-size: 13px; padding-bottom: 6px; margin-bottom: 10px;">Thiếu Nhi Thánh Thể Việt Nam</div>
-    <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 14px; border-radius: 14px; border: 1px solid #edf2f7;">
+    <div style="display: flex; justify-content: space-between; align-items: center; background: #f9fafb; padding: 10px 14px; border-radius: 14px; border: 1px solid #e5e7eb;">
       <div>
         <span id="student-part-title" style="font-weight: 800; color: var(--primary);">PHẦN 1</span>
         <span id="student-q-index" style="margin-left: 8px; font-weight: 800; color: var(--text-muted);">(Câu 1/5)</span>
       </div>
       <h2 style="margin: 0; color: var(--danger); font-size: 22px;">⏰ <span id="timer">--</span>s</h2>
     </div>
-    <hr style="border: none; border-top: 1px solid #edf2f7; margin: 15px 0;">
+    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 15px 0;">
     
     <div id="questions-container"></div>
   </div>
@@ -522,7 +531,7 @@
       <h2 style="color: #10b981; margin: 0; font-size: 22px; font-weight: 900;">🎉 CHÚC MỪNG EM ĐÃ HOÀN THÀNH!</h2>
       <p style="font-size: 17px; margin: 6px 0 15px 0; color: var(--text);">Đoàn sinh: <strong><span id="my-student-name">--</span></strong></p>
       
-      <div style="background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%); border-radius: 18px; padding: 18px; margin: 15px 0; border: 1px solid #e2e8f0;">
+      <div style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border-radius: 18px; padding: 18px; margin: 15px 0; border: 1px solid #e5e7eb;">
         <span style="font-size: 14px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">TỔNG ĐIỂM TÍCH LŨY</span>
         <h1 style="font-size: 46px; color: var(--danger); margin: 6px 0 4px 0; font-weight: 900;"><span id="my-final-score">0</span> <small style="font-size: 20px;">điểm</small></h1>
       </div>
@@ -606,7 +615,7 @@
         tbody.innerHTML += `
           <tr>
             <td><b>${username}</b></td>
-            <td><code style="background: #e2e8f0; padding: 4px 8px; border-radius: 6px; color: #d9534f; font-weight: bold;">${pass}</code></td>
+            <td><code style="background: #e5e7eb; padding: 4px 8px; border-radius: 6px; color: #d9534f; font-weight: bold;">${pass}</code></td>
             <td style="text-align: right;">
               <button onclick="adminResetPass('${username}')" style="background: #f59e0b; padding: 5px 10px; font-size: 12px; border-radius: 6px;">Đổi MK</button>
               <button onclick="adminDeleteUser('${username}')" style="background: #ef4444; padding: 5px 10px; font-size: 12px; border-radius: 6px;">Xóa</button>
@@ -1129,7 +1138,7 @@
         const teacherTimerEl = document.getElementById('teacher-timer');
         if (teacherTimerEl) teacherTimerEl.innerText = Math.max(0, currentRemainingSeconds);
 
-        // KHI HẾT GIỜ -> KÍCH HOẠT HIỆU ỨNG ĐÚNG/SAI RỰC RỠ TRONG 3 GIÂY
+        // KHI HẾT GIỜ -> KÍCH HOẠT HIỆU ỨNG ĐÚNG / SAI
         if (currentRemainingSeconds <= 0) {
           clearInterval(localTimerInterval);
           localTimerInterval = null;
@@ -1161,9 +1170,9 @@
           const waitingBox = document.getElementById('waiting-box');
           if (waitingBox) {
             waitingBox.style.display = 'block';
-            waitingBox.style.background = '#eef2ff';
-            waitingBox.style.color = '#3730a3';
-            waitingBox.style.borderColor = '#c7d2fe';
+            waitingBox.style.background = '#ecfdf5';
+            waitingBox.style.color = '#065f46';
+            waitingBox.style.borderColor = '#a7f3d0';
             waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG PHÁT SÁNG!</b> Câu tiếp theo sau <b>${restSeconds}s</b>...`;
           }
 
