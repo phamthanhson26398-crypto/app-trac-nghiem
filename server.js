@@ -37,7 +37,6 @@ const MASCOTS = [
   { icon: '🦹', title: 'Siêu Anh Hùng' }
 ];
 
-// Quản lý từng phòng thi độc lập theo roomId
 const rooms = {};
 
 function getOrCreateRoom(roomId) {
@@ -162,6 +161,31 @@ io.on('connection', (socket) => {
     }
   });
 
+  // GIÁO VIÊN XÓA ĐÍCH DANH 1 ĐOÀN SINH KHỎI PHÒNG
+  socket.on('kick_student', ({ studentId, roomId }) => {
+    const targetRoomId = roomId || currentRoomId;
+    if (targetRoomId && rooms[targetRoomId] && rooms[targetRoomId].students[studentId]) {
+      delete rooms[targetRoomId].students[studentId];
+      // Báo riêng cho học sinh đó là bị kick
+      io.to(studentId).emit('kicked_by_teacher');
+      // Cập nhật lại danh sách phòng
+      io.to(targetRoomId).emit('update_students', Object.values(rooms[targetRoomId].students));
+    }
+  });
+
+  // GIÁO VIÊN ĐĂNG XUẤT HOẶC F5 -> GIẢI TÁN PHÒNG, ĐÁ TOÀN BỘ ĐOÀN SINH
+  socket.on('clear_room_students', ({ roomId }) => {
+    const targetRoomId = roomId || currentRoomId;
+    if (targetRoomId && rooms[targetRoomId]) {
+      // Thông báo cho toàn bộ học sinh trong phòng out ra
+      socket.to(targetRoomId).emit('kicked_by_teacher');
+      // Xóa sạch danh sách học sinh
+      rooms[targetRoomId].students = {};
+      rooms[targetRoomId].status = 'waiting';
+      io.to(targetRoomId).emit('update_students', []);
+    }
+  });
+
   socket.on('start_quiz', ({ parts, quizName, roomId }) => {
     if (!roomId) roomId = currentRoomId || 'default_room';
     const room = getOrCreateRoom(roomId);
@@ -242,11 +266,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('disconnect', () => {
-    if (currentRoomId && rooms[currentRoomId] && rooms[currentRoomId].students[socket.id]) {
-      // Có thể giữ hoặc xóa khi cần
-    }
-  });
+  socket.on('disconnect', () => {});
 });
 
 server.listen(PORT, () => {
