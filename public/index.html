@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ứng Dụng Kiểm Tra Trắc Nghiệm & Tự Luận - Thiếu Nhi Thánh Thể Việt Nam</title>
+  <title>Ứng Dụng Kiểm Tra Trắc Nghiệm - Thiếu Nhi Thánh Thể Việt Nam</title>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -165,6 +165,7 @@
       }
     }
 
+    /* HIỆU ỨNG ĐÁP ÁN CHỌN SAI (ĐỎ) */
     .opt-btn.reveal-wrong {
       background: #fee2e2 !important;
       border: 3px solid #ef4444 !important;
@@ -224,6 +225,7 @@
       50% { transform: translateY(-6px) rotate(4deg); }
     }
 
+    /* GIAO DIỆN HIỂN THỊ LINH VẬT TRÒN CHO CẢ GIÁO VIÊN VÀ HỌC SINH */
     .lobby-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
@@ -304,32 +306,6 @@
 
     #qrcode-box { background: white; border: 2px dashed #cbd5e1; padding: 18px; border-radius: 16px; text-align: center; margin: 15px 0; }
     #qrcode img { margin: 12px auto; }
-
-    /* Ô SOẠN THẢO TỰ LUẬN */
-    .essay-textarea {
-      width: 100%;
-      min-height: 140px;
-      padding: 14px;
-      font-size: 16px;
-      line-height: 1.5;
-      border: 2px solid #cbd5e1;
-      border-radius: 14px;
-      resize: vertical;
-      font-family: inherit;
-      background: #ffffff;
-    }
-    .essay-textarea:focus {
-      border-color: var(--primary);
-      outline: none;
-    }
-
-    .essay-sub-card {
-      background: white;
-      border: 1px solid #e2e8f0;
-      padding: 14px;
-      border-radius: 12px;
-      margin-bottom: 12px;
-    }
   </style>
 </head>
 <body>
@@ -420,7 +396,7 @@
     <!-- DANH SÁCH BÀI THI -->
     <div class="quiz-manager">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin: 0; font-size: 16px;">📁 Kho Bài Thi (Trắc Nghiệm & Tự Luận)</h3>
+        <h3 style="margin: 0; font-size: 16px;">📁 Kho Bài Thi Trắc Nghiệm</h3>
         <button onclick="createNewQuizSection()" style="background: #10b981; font-size: 13px; padding: 8px 14px;">➕ Soạn Bài Mới</button>
       </div>
       <div id="quiz-list-container" style="margin-top: 10px;"></div>
@@ -434,23 +410,12 @@
       </div>
 
       <label><strong>Tên Bài Kiểm Tra:</strong></label>
-      <input type="text" id="quiz-name-input" placeholder="Ví dụ: Đố vui Kinh Thánh & Tự Luận - Tuần 1">
+      <input type="text" id="quiz-name-input" placeholder="Ví dụ: Đố vui Kinh Thánh - Tuần 1">
 
       <div id="parts-list"></div>
       
       <button onclick="addPartInput()" style="background: #0284c7; width: 100%; margin-bottom: 10px; font-size: 14px;">➕ THÊM PHẦN MỚI</button>
       <button onclick="saveCurrentQuiz()" style="background: #10b981; width: 100%; font-size: 16px; padding: 14px;">💾 LƯU BÀI KIỂM TRA</button>
-    </div>
-
-    <!-- MỤC XEM & CHẤM ĐIỂM BÀI TỰ LUẬN -->
-    <div class="quiz-manager" style="background: #eef2ff; border: 2px solid #c7d2fe;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin: 0; font-size: 16px; color: var(--primary);">📝 BÀI LÀM TỰ LUẬN CỦA ĐOÀN SINH (<span id="teacher-essay-count">0</span>)</h3>
-      </div>
-      <p style="font-size: 13px; color: var(--text-muted); margin: 5px 0 10px 0;">(Giáo Lý Viên xem bài làm tự luận của từng em và chấm điểm trực tiếp tại đây)</p>
-      <div id="teacher-essay-list" style="max-height: 260px; overflow-y: auto;">
-        <p style="font-style: italic; color: var(--text-muted); font-size: 13px;">Chưa có bài tự luận nào được nộp.</p>
-      </div>
     </div>
 
     <!-- LỊCH SỬ THI -->
@@ -525,7 +490,7 @@
     </div>
   </div>
 
-  <!-- 7. MÀN HÌNH LÀM BÀI (HỖ TRỢ CẢ TRẮC NGHIỆM & TỰ LUẬN) -->
+  <!-- 7. MÀN HÌNH LÀM BÀI TRẮC NGHIỆM -->
   <div id="quiz-screen" class="card" style="display: none;">
     <div class="header-banner" style="font-size: 13px; padding-bottom: 6px; margin-bottom: 10px;">Thiếu Nhi Thánh Thể Việt Nam</div>
     <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 14px; border-radius: 14px; border: 1px solid #edf2f7;">
@@ -546,7 +511,7 @@
     
     <div id="teacher-result-view" style="display: none;">
       <h2 style="text-align: center; color: var(--danger); margin: 0; font-size: 22px; font-weight: 900;">🏆 BẢNG VINH DANH THÀNH TÍCH</h2>
-      <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin: 4px 0 15px 0;">(Điểm = Tổng số giây còn lại khi nộp đáp án đúng + Điểm Tự luận)</p>
+      <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin: 4px 0 15px 0;">(Điểm = Tổng số giây còn lại khi nộp đáp án đúng)</p>
       <table>
         <thead>
           <tr>
@@ -573,11 +538,11 @@
 
       <div class="stat-grid">
         <div class="stat-box stat-box-correct">
-          <div>✅ Trắc Nghiệm Đúng</div>
+          <div>✅ Câu Đúng</div>
           <div class="stat-num" id="stat-correct">0</div>
         </div>
         <div class="stat-box stat-box-wrong">
-          <div>❌ Trắc Nghiệm Sai</div>
+          <div>❌ Câu Sai</div>
           <div class="stat-num" id="stat-wrong">0</div>
         </div>
         <div class="stat-box stat-box-empty">
@@ -586,7 +551,7 @@
         </div>
       </div>
 
-      <p style="color: var(--text-muted); font-size: 13px; margin-top: 15px;">Em hãy quan sát màn hình của Giáo lý viên để xem chấm điểm bài tự luận và trao giải nhé!</p>
+      <p style="color: var(--text-muted); font-size: 13px; margin-top: 15px;">Em hãy quan sát màn hình của Giáo lý viên để xem trao thưởng giải Nhất, Nhì, Ba nhé!</p>
     </div>
   </div>
 
@@ -602,7 +567,6 @@
     let localTimerInterval = null;
     let currentRemainingSeconds = 0;
     let isAuthRegisterMode = false;
-    let currentItemData = null;
     
     let isSelectedChoiceCorrect = false;
     let hasSelectedAnOption = false;
@@ -866,7 +830,7 @@
 
       const type = data ? data.type : 'multiple';
       const title = data ? data.title : '';
-      const duration = data ? data.duration : (type === 'essay' ? 60 : 10);
+      const duration = data ? data.duration : 10;
 
       qDiv.innerHTML = `
         <button class="btn-delete" style="float:right;" onclick="this.parentElement.remove()">❌ Xóa</button>
@@ -876,7 +840,6 @@
             <select class="q-type" onchange="renderQuestionTypeUI(this)">
               <option value="multiple" ${type === 'multiple' ? 'selected' : ''}>Trắc nghiệm A/B/C/D</option>
               <option value="tf" ${type === 'tf' ? 'selected' : ''}>Đúng / Sai</option>
-              <option value="essay" ${type === 'essay' ? 'selected' : ''}>📝 Tự luận (Đoàn sinh tự gõ câu trả lời)</option>
             </select>
           </div>
           <div style="flex: 1;">
@@ -886,7 +849,7 @@
         </div>
         
         <label>Nội dung câu hỏi:</label>
-        <input type="text" class="q-title" value="${title}" placeholder="Nhập nội dung câu hỏi...">
+        <input type="text" class="q-title" value="${title}" placeholder="Nhập câu hỏi...">
         <div class="q-options-area"></div>
       `;
 
@@ -927,11 +890,6 @@
             <option value="Sai" ${correct === 'Sai' ? 'selected' : ''}>Sai</option>
           </select>
         `;
-      } else if (type === 'essay') {
-        optionsArea.innerHTML = `
-          <label style="color: #0284c7;"><strong>💡 Gợi ý đáp án / Biểu điểm chấm (Chỉ GLV thấy):</strong></label>
-          <input type="text" class="q-essay-guide" value="${correct || ''}" placeholder="Nhập gợi ý câu trả lời đúng...">
-        `;
       }
     }
 
@@ -959,9 +917,6 @@
           } else if (type === 'tf') {
             const correct = qBlock.querySelector('.q-correct').value;
             if (title) questions.push({ type, title, duration, options: ['Đúng', 'Sai'], correct });
-          } else if (type === 'essay') {
-            const guide = qBlock.querySelector('.q-essay-guide') ? qBlock.querySelector('.q-essay-guide').value : '';
-            if (title) questions.push({ type, title, duration, options: [], correct: guide });
           }
         });
 
@@ -1122,40 +1077,6 @@
       }
     });
 
-    // CẬP NHẬT BÀI NỘP TỰ LUẬN TRÊN MÀN HÌNH GIÁO VIÊN
-    socket.on('update_essay_submissions', (submissions) => {
-      if (myRole === 'teacher') {
-        document.getElementById('teacher-essay-count').innerText = submissions.length;
-        const listArea = document.getElementById('teacher-essay-list');
-        if (submissions.length === 0) {
-          listArea.innerHTML = '<p style="font-style: italic; color: var(--text-muted); font-size: 13px;">Chưa có bài tự luận nào được nộp.</p>';
-          return;
-        }
-
-        listArea.innerHTML = submissions.map((sub, sIdx) => `
-          <div class="essay-sub-card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <strong>${sub.mascot ? sub.mascot.icon : '🦁'} ${sub.studentName}</strong>
-              <small style="color: var(--text-muted);">Nộp lúc: ${sub.submittedAt}</small>
-            </div>
-            <div style="font-size: 13px; color: #0284c7; margin: 4px 0;">📌 Câu hỏi: <i>${sub.questionTitle}</i></div>
-            <div style="background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px; white-space: pre-wrap; margin: 6px 0;">${sub.essayText}</div>
-            <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
-              <label style="font-size: 13px; font-weight: bold;">Chấm điểm (cộng thêm):</label>
-              <input type="number" id="essay-score-${sIdx}" value="${sub.score || 0}" style="width: 70px; margin: 0; padding: 6px; text-align: center;">
-              <button onclick="gradeEssaySubmission(${sIdx})" style="padding: 6px 14px; font-size: 13px; background: #10b981;">Lưu Điểm</button>
-            </div>
-          </div>
-        `).join('');
-      }
-    });
-
-    function gradeEssaySubmission(sIdx) {
-      const scoreVal = document.getElementById(`essay-score-${sIdx}`).value;
-      socket.emit('grade_essay', { submissionIndex: sIdx, score: scoreVal });
-      alert('Đã cập nhật điểm tự luận cho đoàn sinh!');
-    }
-
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
@@ -1163,7 +1084,6 @@
       }
 
       currentRemainingSeconds = duration;
-      currentItemData = item;
       isSelectedChoiceCorrect = false;
       hasSelectedAnOption = false;
       hasSubmittedCurrentQuestion = false;
@@ -1172,8 +1092,7 @@
         const liveBox = document.getElementById('teacher-live-box');
         if (liveBox) {
           liveBox.style.display = 'block';
-          const typeBadge = item.question.type === 'essay' ? '📝 [TỰ LUẬN]' : '🎯 [TRẮC NGHIỆM]';
-          document.getElementById('teacher-current-q').innerText = `${typeBadge} ${item.partTitle} - Câu ${item.questionIndex} (Tổng: ${currentIndex + 1}/${totalQuestions})`;
+          document.getElementById('teacher-current-q').innerText = `${item.partTitle} - Câu ${item.questionIndex} (Tổng: ${currentIndex + 1}/${totalQuestions})`;
           document.getElementById('teacher-timer').innerText = currentRemainingSeconds;
         }
       } else {
@@ -1196,22 +1115,16 @@
             const isCorrect = (optIdx == q.correct);
             if (opt) html += `<button class="opt-btn" data-is-correct="${isCorrect}" type="button" onclick="selectChoice(${isCorrect}, this)">${opt}</button>`;
           });
-          html += `<button id="btn-submit" class="btn-submit-answer" type="button" onclick="submitCurrentAnswer()">📤 NỘP ĐÁP ÁN</button>`;
         } else if (q.type === 'tf') {
           const isTrueCorrect = (q.correct === 'Đúng');
           const isFalseCorrect = (q.correct === 'Sai');
           html += `<button class="opt-btn" data-is-correct="${isTrueCorrect}" type="button" onclick="selectChoice(${isTrueCorrect}, this)">Đúng</button>
                    <button class="opt-btn" data-is-correct="${isFalseCorrect}" type="button" onclick="selectChoice(${isFalseCorrect}, this)">Sai</button>`;
-          html += `<button id="btn-submit" class="btn-submit-answer" type="button" onclick="submitCurrentAnswer()">📤 NỘP ĐÁP ÁN</button>`;
-        } else if (q.type === 'essay') {
-          html += `
-            <label style="font-weight: bold; color: var(--primary);">✍️ Phần trả lời của em:</label>
-            <textarea id="essay-input-text" class="essay-textarea" placeholder="Nhập nội dung bài làm tự luận của em vào đây..."></textarea>
-            <button id="btn-submit-essay" class="btn-submit-answer" type="button" onclick="submitCurrentEssayAnswer()">📤 NỘP BÀI TỰ LUẬN</button>
-          `;
         }
 
+        html += `<button id="btn-submit" class="btn-submit-answer" type="button" onclick="submitCurrentAnswer()">📤 NỘP ĐÁP ÁN</button>`;
         html += `<div id="waiting-box" class="waiting-status-box" style="display: none;">⏳ ĐÃ GHI NHẬN ĐÁP ÁN! ĐANG CHỜ HẾT THỜI GIAN ĐỂ SANG CÂU TIẾP THEO...</div>`;
+
         container.innerHTML = html;
       }
 
@@ -1225,42 +1138,33 @@
         const teacherTimerEl = document.getElementById('teacher-timer');
         if (teacherTimerEl) teacherTimerEl.innerText = Math.max(0, currentRemainingSeconds);
 
-        // KHI HẾT GIỜ -> XỬ LÝ 3 GIÂY CHUYỂN CÂU
+        // KHI HẾT GIỜ -> KÍCH HOẠT HIỆU ỨNG ĐÚNG (XANH NHẤP NHÁY) / SAI (ĐỎ) TRONG 3 GIÂY
         if (currentRemainingSeconds <= 0) {
           clearInterval(localTimerInterval);
           localTimerInterval = null;
 
-          const isEssay = currentItemData && currentItemData.question.type === 'essay';
+          const submitBtn = document.getElementById('btn-submit');
+          if (submitBtn) submitBtn.style.display = 'none';
 
-          if (isEssay) {
-            // Tự động nộp bài tự luận nếu chưa bấm nộp
-            if (!hasSubmittedCurrentQuestion) {
-              submitCurrentEssayAnswer();
-            }
-          } else {
-            const submitBtn = document.getElementById('btn-submit');
-            if (submitBtn) submitBtn.style.display = 'none';
+          const optButtons = document.querySelectorAll('.opt-btn');
+          optButtons.forEach(b => {
+            b.style.pointerEvents = 'none';
+            const isCorrect = b.getAttribute('data-is-correct') === 'true';
 
-            const optButtons = document.querySelectorAll('.opt-btn');
-            optButtons.forEach(b => {
-              b.style.pointerEvents = 'none';
-              const isCorrect = b.getAttribute('data-is-correct') === 'true';
-
-              if (isCorrect) {
+            if (isCorrect) {
+              b.classList.remove('selected');
+              b.classList.add('reveal-correct');
+              if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅ (ĐÚNG)';
+            } else {
+              if (b.classList.contains('selected')) {
                 b.classList.remove('selected');
-                b.classList.add('reveal-correct');
-                if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅ (ĐÚNG)';
+                b.classList.add('reveal-wrong');
+                if (!b.innerHTML.includes('❌')) b.innerHTML += ' ❌ (SAI)';
               } else {
-                if (b.classList.contains('selected')) {
-                  b.classList.remove('selected');
-                  b.classList.add('reveal-wrong');
-                  if (!b.innerHTML.includes('❌')) b.innerHTML += ' ❌ (SAI)';
-                } else {
-                  b.style.opacity = '0.35';
-                }
+                b.style.opacity = '0.35';
               }
-            });
-          }
+            }
+          });
 
           let restSeconds = 3;
           const waitingBox = document.getElementById('waiting-box');
@@ -1269,13 +1173,13 @@
             waitingBox.style.background = '#ecfdf5';
             waitingBox.style.color = '#065f46';
             waitingBox.style.borderColor = '#a7f3d0';
-            waitingBox.innerHTML = isEssay ? `✅ <b>ĐÃ HẾT GIỜ LÀM BÀI TỰ LUẬN!</b> Câu tiếp theo sau <b>${restSeconds}s</b>...` : `💡 <b>ĐÁP ÁN ĐÚNG ĐANG PHÁT SÁNG!</b> Câu tiếp theo sau <b>${restSeconds}s</b>...`;
+            waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG PHÁT SÁNG!</b> Câu tiếp theo sau <b>${restSeconds}s</b>...`;
           }
 
           const restInterval = setInterval(() => {
             restSeconds--;
             if (waitingBox && restSeconds > 0) {
-              waitingBox.innerHTML = isEssay ? `✅ <b>ĐÃ HẾT GIỜ LÀM BÀI TỰ LUẬN!</b> Câu tiếp theo sau <b>${restSeconds}s</b>...` : `💡 <b>ĐÁP ÁN ĐÚNG ĐANG PHÁT SÁNG!</b> Câu tiếp theo sau <b>${restSeconds}s</b>...`;
+              waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG PHÁT SÁNG!</b> Câu tiếp theo sau <b>${restSeconds}s</b>...`;
             }
             if (restSeconds <= 0) {
               clearInterval(restInterval);
@@ -1329,33 +1233,6 @@
       socket.emit('submit_answer', { 
         isCorrect: isSelectedChoiceCorrect, 
         remainingTime: currentRemainingSeconds 
-      });
-    }
-
-    // NỘP BÀI TỰ LUẬN
-    function submitCurrentEssayAnswer() {
-      if (hasSubmittedCurrentQuestion) return;
-      hasSubmittedCurrentQuestion = true;
-
-      const textArea = document.getElementById('essay-input-text');
-      const content = textArea ? textArea.value.trim() : '';
-
-      const submitBtn = document.getElementById('btn-submit-essay');
-      if (submitBtn) submitBtn.style.display = 'none';
-
-      if (textArea) textArea.disabled = true;
-
-      const waitingBox = document.getElementById('waiting-box');
-      if (waitingBox) {
-        waitingBox.style.display = 'block';
-        waitingBox.innerHTML = `✅ <b>ĐÃ NỘP BÀI TỰ LUẬN THÀNH CÔNG!</b><br><small>Bài làm đã được gửi về Giáo Lý Viên để chấm điểm...</small>`;
-      }
-
-      const qTitle = currentItemData ? currentItemData.question.title : 'Câu hỏi tự luận';
-      socket.emit('submit_essay_answer', {
-        questionTitle: qTitle,
-        essayText: content,
-        remainingTime: currentRemainingSeconds
       });
     }
 
