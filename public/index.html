@@ -145,7 +145,6 @@
       margin-bottom: 12px; 
     }
 
-    /* 4 ĐÁP ÁN KAHOOT */
     .opt-btn { 
       text-align: left; 
       margin-top: 12px; 
@@ -418,7 +417,7 @@
     #qrcode img { margin: auto; }
 
     /* =========================================
-       KHUNG HỒI HỘP BÍ MẬT & BỤC VINH DANH
+       BỤC VINH DANH QUÁN QUÂN & ĐỒNG QUÁN QUÂN
        ========================================= */
     .suspense-box {
       text-align: center;
@@ -466,43 +465,52 @@
       100% { transform: scale(1); opacity: 1; }
     }
 
+    .champions-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
     .champion-avatar-wrap {
       position: relative;
       display: inline-block;
-      margin-bottom: 15px;
+      text-align: center;
     }
 
     .champion-crown {
       position: absolute;
-      top: -38px;
+      top: -34px;
       left: 50%;
       transform: translateX(-50%) rotate(-8deg);
-      font-size: 48px;
+      font-size: 44px;
       filter: drop-shadow(0 0 15px #ffd166);
       animation: crownBob 2s ease-in-out infinite;
       z-index: 10;
     }
     @keyframes crownBob {
       0%, 100% { transform: translateX(-50%) rotate(-8deg) translateY(0); }
-      50% { transform: translateX(-50%) rotate(8deg) translateY(-8px); }
+      50% { transform: translateX(-50%) rotate(8deg) translateY(-6px); }
     }
 
     .champion-mascot-circle {
-      width: 120px;
-      height: 120px;
+      width: 110px;
+      height: 110px;
       background: radial-gradient(circle, #ffeaa7 0%, #fdcb6e 60%, #e17055 100%);
       border: 4px solid #fff;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 64px;
+      font-size: 58px;
       box-shadow: 0 0 40px rgba(255, 209, 102, 0.85), inset 0 0 15px rgba(255,255,255,0.8);
       animation: championGlow 1.8s ease-in-out infinite alternate;
     }
     @keyframes championGlow {
       0% { box-shadow: 0 0 25px rgba(255, 209, 102, 0.6); transform: scale(1); }
-      100% { box-shadow: 0 0 55px rgba(255, 209, 102, 1), 0 0 70px rgba(255, 107, 107, 0.6); transform: scale(1.06); }
+      100% { box-shadow: 0 0 55px rgba(255, 209, 102, 1), 0 0 70px rgba(255, 107, 107, 0.6); transform: scale(1.05); }
     }
 
     .champion-title-badge {
@@ -516,11 +524,11 @@
       letter-spacing: 1.5px;
       text-transform: uppercase;
       box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
 
     .champion-name {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 1000;
       color: #ffffff;
       text-shadow: 0 0 15px rgba(255, 209, 102, 0.8), 0 3px 6px rgba(0,0,0,0.8);
@@ -528,7 +536,7 @@
     }
 
     .champion-score {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 900;
       color: #6ee7b7;
       text-shadow: 0 0 12px rgba(110, 231, 183, 0.6);
@@ -749,11 +757,11 @@
     <div id="questions-container"></div>
   </div>
 
-  <!-- 8. MÀN HÌNH KẾT QUẢ VINH DANH QUÁN QUÂN BÍ MẬT -->
+  <!-- 8. MÀN HÌNH KẾT QUẢ VINH DANH QUÁN QUÂN & ĐỒNG QUÁN QUÂN -->
   <div id="result-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
-    <!-- KHUNG HỒI HỘP BAN ĐẦU (KHI CHƯA BẤM CÔNG BỐ) -->
+    <!-- KHUNG HỒI HỘP BAN ĐẦU -->
     <div id="suspense-container" class="suspense-box">
       <div class="suspense-icon">🥁</div>
       <h2 style="color: #ffd166; font-size: 24px; font-weight: 1000; margin: 10px 0 6px 0;">🎉 CHÚC MỪNG CÁC ĐOÀN SINH!</h2>
@@ -761,27 +769,24 @@
         Tất cả các thí sinh đã hoàn thành xuất sắc bài thi!
       </p>
 
-      <!-- NÚT DÀNH RIÊNG CHO GIÁO LÝ VIÊN -->
       <div id="teacher-reveal-action" style="display: none;">
         <button onclick="revealWinnerCeremony()" class="btn-reveal-ceremony">
           🏆 BẤM ĐỂ CÔNG BỐ KẾT QUẢ & TRAO GIẢI 👑
         </button>
       </div>
 
-      <!-- DÒNG CHỜ HỒI HỘP CHO HỌC SINH -->
       <div id="student-waiting-reveal" style="display: none;" class="waiting-status-box">
         ⏳ Hồi hộp quá! Hãy cùng hướng mắt lên màn hình, Giáo Lý Viên sắp mở kết quả rồi...
       </div>
     </div>
 
-    <!-- KHUNG TÔN VINH VÔ ĐỊCH NỔI BẬT (CHỈ XUẤT HIỆN SAU KHI GLV BẤM CÔNG BỐ) -->
+    <!-- KHUNG TÔN VINH VÔ ĐỊCH / ĐỒNG VÔ ĐỊCH NỔI BẬT CHÍNH GIỮA -->
     <div id="champion-stage" class="champion-podium" style="display: none;">
-      <div class="champion-title-badge">👑 NHÀ VÔ ĐỊCH 👑</div>
+      <div id="champion-badge-title" class="champion-title-badge">👑 NHÀ VÔ ĐỊCH 👑</div>
       <br>
-      <div class="champion-avatar-wrap">
-        <div class="champion-crown">👑</div>
-        <div id="champion-mascot-icon" class="champion-mascot-circle">🦁</div>
-      </div>
+      <!-- VÙNG CHỨA CÁC LINH VẬT CỦA QUÁN QUÂN (TỰ ĐỘNG THÊM NẾU ĐỒNG HẠNG) -->
+      <div id="champions-container-row" class="champions-row"></div>
+      
       <div id="champion-name" class="champion-name">Maria Nguyễn Thị A</div>
       <div id="champion-score" class="champion-score">🔥 120 Điểm</div>
     </div>
@@ -916,11 +921,22 @@
       }, 1200);
     }
 
-    function getRankBadge(idx) {
-      if (idx === 0) return '🥇 <b style="color:#ffd166;">Nhất</b>';
-      if (idx === 1) return '🥈 <b style="color:#e2e8f0;">Nhì</b>';
-      if (idx === 2) return '🥉 <b style="color:#f97316;">Ba</b>';
-      return `#${idx + 1}`;
+    // TÍNH HUY CHƯƠNG VÀ ĐỒNG HẠNG CHÍNH XÁC
+    function calculateRanks(sortedList) {
+      let currentRank = 1;
+      return sortedList.map((item, index) => {
+        if (index > 0 && item.score < sortedList[index - 1].score) {
+          currentRank = index + 1;
+        }
+        return { ...item, rank: currentRank };
+      });
+    }
+
+    function getRankBadgeFromRank(rank) {
+      if (rank === 1) return '🥇 <b style="color:#ffd166;">Nhất</b>';
+      if (rank === 2) return '🥈 <b style="color:#e2e8f0;">Nhì</b>';
+      if (rank === 3) return '🥉 <b style="color:#f97316;">Ba</b>';
+      return `#${rank}`;
     }
 
     function generateRoomQRCode(roomId) {
@@ -1364,6 +1380,8 @@
 
       let html = `<button onclick="clearQuizHistory('${quizName}')" style="background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); font-size: 12px; padding: 6px 12px; margin-bottom: 10px; box-shadow: 0 3px 0 #991b1b;">🗑️ Xóa Lịch Sử Bài Này</button>`;
       records.forEach(rec => {
+        const rankedResults = calculateRanks(rec.results.sort((a,b) => b.score - a.score));
+
         html += `
           <div class="history-card">
             <strong style="color: #ffd166;">📌 Lần thi thứ ${rec.attempt}</strong> - <small style="color: var(--text-muted);">(${rec.time})</small>
@@ -1377,9 +1395,9 @@
                 </tr>
               </thead>
               <tbody>
-                ${rec.results.sort((a,b) => b.score - a.score).map((s, idx) => `
+                ${rankedResults.map(s => `
                   <tr>
-                    <td style="text-align: center;">${getRankBadge(idx)}</td>
+                    <td style="text-align: center;">${getRankBadgeFromRank(s.rank)}</td>
                     <td><b>${s.mascot ? s.mascot.icon : '🦁'} ${s.name}</b></td>
                     <td style="text-align: center;"><small>✅${s.correctCount || 0} | ❌${s.wrongCount || 0} | ⚪${s.unansweredCount || 0}</small></td>
                     <td style="text-align: right;"><strong style="color: #6ee7b7; font-size: 16px;">${s.score}</strong> điểm</td>
@@ -1666,7 +1684,7 @@
       });
     }
 
-    /* 1. GIAI ĐOẠN HẾT GIỜ BÀI THI: HIỆN MÀN HÌNH CHỜ BÍ MẬT */
+    /* GIAI ĐOẠN 1: KẾT THÚC BÀI THI - GIỮ BÍ MẬT & CHỜ GLV CÔNG BỐ */
     socket.on('quiz_ended', ({ quizName }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
@@ -1679,12 +1697,9 @@
       document.getElementById('teacher-screen').style.display = 'none';
       document.getElementById('result-screen').style.display = 'block';
 
-      // Ẩn bục vô địch và bảng điểm chi tiết ban đầu
       document.getElementById('champion-stage').style.display = 'none';
       document.getElementById('teacher-result-view').style.display = 'none';
       document.getElementById('student-result-view').style.display = 'none';
-
-      // Hiển thị khung chờ hồi hộp
       document.getElementById('suspense-container').style.display = 'block';
 
       if (myRole === 'teacher') {
@@ -1698,26 +1713,60 @@
       }
     });
 
-    /* HÀM DO GIÁO LÝ VIÊN BẤM NÚT CÔNG BỐ */
     function revealWinnerCeremony() {
       socket.emit('reveal_results', { roomId: activeRoomId });
     }
 
-    /* 2. GIAI ĐOẠN BÙNG NỔ KẾT QUẢ: KHI GLV BẤM NÚT, TẤT CẢ MÁY ĐỀU CÔNG BỐ */
+    /* GIAI ĐOẠN 2: BÙNG NỔ KẾT QUẢ - HỖ TRỢ CẢ 1 QUÁN QUÂN HOẶC NHIỀU ĐỒNG QUÁN QUÂN */
     socket.on('results_revealed', ({ leaderboard, quizName }) => {
-      // Ẩn khung chờ bí mật
       document.getElementById('suspense-container').style.display = 'none';
 
-      // Sắp xếp tìm Quán Quân
-      const sortedList = leaderboard.sort((a,b) => b.score - a.score);
-      const champion = sortedList.length > 0 ? sortedList[0] : { name: 'Chưa có', score: 0, mascot: { icon: '🦁' } };
+      // Sắp xếp: Ưu tiên 1: Điểm cao -> Ưu tiên 2: Số câu đúng nhiều hơn
+      const sortedList = leaderboard.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return (b.correctCount || 0) - (a.correctCount || 0);
+      });
 
-      // Cập nhật thông tin Quán Quân
-      document.getElementById('champion-mascot-icon').innerText = champion.mascot ? champion.mascot.icon : '🦁';
-      document.getElementById('champion-name').innerText = champion.name;
-      document.getElementById('champion-score').innerText = `🔥 ${champion.score} Điểm`;
+      const rankedResults = calculateRanks(sortedList);
 
-      // Hiển thị Bục vinh danh Quán Quân
+      // Tìm tất cả các bạn đạt Giải Nhất (rank === 1)
+      const topWinners = rankedResults.filter(s => s.rank === 1 && s.score > 0);
+
+      const championsRow = document.getElementById('champions-container-row');
+      championsRow.innerHTML = '';
+
+      if (topWinners.length === 0) {
+        // Trường hợp không có ai có điểm
+        document.getElementById('champion-badge-title').innerText = '👑 KẾT QUẢ THI ĐẤU 👑';
+        document.getElementById('champion-name').innerText = 'Chưa có bạn nào ghi điểm';
+        document.getElementById('champion-score').innerText = '0 Điểm';
+      } else if (topWinners.length === 1) {
+        // Có 1 Quán Quân duy nhất
+        const champ = topWinners[0];
+        document.getElementById('champion-badge-title').innerText = '👑 NHÀ VÔ ĐỊCH 👑';
+        championsRow.innerHTML = `
+          <div class="champion-avatar-wrap">
+            <div class="champion-crown">👑</div>
+            <div class="champion-mascot-circle">${champ.mascot ? champ.mascot.icon : '🦁'}</div>
+          </div>
+        `;
+        document.getElementById('champion-name').innerText = champ.name;
+        document.getElementById('champion-score').innerText = `🔥 ${champ.score} Điểm (Đúng: ${champ.correctCount || 0} câu)`;
+      } else {
+        // Có từ 2 bạn trở lên ĐỒNG QUÁN QUÂN
+        document.getElementById('champion-badge-title').innerText = '👑 ĐỒNG QUÁN QUÂN 👑';
+        championsRow.innerHTML = topWinners.map(champ => `
+          <div class="champion-avatar-wrap" style="margin: 0 8px;">
+            <div class="champion-crown">👑</div>
+            <div class="champion-mascot-circle">${champ.mascot ? champ.mascot.icon : '🦁'}</div>
+          </div>
+        `).join('');
+
+        const champNames = topWinners.map(c => c.name).join(' & ');
+        document.getElementById('champion-name').innerText = champNames;
+        document.getElementById('champion-score').innerText = `🔥 Cùng đạt ${topWinners[0].score} Điểm`;
+      }
+
       document.getElementById('champion-stage').style.display = 'block';
 
       // BẮN PHÁO HOA TUNG BAY
@@ -1730,9 +1779,9 @@
         document.getElementById('student-result-view').style.display = 'none';
 
         const tbody = document.getElementById('teacher-leaderboard-body');
-        tbody.innerHTML = sortedList.map((s, idx) => `
+        tbody.innerHTML = rankedResults.map(s => `
           <tr>
-            <td style="text-align: center;">${getRankBadge(idx)}</td>
+            <td style="text-align: center;">${getRankBadgeFromRank(s.rank)}</td>
             <td><b>${s.mascot ? s.mascot.icon : '🦁'} ${s.name}</b></td>
             <td style="text-align: center;"><small>✅${s.correctCount || 0} | ❌${s.wrongCount || 0} | ⚪${s.unansweredCount || 0}</small></td>
             <td style="text-align: right;"><strong style="color: #6ee7b7; font-size: 16px;">${s.score}</strong> điểm</td>
