@@ -43,6 +43,7 @@ function getOrCreateRoom(roomId) {
   if (!rooms[roomId]) {
     rooms[roomId] = {
       status: 'waiting',
+      quizType: 'mc', // 'mc' hoặc 'essay'
       quizName: '',
       queue: [],
       currentIndex: 0,
@@ -86,12 +87,12 @@ function advanceToNextQuestion(roomId) {
 
   room.currentIndex++;
 
-  // Khi hoàn thành tất cả câu hỏi: Báo kết thúc bài thi nhưng GIỮ BÍ MẬT kết quả
   if (room.currentIndex >= room.queue.length) {
     room.status = 'ended';
     room.currentItem = null;
     io.to(roomId).emit('quiz_ended', { 
-      quizName: room.quizName 
+      quizName: room.quizName,
+      quizType: room.quizType
     });
     return;
   }
@@ -111,7 +112,8 @@ function advanceToNextQuestion(roomId) {
       item: room.currentItem,
       duration: room.currentDuration,
       currentIndex: room.currentIndex,
-      totalQuestions: room.queue.length
+      totalQuestions: room.queue.length,
+      quizType: room.quizType
     });
 
     room.timerTimeout = setTimeout(() => {
@@ -153,7 +155,8 @@ io.on('connection', (socket) => {
           item: room.currentItem,
           duration: room.currentDuration,
           currentIndex: room.currentIndex,
-          totalQuestions: room.queue.length
+          totalQuestions: room.queue.length,
+          quizType: room.quizType
         });
       }
     } else if (role === 'teacher') {
@@ -180,7 +183,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('start_quiz', ({ parts, quizName, roomId }) => {
+  socket.on('start_quiz', ({ parts, quizName, roomId, quizType }) => {
     if (!roomId) roomId = currentRoomId || 'default_room';
     const room = getOrCreateRoom(roomId);
 
@@ -210,6 +213,7 @@ io.on('connection', (socket) => {
     if (queue.length === 0) return;
 
     room.status = 'playing';
+    room.quizType = quizType || 'mc';
     room.quizName = quizName || 'Bài thi';
     room.queue = queue;
     room.currentIndex = -1;
@@ -233,7 +237,8 @@ io.on('connection', (socket) => {
       item: room.currentItem,
       duration: room.currentDuration,
       currentIndex: room.currentIndex,
-      totalQuestions: room.queue.length
+      totalQuestions: room.queue.length,
+      quizType: room.quizType
     });
 
     room.timerTimeout = setTimeout(() => {
@@ -260,13 +265,13 @@ io.on('connection', (socket) => {
     }
   });
 
-  // KHI GIÁO LÝ VIÊN BẤM NÚT "CÔNG BỐ KẾT QUẢ" -> PHÁT LỆNH VINH DANH TOÀN PHÒNG
   socket.on('reveal_results', ({ roomId }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId]) {
       io.to(targetRoomId).emit('results_revealed', {
         leaderboard: Object.values(rooms[targetRoomId].students),
-        quizName: rooms[targetRoomId].quizName
+        quizName: rooms[targetRoomId].quizName,
+        quizType: rooms[targetRoomId].quizType
       });
     }
   });
