@@ -28,7 +28,7 @@
     body { 
       font-family: 'Nunito', sans-serif; 
       padding: 14px 10px; 
-      max-width: 680px; 
+      max-width: 720px; 
       margin: auto; 
       background-color: var(--bg);
       background-image: radial-gradient(circle at 50% 10%, rgba(16, 185, 129, 0.25) 0%, transparent 60%), url('/bg.png');
@@ -354,22 +354,21 @@
 
     .stat-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
       margin: 14px 0;
     }
     .stat-box {
-      padding: 11px 6px;
+      padding: 12px 8px;
       border-radius: 15px;
       text-align: center;
       font-weight: 700;
       font-size: 13px;
       box-shadow: 0 3px 8px rgba(0,0,0,0.2);
     }
-    .stat-box-correct { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
-    .stat-box-wrong { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
-    .stat-box-empty { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
-    .stat-num { font-size: 22px; font-weight: 900; margin-top: 3px; }
+    .stat-box-mc { background: rgba(59, 130, 246, 0.18); color: #93c5fd; border: 1.5px solid rgba(59, 130, 246, 0.4); }
+    .stat-box-essay { background: rgba(245, 158, 11, 0.18); color: #fde047; border: 1.5px solid rgba(245, 158, 11, 0.4); }
+    .stat-detail-txt { font-size: 13px; font-weight: 800; margin-top: 6px; color: #fff; }
 
     .btn-delete { background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 2px 0 #991b1b; padding: 5px 10px; border-radius: 8px; font-size: 12px; }
     .btn-edit { background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 2px 0 #b45309; color: white; padding: 5px 10px; border-radius: 8px; font-size: 12px; margin-right: 5px; }
@@ -380,7 +379,7 @@
 
     .history-card { background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 14px; margin-bottom: 8px; }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-    th, td { border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 6px; text-align: left; font-size: 13px; }
+    th, td { border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 6px; text-align: left; font-size: 12.5px; }
     th { background: rgba(255, 255, 255, 0.08); font-weight: 800; color: #ffd166; }
 
     #qrcode-box { 
@@ -533,6 +532,17 @@
       margin-bottom: 16px;
     }
 
+    .teacher-ref-answer {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px dashed #10b981;
+      color: #6ee7b7;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      margin-top: 10px;
+      line-height: 1.4;
+    }
+
     .student-review-row {
       background: rgba(0, 0, 0, 0.35);
       border-left: 3.5px solid #ef4444;
@@ -587,7 +597,7 @@
     <button onclick="backToRoleScreen()" style="background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.15); width: 100%; margin-top: 12px; box-shadow: none; font-size: 13px;">← Quay Lại</button>
   </div>
 
-  <!-- 3. MÀN HÌNH QUẢN TRỊ ADMIN (LƯU TẬP TRUNG TẤT CẢ TÀI KHOẢN TRÊN SERVER) -->
+  <!-- 3. MÀN HÌNH QUẢN TRỊ ADMIN -->
   <div id="admin-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -748,7 +758,7 @@
     <div id="questions-container"></div>
   </div>
 
-  <!-- 8. MÀN HÌNH KẾT QUẢ & DUYỆT TỰ LUẬN -->
+  <!-- 8. MÀN HÌNH KẾT QUẢ & DUYỆT TỰ LUẬN (CÓ ĐÁP ÁN SO SÁNH CỦA GV) -->
   <div id="result-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -760,11 +770,11 @@
         Tất cả các thí sinh đã hoàn thành xuất sắc bài thi!
       </p>
 
-      <!-- BẢNG DUYỆT TỰ LUẬN (CÓ NÚT CHẤP NHẬN & BỎ QUA) -->
+      <!-- BẢNG DUYỆT TỰ LUẬN: CÓ ĐÁP ÁN CHUẨN CỦA GV ĐẶT PHÍA DƯỚI ĐỂ SO SÁNH -->
       <div id="teacher-review-panel" class="teacher-review-panel" style="display: none;">
         <h3 style="color: #ffd166; margin: 0 0 4px 0; font-size: 16px;">👩‍🏫 Duyệt Đáp Án Tự Luận (Theo Từng Câu Hỏi)</h3>
         <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.4;">
-          Thầy/Cô đọc câu trả lời của từng em dưới mỗi câu hỏi. Bấm <b>"✅ Chấp nhận"</b> để cộng bù điểm theo giây, hoặc <b>"❌ Bỏ qua"</b> nếu đáp án không hợp lệ.
+          Thầy/Cô đọc câu trả lời của từng em dưới mỗi câu hỏi, đối chiếu với <b>🎯 Đáp án chuẩn của GV</b> phía cuối câu. Bấm <b>"✅ Chấp nhận"</b> để cộng bù điểm theo giây, hoặc <b>"❌ Bỏ qua"</b> nếu không hợp lệ.
         </p>
         <div id="review-list-container" style="max-height: 480px; overflow-y: auto; padding-right: 4px;"></div>
       </div>
@@ -790,7 +800,7 @@
       <div id="champion-score" class="champion-score">🔥 120 Điểm</div>
     </div>
 
-    <!-- BẢNG ĐIỂM CỦA GIÁO LÝ VIÊN -->
+    <!-- BẢNG ĐIỂM CỦA GIÁO LÝ VIÊN: PHÂN TÁCH 2 CỘT TRẮC NGHIỆM & TỰ LUẬN -->
     <div id="teacher-result-view" style="display: none; margin-top: 12px;">
       <div style="text-align: center; margin-bottom: 10px;">
         <button onclick="toggleLeaderboardView()" style="background: rgba(255,255,255,0.15); font-size: 12.5px; padding: 6px 14px; box-shadow: none; border: 1px solid rgba(255,255,255,0.25);">
@@ -802,10 +812,11 @@
         <table>
           <thead>
             <tr>
-              <th style="text-align: center; width: 60px;">Giải</th>
-              <th>Thí Sinh / Linh Vật</th>
-              <th style="text-align: center;">Đúng / Sai / Bỏ</th>
-              <th style="text-align: right;">Tổng Điểm</th>
+              <th style="text-align: center; width: 55px;">Giải</th>
+              <th>Thí Sinh</th>
+              <th style="text-align: center; width: 130px; color: #93c5fd;">🎯 Trắc Nghiệm</th>
+              <th style="text-align: center; width: 130px; color: #fde047;">✍️ Tự Luận</th>
+              <th style="text-align: right; width: 85px;">Tổng Điểm</th>
             </tr>
           </thead>
           <tbody id="teacher-leaderboard-body"></tbody>
@@ -825,17 +836,13 @@
       </div>
 
       <div class="stat-grid">
-        <div class="stat-box stat-box-correct">
-          <div>✅ Câu Đúng</div>
-          <div class="stat-num" id="stat-correct">0</div>
+        <div class="stat-box stat-box-mc">
+          <div>🎯 Phần Trắc Nghiệm</div>
+          <div class="stat-detail-txt" id="my-stat-mc">✅0 | ❌0 | ⚪0</div>
         </div>
-        <div class="stat-box stat-box-wrong">
-          <div>❌ Câu Sai</div>
-          <div class="stat-num" id="stat-wrong">0</div>
-        </div>
-        <div class="stat-box stat-box-empty">
-          <div>⚪ Bỏ Trống</div>
-          <div class="stat-num" id="stat-empty">0</div>
+        <div class="stat-box stat-box-essay">
+          <div>✍️ Phần Tự Luận</div>
+          <div class="stat-detail-txt" id="my-stat-essay">✅0 | ❌0 | ⚪0</div>
         </div>
       </div>
     </div>
@@ -1054,7 +1061,6 @@
       }
     }
 
-    /* ĐĂNG NHẬP / ĐĂNG KÝ GLV QUA SERVER */
     function toggleAuthMode() {
       isAuthRegisterMode = !isAuthRegisterMode;
       document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
@@ -1401,10 +1407,11 @@
             <table>
               <thead>
                 <tr>
-                  <th style="text-align: center; width: 60px;">Giải</th>
-                  <th>Thí Sinh / Linh Vật</th>
-                  <th style="text-align: center;">Đúng / Sai / Bỏ</th>
-                  <th style="text-align: right;">Điểm Số</th>
+                  <th style="text-align: center; width: 55px;">Giải</th>
+                  <th>Thí Sinh</th>
+                  <th style="text-align: center; width: 130px; color: #93c5fd;">🎯 Trắc Nghiệm</th>
+                  <th style="text-align: center; width: 130px; color: #fde047;">✍️ Tự Luận</th>
+                  <th style="text-align: right; width: 85px;">Tổng Điểm</th>
                 </tr>
               </thead>
               <tbody>
@@ -1412,8 +1419,9 @@
                   <tr>
                     <td style="text-align: center;">${getRankBadgeFromRank(s.rank)}</td>
                     <td><b>${s.mascot ? s.mascot.icon : '🦁'} ${s.name}</b></td>
-                    <td style="text-align: center;"><small>✅${s.correctCount || 0} | ❌${s.wrongCount || 0} | ⚪${s.unansweredCount || 0}</small></td>
-                    <td style="text-align: right;"><strong style="color: #6ee7b7; font-size: 14.5px;">${s.score}</strong> điểm</td>
+                    <td style="text-align: center;"><small>✅${s.mcCorrect || 0} | ❌${s.mcWrong || 0} | ⚪${s.mcUnanswered || 0}</small></td>
+                    <td style="text-align: center;"><small>✅${s.essayCorrect || 0} | ❌${s.essayWrong || 0} | ⚪${s.essayUnanswered || 0}</small></td>
+                    <td style="text-align: right;"><strong style="color: #6ee7b7; font-size: 14px;">${s.score}</strong> đ</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -1763,11 +1771,12 @@
         roomId: activeRoomId,
         type: answerType,
         answerText: answerTextVal,
-        questionTitle: currentItemData.question.title
+        questionTitle: currentItemData.question.title,
+        teacherAnswers: currentItemData.question.correct || ''
       });
     }
 
-    /* KHI KẾT THÚC BÀI THI: GOM NHÓM ĐÁP ÁN TỰ LUẬN THEO TỪNG CÂU HỎI VÀ CÓ NÚT BỎ QUA */
+    /* KHI KẾT THÚC BÀI THI: GOM NHÓM ĐÁP ÁN TỰ LUẬN THEO CÂU HỎI VÀ ĐẶT ĐÁP ÁN CHUẨN CỦA GV PHÍA CUỐI */
     socket.on('quiz_ended', ({ quizName, essaySubmissions, leaderboard }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
@@ -1796,21 +1805,24 @@
           const groupedByQuestion = {};
           wrongEssays.forEach((item, idx) => {
             if (!groupedByQuestion[item.questionTitle]) {
-              groupedByQuestion[item.questionTitle] = [];
+              groupedByQuestion[item.questionTitle] = {
+                teacherAnswers: item.teacherAnswers,
+                list: []
+              };
             }
-            groupedByQuestion[item.questionTitle].push({ ...item, originIdx: idx });
+            groupedByQuestion[item.questionTitle].list.push({ ...item, originIdx: idx });
           });
 
           let html = '';
           Object.keys(groupedByQuestion).forEach((qTitle, qIdx) => {
-            const studentAnswers = groupedByQuestion[qTitle];
+            const group = groupedByQuestion[qTitle];
             html += `
               <div class="question-review-card" id="q-card-${qIdx}">
                 <div style="font-size: 14px; font-weight: 800; color: #ffd166; margin-bottom: 6px;">
                   ❓ Câu: ${qTitle}
                 </div>
                 <div>
-                  ${studentAnswers.map(s => `
+                  ${group.list.map(s => `
                     <div class="student-review-row" id="review-item-${s.originIdx}">
                       <div style="flex: 1;">
                         <div style="font-size: 12px; color: #cbd5e1;">
@@ -1831,6 +1843,10 @@
                       </div>
                     </div>
                   `).join('')}
+                </div>
+                <!-- ĐÁP ÁN CHUẨN CỦA GIÁO VIÊN ĐẶT PHÍA DƯỚI ĐỂ SO SÁNH -->
+                <div class="teacher-ref-answer">
+                  <b>🎯 Đáp án chuẩn của GV:</b> <span>${group.teacherAnswers || '(Chưa đặt)'}</span>
                 </div>
               </div>
             `;
@@ -1860,7 +1876,6 @@
         itemEl.style.borderLeftColor = '#10b981';
         itemEl.style.background = 'rgba(16, 185, 129, 0.15)';
         itemEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 6px 0; width: 100%;">✅ Đã chấp nhận đúng (+${points} điểm)</div>`;
-        setTimeout(() => { itemEl.style.display = 'none'; }, 1000);
       }
     }
 
@@ -1881,7 +1896,9 @@
 
       const sortedList = leaderboard.sort((a, b) => {
         if (b.score !== a.score) return b.score - a.score;
-        return (b.correctCount || 0) - (a.correctCount || 0);
+        const totalCorrectA = (a.mcCorrect || 0) + (a.essayCorrect || 0);
+        const totalCorrectB = (b.mcCorrect || 0) + (b.essayCorrect || 0);
+        return totalCorrectB - totalCorrectA;
       });
 
       const rankedResults = calculateRanks(sortedList);
@@ -1896,6 +1913,7 @@
         document.getElementById('champion-score').innerText = '0 Điểm';
       } else if (topWinners.length === 1) {
         const champ = topWinners[0];
+        const totalCorrect = (champ.mcCorrect || 0) + (champ.essayCorrect || 0);
         document.getElementById('champion-badge-title').innerText = '👑 NHÀ VÔ ĐỊCH 👑';
         championsRow.innerHTML = `
           <div class="champion-avatar-wrap">
@@ -1904,7 +1922,7 @@
           </div>
         `;
         document.getElementById('champion-name').innerText = champ.name;
-        document.getElementById('champion-score').innerText = `🔥 ${champ.score} Điểm (Đúng: ${champ.correctCount || 0} câu)`;
+        document.getElementById('champion-score').innerText = `🔥 ${champ.score} Điểm (Tổng đúng: ${totalCorrect} câu)`;
       } else {
         document.getElementById('champion-badge-title').innerText = '👑 ĐỒNG QUÁN QUÂN 👑';
         championsRow.innerHTML = topWinners.map(champ => `
@@ -1933,8 +1951,9 @@
           <tr>
             <td style="text-align: center;">${getRankBadgeFromRank(s.rank)}</td>
             <td><b>${s.mascot ? s.mascot.icon : '🦁'} ${s.name}</b></td>
-            <td style="text-align: center;"><small>✅${s.correctCount || 0} | ❌${s.wrongCount || 0} | ⚪${s.unansweredCount || 0}</small></td>
-            <td style="text-align: right;"><strong style="color: #6ee7b7; font-size: 14.5px;">${s.score}</strong> điểm</td>
+            <td style="text-align: center;"><small>✅${s.mcCorrect || 0} | ❌${s.mcWrong || 0} | ⚪${s.mcUnanswered || 0}</small></td>
+            <td style="text-align: center;"><small>✅${s.essayCorrect || 0} | ❌${s.essayWrong || 0} | ⚪${s.essayUnanswered || 0}</small></td>
+            <td style="text-align: right;"><strong style="color: #6ee7b7; font-size: 14px;">${s.score}</strong> đ</td>
           </tr>
         `).join('');
 
@@ -1944,15 +1963,17 @@
 
         const myRecord = leaderboard.find(s => s.id === socket.id);
         const score = myRecord ? myRecord.score : 0;
-        const correct = myRecord ? (myRecord.correctCount || 0) : 0;
-        const wrong = myRecord ? (myRecord.wrongCount || 0) : 0;
-        const unanswered = myRecord ? (myRecord.unansweredCount || 0) : 0;
+        const mcCorrect = myRecord ? (myRecord.mcCorrect || 0) : 0;
+        const mcWrong = myRecord ? (myRecord.mcWrong || 0) : 0;
+        const mcUnanswered = myRecord ? (myRecord.mcUnanswered || 0) : 0;
+        const essayCorrect = myRecord ? (myRecord.essayCorrect || 0) : 0;
+        const essayWrong = myRecord ? (myRecord.essayWrong || 0) : 0;
+        const essayUnanswered = myRecord ? (myRecord.essayUnanswered || 0) : 0;
 
         document.getElementById('my-student-name').innerText = currentStudentName || 'Em';
         document.getElementById('my-final-score').innerText = score;
-        document.getElementById('stat-correct').innerText = correct;
-        document.getElementById('stat-wrong').innerText = wrong;
-        document.getElementById('stat-empty').innerText = unanswered;
+        document.getElementById('my-stat-mc').innerText = `✅${mcCorrect} | ❌${mcWrong} | ⚪${mcUnanswered}`;
+        document.getElementById('my-stat-essay').innerText = `✅${essayCorrect} | ❌${essayWrong} | ⚪${essayUnanswered}`;
       }
     });
   </script>
