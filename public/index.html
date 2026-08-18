@@ -8,6 +8,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <!-- THƯ VIỆN PHÁO HOA CHUẨN QUIZIZZ -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- THƯ VIỆN ÂM THANH HOWLER.JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900;1000&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -145,6 +147,7 @@
       margin-bottom: 12px; 
     }
 
+    /* 4 ĐÁP ÁN KAHOOT */
     .opt-btn { 
       text-align: left; 
       margin-top: 12px; 
@@ -784,7 +787,6 @@
     <div id="champion-stage" class="champion-podium" style="display: none;">
       <div id="champion-badge-title" class="champion-title-badge">👑 NHÀ VÔ ĐỊCH 👑</div>
       <br>
-      <!-- VÙNG CHỨA CÁC LINH VẬT CỦA QUÁN QUÂN (TỰ ĐỘNG THÊM NẾU ĐỒNG HẠNG) -->
       <div id="champions-container-row" class="champions-row"></div>
       
       <div id="champion-name" class="champion-name">Maria Nguyễn Thị A</div>
@@ -862,10 +864,24 @@
     let hasSelectedAnOption = false;
     let hasSubmittedCurrentQuestion = false;
 
-    const FUNNY_TEXTS = ['Ú òa! 😜', 'Né nè! ✨', 'Đau em! 🎈', 'Xời hụt rồi! 🚀', 'Đau mò! 🔥', 'Nhẹ Nhẹ Tay thôi! 💨', 'Yêu yêu! 😜'];
+    const FUNNY_TEXTS = ['Ú òa! 😜', 'Né nè! ✨', 'Boing! 🎈', 'Bắt hụt rồi! 🚀', 'Hehe! 🌟', 'Vèo! 💨', 'Bí mật! 🐾'];
+
+    /* =========================================
+       HỆ THỐNG ÂM THANH GAMESHOW
+       ========================================= */
+    const soundSuspense = new Howl({
+      src: ['https://assets.mixkit.co/active_storage/sfx/2874/2874-preview.mp3'], // Trống dồn hồi hộp
+      volume: 0.8,
+      loop: true
+    });
+
+    const soundVictory = new Howl({
+      src: ['https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3'], // Kèn chiến thắng & Vỗ tay
+      volume: 1.0
+    });
 
     function triggerChampionConfetti() {
-      const duration = 4.5 * 1000;
+      const duration = 5 * 1000;
       const animationEnd = Date.now() + duration;
       const defaults = { startVelocity: 35, spread: 360, ticks: 70, zIndex: 999 };
 
@@ -921,7 +937,6 @@
       }, 1200);
     }
 
-    // TÍNH HUY CHƯƠNG VÀ ĐỒNG HẠNG CHÍNH XÁC
     function calculateRanks(sortedList) {
       let currentRank = 1;
       return sortedList.map((item, index) => {
@@ -992,6 +1007,10 @@
     });
 
     function backToTeacherDashboard() {
+      // Dừng âm thanh chiến thắng nếu đang phát
+      soundVictory.stop();
+      soundSuspense.stop();
+
       document.getElementById('result-screen').style.display = 'none';
       document.getElementById('teacher-screen').style.display = 'block';
 
@@ -1684,7 +1703,7 @@
       });
     }
 
-    /* GIAI ĐOẠN 1: KẾT THÚC BÀI THI - GIỮ BÍ MẬT & CHỜ GLV CÔNG BỐ */
+    /* GIAI ĐOẠN 1: HẾT GIỜ BÀI THI - PHÁT ÂM THANH TRỐNG DỒN HỒI HỘP */
     socket.on('quiz_ended', ({ quizName }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
@@ -1702,6 +1721,11 @@
       document.getElementById('student-result-view').style.display = 'none';
       document.getElementById('suspense-container').style.display = 'block';
 
+      // Phát tiếng trống dồn hồi hộp
+      try {
+        soundSuspense.play();
+      } catch (e) {}
+
       if (myRole === 'teacher') {
         document.getElementById('teacher-reveal-action').style.display = 'block';
         document.getElementById('student-waiting-reveal').style.display = 'none';
@@ -1717,31 +1741,35 @@
       socket.emit('reveal_results', { roomId: activeRoomId });
     }
 
-    /* GIAI ĐOẠN 2: BÙNG NỔ KẾT QUẢ - HỖ TRỢ CẢ 1 QUÁN QUÂN HOẶC NHIỀU ĐỒNG QUÁN QUÂN */
+    /* GIAI ĐOẠN 2: BÙNG NỔ KẾT QUẢ - DỪNG TRỐNG VÀ PHÁT ÂM THANH KÈN CHIẾN THẮNG */
     socket.on('results_revealed', ({ leaderboard, quizName }) => {
+      // Dừng tiếng trống hồi hộp
+      soundSuspense.stop();
+
+      // Bật âm thanh Kèn chiến thắng & Tiếng reo hò vỗ tay bùng nổ
+      try {
+        soundVictory.play();
+      } catch (e) {}
+
       document.getElementById('suspense-container').style.display = 'none';
 
-      // Sắp xếp: Ưu tiên 1: Điểm cao -> Ưu tiên 2: Số câu đúng nhiều hơn
+      // Sắp xếp phân hạng công bằng
       const sortedList = leaderboard.sort((a, b) => {
         if (b.score !== a.score) return b.score - a.score;
         return (b.correctCount || 0) - (a.correctCount || 0);
       });
 
       const rankedResults = calculateRanks(sortedList);
-
-      // Tìm tất cả các bạn đạt Giải Nhất (rank === 1)
       const topWinners = rankedResults.filter(s => s.rank === 1 && s.score > 0);
 
       const championsRow = document.getElementById('champions-container-row');
       championsRow.innerHTML = '';
 
       if (topWinners.length === 0) {
-        // Trường hợp không có ai có điểm
         document.getElementById('champion-badge-title').innerText = '👑 KẾT QUẢ THI ĐẤU 👑';
         document.getElementById('champion-name').innerText = 'Chưa có bạn nào ghi điểm';
         document.getElementById('champion-score').innerText = '0 Điểm';
       } else if (topWinners.length === 1) {
-        // Có 1 Quán Quân duy nhất
         const champ = topWinners[0];
         document.getElementById('champion-badge-title').innerText = '👑 NHÀ VÔ ĐỊCH 👑';
         championsRow.innerHTML = `
@@ -1753,7 +1781,6 @@
         document.getElementById('champion-name').innerText = champ.name;
         document.getElementById('champion-score').innerText = `🔥 ${champ.score} Điểm (Đúng: ${champ.correctCount || 0} câu)`;
       } else {
-        // Có từ 2 bạn trở lên ĐỒNG QUÁN QUÂN
         document.getElementById('champion-badge-title').innerText = '👑 ĐỒNG QUÁN QUÂN 👑';
         championsRow.innerHTML = topWinners.map(champ => `
           <div class="champion-avatar-wrap" style="margin: 0 8px;">
