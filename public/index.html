@@ -28,7 +28,7 @@
     body { 
       font-family: 'Nunito', sans-serif; 
       padding: 14px 10px; 
-      max-width: 580px; 
+      max-width: 680px; 
       margin: auto; 
       background-color: var(--bg);
       background-image: radial-gradient(circle at 50% 10%, rgba(16, 185, 129, 0.25) 0%, transparent 60%), url('/bg.png');
@@ -144,7 +144,6 @@
       margin-bottom: 10px; 
     }
 
-    /* ĐÁP ÁN TRẮC NGHIỆM */
     .opt-btn { 
       text-align: left; 
       margin-top: 10px; 
@@ -163,8 +162,8 @@
       border: 2px solid transparent !important;
     }
     .opt-btn-a { background: linear-gradient(135deg, #e63946 0%, #d62828 100%) !important; box-shadow: 0 3px 0 #9d0208, 0 4px 10px rgba(230, 57, 70, 0.3) !important; }
-    .opt-btn-b { background: linear-gradient(135deg, #3a86ff 0%, #0077b6 100%) !important; box-shadow: 0 3px 0 #023e8a, 0 4px 10px rgba(58, 134, 255, 0.3) !important; }
-    .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 3px 0 #d62828, 0 4px 10px rgba(251, 133, 0, 0.3) !important; }
+    .opt-btn-b { background: linear-gradient(135deg, #3a86ff 0%, #0077b6 100%) !important; box-shadow: 0 4px 0 #023e8a, 0 4px 10px rgba(58, 134, 255, 0.3) !important; }
+    .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 4px 0 #d62828, 0 4px 10px rgba(251, 133, 0, 0.3) !important; }
     .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 4px 0 #047857, 0 4px 10px rgba(6, 214, 160, 0.3) !important; }
 
     .opt-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
@@ -400,9 +399,6 @@
     }
     #qrcode img { margin: auto; }
 
-    /* =========================================
-       BỤC VINH DANH QUÁN QUÂN
-       ========================================= */
     .suspense-box {
       text-align: center;
       padding: 20px 12px;
@@ -517,21 +513,35 @@
       pointer-events: auto;
     }
 
-    /* KHUNG DUYỆT TỰ LUẬN */
+    /* KHUNG DUYỆT TỰ LUẬN PHÂN LOẠI THEO CÂU HỎI */
     .teacher-review-panel {
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.55);
       border: 1.5px solid #f59e0b;
-      border-radius: 16px;
-      padding: 14px;
+      border-radius: 18px;
+      padding: 16px;
       margin-top: 14px;
       text-align: left;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     }
-    .review-item {
-      background: rgba(255,255,255,0.08);
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 10px;
-      border-left: 4px solid #ef4444;
+
+    .question-review-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid rgba(255, 209, 102, 0.3);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+
+    .student-review-row {
+      background: rgba(0, 0, 0, 0.35);
+      border-left: 3.5px solid #ef4444;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
       transition: all 0.3s ease;
     }
   </style>
@@ -550,7 +560,7 @@
       🙋‍♂️ Tôi là Học Sinh / Đoàn Sinh
     </button>
     <button onclick="selectRole('admin')" style="background: linear-gradient(180deg, #475569 0%, #334155 100%); width: 100%; margin-top: 12px; padding: 10px; font-size: 13px; box-shadow: 0 2px 0 #1e293b;">
-      ⚙️ Quản Trị Viên
+      ⚙️ Quản Trị Viên (Admin Quản Lý Mật Khẩu)
     </button>
   </div>
 
@@ -737,7 +747,7 @@
     <div id="questions-container"></div>
   </div>
 
-  <!-- 8. MÀN HÌNH KẾT QUẢ & DUYỆT TỰ LUẬN -->
+  <!-- 8. MÀN HÌNH KẾT QUẢ & DUYỆT TỰ LUẬN PHÂN LOẠI THEO CÂU HỎI -->
   <div id="result-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -749,11 +759,13 @@
         Tất cả các thí sinh đã hoàn thành xuất sắc bài thi!
       </p>
 
-      <!-- BẢNG DUYỆT TỰ LUẬN CHỈ DÀNH CHO GIÁO VIÊN -->
+      <!-- BẢNG DUYỆT TỰ LUẬN: ĐƯỢC GOM NHÓM THEO CÂU HỎI -->
       <div id="teacher-review-panel" class="teacher-review-panel" style="display: none;">
-        <h3 style="color: #ffd166; margin: 0 0 6px 0; font-size: 15px;">👩‍🏫 Duyệt Đáp Án Tự Luận Ngắn</h3>
-        <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;">Dưới đây là các câu tự luận máy chấm <b>SAI</b>. Thầy/cô có thể xem lại, nếu chấp nhận sẽ được cộng đúng số giây mà em đó đã nộp bài.</p>
-        <div id="review-list-container" style="max-height: 240px; overflow-y: auto;"></div>
+        <h3 style="color: #ffd166; margin: 0 0 4px 0; font-size: 16px;">👩‍🏫 Duyệt Đáp Án Tự Luận (Theo Từng Câu Hỏi)</h3>
+        <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.4;">
+          Thầy/Cô đọc câu trả lời của từng em dưới mỗi câu hỏi. Nếu thấy đúng ý thì bấm <b>"✅ Chấp nhận"</b> để cộng bù điểm theo giây nộp bài.
+        </p>
+        <div id="review-list-container" style="max-height: 480px; overflow-y: auto; padding-right: 4px;"></div>
       </div>
 
       <div id="teacher-reveal-action" style="display: none;">
@@ -1132,7 +1144,7 @@
 
       const keys = Object.keys(currentQuizzes);
       if (keys.length === 0) {
-        listContainer.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-size: 13px; margin: 4px 0;">Chưa có bài thi nào được lưu.</p>';
+        listContainer.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-size: 13px; margin: 4px 0;">Chưa có bài thi nào trong kho này.</p>';
         activeSelect.innerHTML = '<option value="">(Chưa có bài)</option>';
         return;
       }
@@ -1756,6 +1768,7 @@
       });
     }
 
+    /* KHI KẾT THÚC BÀI THI: GOM NHÓM ĐÁP ÁN TỰ LUẬN THEO TỪNG CÂU HỎI */
     socket.on('quiz_ended', ({ quizName, essaySubmissions, leaderboard }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
@@ -1780,15 +1793,48 @@
         
         if (wrongEssays.length > 0) {
           reviewPanel.style.display = 'block';
-          reviewList.innerHTML = wrongEssays.map((s, idx) => `
-            <div class="review-item" id="review-item-${idx}">
-              <div style="font-size: 12px; color: #94a3b8;">Học sinh: <b style="color: #fff;">${s.studentName}</b> ${s.mascot ? s.mascot.icon : ''}</div>
-              <div style="font-size: 13px; margin: 4px 0;"><b>Hỏi:</b> ${s.questionTitle}</div>
-              <div style="font-size: 14px; color: #fca5a5; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 6px;"><b>Đã điền:</b> ${s.answerText}</div>
-              <div style="font-size: 12px; color: #ffd166; margin-top: 4px;">⏱️ Nộp lúc còn: <b>${s.potentialPoints} giây</b></div>
-              <button onclick="approveEssay('${s.studentId}', ${s.potentialPoints}, ${idx})" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); padding: 6px 10px; font-size: 12px; margin-top: 8px; width: 100%; box-shadow: 0 2px 0 #047857;">✅ Chấp nhận & Cộng ${s.potentialPoints} điểm</button>
-            </div>
-          `).join('');
+
+          // GOM NHÓM DANH SÁCH THEO CÂU HỎI
+          const groupedByQuestion = {};
+          wrongEssays.forEach((item, idx) => {
+            if (!groupedByQuestion[item.questionTitle]) {
+              groupedByQuestion[item.questionTitle] = [];
+            }
+            groupedByQuestion[item.questionTitle].push({ ...item, originIdx: idx });
+          });
+
+          // RENDER THEO TỪNG THẺ CÂU HỎI
+          let html = '';
+          Object.keys(groupedByQuestion).forEach((qTitle, qIdx) => {
+            const studentAnswers = groupedByQuestion[qTitle];
+            html += `
+              <div class="question-review-card">
+                <div style="font-size: 14px; font-weight: 800; color: #ffd166; margin-bottom: 6px;">
+                  ❓ Câu ${qIdx + 1}: ${qTitle}
+                </div>
+                <div>
+                  ${studentAnswers.map(s => `
+                    <div class="student-review-row" id="review-item-${s.originIdx}">
+                      <div style="flex: 1;">
+                        <div style="font-size: 12px; color: #cbd5e1;">
+                          👤 Đoàn sinh: <b style="color: #fff;">${s.studentName}</b> ${s.mascot ? s.mascot.icon : ''} 
+                          <span style="color: #ffd166; margin-left: 6px;">(⏱️ nộp ở giây ${s.potentialPoints})</span>
+                        </div>
+                        <div style="font-size: 13.5px; color: #fca5a5; font-weight: bold; margin-top: 3px;">
+                          Đã trả lời: "${s.answerText}"
+                        </div>
+                      </div>
+                      <button onclick="approveEssay('${s.studentId}', ${s.potentialPoints}, ${s.originIdx})" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); padding: 6px 12px; font-size: 12px; box-shadow: 0 2px 0 #047857; white-space: nowrap;">
+                        ✅ Chấp nhận (+${s.potentialPoints}đ)
+                      </button>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+          });
+
+          reviewList.innerHTML = html;
         } else {
           reviewPanel.style.display = 'none';
         }
@@ -1811,8 +1857,7 @@
       if (itemEl) {
         itemEl.style.borderLeftColor = '#10b981';
         itemEl.style.background = 'rgba(16, 185, 129, 0.15)';
-        itemEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 10px 0;">✅ Đã duyệt đúng & Cộng ${points} điểm theo giây nộp bài</div>`;
-        setTimeout(() => { itemEl.style.display = 'none'; }, 1500);
+        itemEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 6px 0; width: 100%;">✅ Đã chấp nhận đúng (+${points} điểm)</div>`;
       }
     }
 
