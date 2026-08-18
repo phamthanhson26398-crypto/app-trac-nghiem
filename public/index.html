@@ -170,7 +170,6 @@
       margin-bottom: 10px; 
     }
 
-    /* NÚT LỰA CHỌN ĐÁP ÁN (FONT CHỮ NHẸ NHÀNG, VỪA MẮT) */
     .opt-btn { 
       text-align: left; 
       margin-top: 10px; 
@@ -188,11 +187,10 @@
       color: #fff !important;
       border: 2px solid transparent !important;
     }
-    
     .opt-btn-a { background: linear-gradient(135deg, #e63946 0%, #d62828 100%) !important; box-shadow: 0 3px 0 #9d0208, 0 4px 10px rgba(230, 57, 70, 0.3) !important; }
     .opt-btn-b { background: linear-gradient(135deg, #3a86ff 0%, #0077b6 100%) !important; box-shadow: 0 3px 0 #023e8a, 0 4px 10px rgba(58, 134, 255, 0.3) !important; }
     .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 3px 0 #d62828, 0 4px 10px rgba(251, 133, 0, 0.3) !important; }
-    .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 3px 0 #047857, 0 4px 10px rgba(6, 214, 160, 0.3) !important; }
+    .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 4px 0 #047857, 0 4px 10px rgba(6, 214, 160, 0.3) !important; }
 
     .opt-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
     .opt-btn.selected { 
@@ -733,7 +731,7 @@
     </div>
   </div>
 
-  <!-- 7. MÀN HÌNH LÀM BÀI THI CỦA HỌC SINH (FONT CHỮ NHẸ NHÀNG, VỪA VẶN) -->
+  <!-- 7. MÀN HÌNH LÀM BÀI THI CỦA HỌC SINH -->
   <div id="quiz-screen" class="card" style="display: none;">
     <div class="header-banner" style="font-size: 11px; padding: 3px 10px; margin-bottom: 8px;">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -847,6 +845,7 @@
     let partCount = 0;
     let editingQuizKey = null;
     let localTimerInterval = null;
+    let restTransitionInterval = null;
     let currentRemainingSeconds = 0;
     let isAuthRegisterMode = false;
     let isLeaderboardShown = false;
@@ -1574,6 +1573,10 @@
         clearInterval(localTimerInterval);
         localTimerInterval = null;
       }
+      if (restTransitionInterval) {
+        clearInterval(restTransitionInterval);
+        restTransitionInterval = null;
+      }
 
       currentRemainingSeconds = duration;
       currentItemData = item;
@@ -1621,6 +1624,8 @@
             if (opt) html += `<button class="opt-btn ${btnClass}" data-is-correct="${isCorrect}" type="button" onclick="selectChoice(${isCorrect}, this)"><b>${prefix}:</b> ${opt}</button>`;
           });
         } else if (q.type === 'tf') {
+          const isTrueCorrect = (q.correct === 'Đúng');
+          const isFalseCorrect = (q.correct === 'Sai');
           html += `<button class="opt-btn opt-btn-d" data-is-correct="${isTrueCorrect}" type="button" onclick="selectChoice(${isTrueCorrect}, this)">🟢 Đúng</button>
                    <button class="opt-btn opt-btn-a" data-is-correct="${isFalseCorrect}" type="button" onclick="selectChoice(${isFalseCorrect}, this)">🔴 Sai</button>`;
         } else if (q.type === 'short_answer') {
@@ -1709,20 +1714,21 @@
             waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG HIỂN THỊ!</b> Chuẩn bị sau <b>${restSeconds}s</b>...`;
           }
 
-          const restInterval = setInterval(() => {
+          restTransitionInterval = setInterval(() => {
             restSeconds--;
             if (waitingBox && restSeconds > 0) {
               waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG HIỂN THỊ!</b> Chuẩn bị sau <b>${restSeconds}s</b>...`;
             }
             if (restSeconds <= 0) {
-              clearInterval(restInterval);
+              clearInterval(restTransitionInterval);
+              restTransitionInterval = null;
               if (waitingBox) waitingBox.innerHTML = `🚀 Đang tải câu hỏi mới...`;
             }
           }, 1000);
 
           if (!timeUpFired) {
             timeUpFired = true;
-            socket.emit('time_up');
+            socket.emit('time_up', { roomId: activeRoomId });
           }
         }
       }, 1000);
@@ -1779,7 +1785,8 @@
 
       socket.emit('submit_answer', { 
         isCorrect: isSelectedChoiceCorrect, 
-        remainingTime: currentRemainingSeconds 
+        remainingTime: currentRemainingSeconds,
+        roomId: activeRoomId
       });
     }
 
@@ -1787,6 +1794,10 @@
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
         localTimerInterval = null;
+      }
+      if (restTransitionInterval) {
+        clearInterval(restTransitionInterval);
+        restTransitionInterval = null;
       }
 
       currentQuizName = quizName;
