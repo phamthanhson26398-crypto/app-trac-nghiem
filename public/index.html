@@ -8,8 +8,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <!-- THƯ VIỆN PHÁO HOA CHUẨN QUIZIZZ -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <!-- THƯ VIỆN ÂM THANH HOWLER.JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900;1000&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -866,20 +864,6 @@
 
     const FUNNY_TEXTS = ['Ú òa! 😜', 'Né nè! ✨', 'Boing! 🎈', 'Bắt hụt rồi! 🚀', 'Hehe! 🌟', 'Vèo! 💨', 'Bí mật! 🐾'];
 
-    /* =========================================
-       HỆ THỐNG ÂM THANH GAMESHOW
-       ========================================= */
-    const soundSuspense = new Howl({
-      src: ['https://assets.mixkit.co/active_storage/sfx/2874/2874-preview.mp3'], // Trống dồn hồi hộp
-      volume: 0.8,
-      loop: true
-    });
-
-    const soundVictory = new Howl({
-      src: ['https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3'], // Kèn chiến thắng & Vỗ tay
-      volume: 1.0
-    });
-
     function triggerChampionConfetti() {
       const duration = 5 * 1000;
       const animationEnd = Date.now() + duration;
@@ -1007,10 +991,6 @@
     });
 
     function backToTeacherDashboard() {
-      // Dừng âm thanh chiến thắng nếu đang phát
-      soundVictory.stop();
-      soundSuspense.stop();
-
       document.getElementById('result-screen').style.display = 'none';
       document.getElementById('teacher-screen').style.display = 'block';
 
@@ -1703,7 +1683,7 @@
       });
     }
 
-    /* GIAI ĐOẠN 1: HẾT GIỜ BÀI THI - PHÁT ÂM THANH TRỐNG DỒN HỒI HỘP */
+    /* GIAI ĐOẠN 1: HẾT GIỜ BÀI THI - HIỆN MÀN HÌNH CHỜ */
     socket.on('quiz_ended', ({ quizName }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
@@ -1721,11 +1701,6 @@
       document.getElementById('student-result-view').style.display = 'none';
       document.getElementById('suspense-container').style.display = 'block';
 
-      // Phát tiếng trống dồn hồi hộp
-      try {
-        soundSuspense.play();
-      } catch (e) {}
-
       if (myRole === 'teacher') {
         document.getElementById('teacher-reveal-action').style.display = 'block';
         document.getElementById('student-waiting-reveal').style.display = 'none';
@@ -1741,19 +1716,10 @@
       socket.emit('reveal_results', { roomId: activeRoomId });
     }
 
-    /* GIAI ĐOẠN 2: BÙNG NỔ KẾT QUẢ - DỪNG TRỐNG VÀ PHÁT ÂM THANH KÈN CHIẾN THẮNG */
+    /* GIAI ĐOẠN 2: BÙNG NỔ KẾT QUẢ */
     socket.on('results_revealed', ({ leaderboard, quizName }) => {
-      // Dừng tiếng trống hồi hộp
-      soundSuspense.stop();
-
-      // Bật âm thanh Kèn chiến thắng & Tiếng reo hò vỗ tay bùng nổ
-      try {
-        soundVictory.play();
-      } catch (e) {}
-
       document.getElementById('suspense-container').style.display = 'none';
 
-      // Sắp xếp phân hạng công bằng
       const sortedList = leaderboard.sort((a, b) => {
         if (b.score !== a.score) return b.score - a.score;
         return (b.correctCount || 0) - (a.correctCount || 0);
