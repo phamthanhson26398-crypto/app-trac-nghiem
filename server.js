@@ -37,6 +37,8 @@ const MASCOTS = [
   { icon: '🦹', title: 'Siêu Anh Hùng' }
 ];
 
+// CƠ SỞ DỮ LIỆU TẬP TRUNG TRÊN SERVER
+const teachersDB = {}; // { username: password }
 const rooms = {};
 
 function getOrCreateRoom(roomId) {
@@ -124,6 +126,42 @@ function advanceToNextQuestion(roomId) {
 
 io.on('connection', (socket) => {
   let currentRoomId = null;
+
+  // QUẢN LÝ TÀI KHOẢN TẬP TRUNG CHO GLV VÀ ADMIN
+  socket.on('teacher_register', ({ username, password }) => {
+    if (!username || !password) return socket.emit('auth_response', { success: false, message: 'Vui lòng điền đủ thông tin!' });
+    if (teachersDB[username]) return socket.emit('auth_response', { success: false, message: 'Tên tài khoản này đã tồn tại!' });
+    
+    teachersDB[username] = password;
+    socket.emit('auth_response', { success: true, isRegister: true, message: 'Đăng ký thành công! Hãy đăng nhập.' });
+    io.emit('admin_user_list_update', teachersDB);
+  });
+
+  socket.on('teacher_login', ({ username, password }) => {
+    if (teachersDB[username] && teachersDB[username] === password) {
+      socket.emit('auth_response', { success: true, isRegister: false, username: username });
+    } else {
+      socket.emit('auth_response', { success: false, message: 'Sai tên tài khoản hoặc mật khẩu!' });
+    }
+  });
+
+  socket.on('admin_get_users', () => {
+    socket.emit('admin_user_list_update', teachersDB);
+  });
+
+  socket.on('admin_reset_pass', ({ username, newPass }) => {
+    if (teachersDB[username]) {
+      teachersDB[username] = newPass;
+      io.emit('admin_user_list_update', teachersDB);
+    }
+  });
+
+  socket.on('admin_delete_user', ({ username }) => {
+    if (teachersDB[username]) {
+      delete teachersDB[username];
+      io.emit('admin_user_list_update', teachersDB);
+    }
+  });
 
   socket.on('join_room', ({ name, role, roomId }) => {
     if (!roomId) roomId = 'default_room';
@@ -252,7 +290,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Ghi nhận điểm số theo số giây nộp bài cho cả Trắc nghiệm và Tự luận
   socket.on('submit_answer', ({ isCorrect, remainingTime, roomId, type, answerText, questionTitle }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId] && rooms[targetRoomId].status === 'playing') {
@@ -264,7 +301,6 @@ io.on('connection', (socket) => {
           const secondsLeft = Math.max(1, parseInt(remainingTime) || 0);
           student.currentScore = isCorrect ? secondsLeft : 0;
 
-          // Lưu số giây thực tế lúc nộp bài vào potentialPoints để GV duyệt lại
           if (type === 'short_answer') {
             room.essaySubmissions.push({
               studentId: socket.id,
@@ -281,7 +317,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Giáo viên duyệt chấp nhận câu trả lời -> cộng đúng số giây thí sinh đã nộp
   socket.on('override_essay', ({ roomId, studentId, points }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId]) {
