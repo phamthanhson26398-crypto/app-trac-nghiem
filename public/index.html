@@ -37,6 +37,7 @@
       background-attachment: fixed;
       color: var(--text);
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
     ::-webkit-scrollbar { width: 6px; }
@@ -224,7 +225,7 @@
       50% { opacity: 0.8; text-shadow: 0 0 2px rgba(253, 224, 71, 0.1); }
     }
 
-    /* CARD LINH VẬT CÁ NHÂN */
+    /* CARD LINH VẬT CÁ NHÂN CỦA HỌC SINH */
     .my-mascot-card {
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(16, 185, 129, 0.3) 100%);
       border: 1.5px solid rgba(255, 255, 255, 0.2);
@@ -235,21 +236,48 @@
       margin: 10px 0 16px 0;
       box-shadow: 0 12px 25px rgba(0, 0, 0, 0.35);
       backdrop-filter: blur(10px);
+      position: relative;
+      overflow: visible;
     }
+    
     .my-mascot-icon {
       font-size: 64px;
       filter: drop-shadow(0 10px 20px rgba(0,0,0,0.45));
-      animation: quizizzFloatMain 3s ease-in-out infinite;
       display: inline-block;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      animation: quizizzFloatMain 3s ease-in-out infinite;
     }
     @keyframes quizizzFloatMain {
-      0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
-      25% { transform: translateY(-10px) rotate(-6deg) scale(1.05); }
-      50% { transform: translateY(-4px) rotate(0deg) scale(1.02); }
-      75% { transform: translateY(-12px) rotate(6deg) scale(1.06); }
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      25% { transform: translateY(-8px) rotate(-5deg); }
+      50% { transform: translateY(-3px) rotate(0deg); }
+      75% { transform: translateY(-9px) rotate(5deg); }
     }
 
-    /* LƯỚI LINH VẬT PHÒNG CHỜ QUIZIZZ */
+    /* BONG BÓNG THOẠI POPUP KHI BẤM LINH VẬT */
+    .mascot-bubble {
+      position: absolute;
+      background: #ffd166;
+      color: #000;
+      font-size: 13px;
+      font-weight: 1000;
+      padding: 5px 10px;
+      border-radius: 12px;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      animation: bubbleFloat 0.8s ease-out forwards;
+      z-index: 50;
+      white-space: nowrap;
+    }
+    @keyframes bubbleFloat {
+      0% { opacity: 0; transform: translateY(0px) scale(0.5); }
+      30% { opacity: 1; transform: translateY(-15px) scale(1.1); }
+      100% { opacity: 0; transform: translateY(-35px) scale(0.9); }
+    }
+
+    /* LƯỚI LINH VẬT PHÒNG CHỜ */
     .lobby-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
@@ -258,6 +286,7 @@
       max-height: 250px;
       overflow-y: auto;
       padding: 10px 6px;
+      position: relative;
     }
 
     .lobby-student-chip {
@@ -267,6 +296,7 @@
       gap: 5px;
       position: relative;
       animation: mascotPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      user-select: none;
     }
 
     @keyframes mascotPopIn {
@@ -288,55 +318,19 @@
       box-shadow: 0 6px 14px rgba(0,0,0,0.35), 0 0 12px rgba(16, 185, 129, 0.4);
       position: relative;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* HIỆU ỨNG NHẢY MÚA SO LE PHONG CÁCH QUIZIZZ */
-    .lobby-student-chip:nth-child(4n+1) .lobby-student-avatar {
-      animation: quizizzDanceA 2.2s ease-in-out infinite;
-    }
-    .lobby-student-chip:nth-child(4n+2) .lobby-student-avatar {
-      animation: quizizzDanceB 1.8s ease-in-out infinite 0.3s;
-      border-color: #38bdf8;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.35), 0 0 12px rgba(56, 189, 248, 0.4);
-    }
-    .lobby-student-chip:nth-child(4n+3) .lobby-student-avatar {
-      animation: quizizzDanceC 2.5s ease-in-out infinite 0.6s;
-      border-color: #ffd166;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.35), 0 0 12px rgba(255, 209, 102, 0.4);
-    }
-    .lobby-student-chip:nth-child(4n) .lobby-student-avatar {
-      animation: quizizzDanceD 2.0s ease-in-out infinite 0.9s;
-      border-color: #f472b6;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.35), 0 0 12px rgba(244, 114, 182, 0.4);
-    }
+    /* NHẢY MÚA SO LE */
+    .lobby-student-chip:nth-child(4n+1) .lobby-student-avatar { animation: quizizzDanceA 2.2s ease-in-out infinite; }
+    .lobby-student-chip:nth-child(4n+2) .lobby-student-avatar { animation: quizizzDanceB 1.8s ease-in-out infinite 0.3s; border-color: #38bdf8; box-shadow: 0 6px 14px rgba(0,0,0,0.35), 0 0 12px rgba(56, 189, 248, 0.4); }
+    .lobby-student-chip:nth-child(4n+3) .lobby-student-avatar { animation: quizizzDanceC 2.5s ease-in-out infinite 0.6s; border-color: #ffd166; box-shadow: 0 6px 14px rgba(0,0,0,0.35), 0 0 12px rgba(255, 209, 102, 0.4); }
+    .lobby-student-chip:nth-child(4n) .lobby-student-avatar { animation: quizizzDanceD 2.0s ease-in-out infinite 0.9s; border-color: #f472b6; box-shadow: 0 6px 14px rgba(0,0,0,0.35), 0 0 12px rgba(244, 114, 182, 0.4); }
 
-    @keyframes quizizzDanceA {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      30% { transform: translateY(-7px) rotate(-6deg) scale(1.06); }
-      70% { transform: translateY(-3px) rotate(5deg) scale(1.02); }
-    }
-    @keyframes quizizzDanceB {
-      0%, 100% { transform: translateY(0px) scale(1); }
-      40% { transform: translateY(-9px) scale(1.1) rotate(6deg); }
-      80% { transform: translateY(-2px) scale(0.98) rotate(-4deg); }
-    }
-    @keyframes quizizzDanceC {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-8px) rotate(-8deg) scale(1.08); }
-    }
-    @keyframes quizizzDanceD {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      35% { transform: translateY(-6px) rotate(7deg) scale(1.05); }
-      65% { transform: translateY(-10px) rotate(-5deg) scale(1.09); }
-    }
-
-    /* RÊ CHUỘT / CHẠM VÀO LINH VẬT SẼ NHẢY LÊN */
-    .lobby-student-chip:hover .lobby-student-avatar {
-      transform: scale(1.25) translateY(-6px) rotate(12deg) !important;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 20px rgba(255, 255, 255, 0.8) !important;
-      z-index: 10;
-    }
+    @keyframes quizizzDanceA { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-7px) rotate(-6deg); } }
+    @keyframes quizizzDanceB { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px) rotate(6deg); } }
+    @keyframes quizizzDanceC { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-7px) rotate(-8deg); } }
+    @keyframes quizizzDanceD { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-9px) rotate(7deg); } }
 
     .lobby-student-name {
       font-size: 11px;
@@ -493,7 +487,7 @@
     </div>
   </div>
 
-  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV -->
+  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV (LINH VẬT CỐ ĐỊNH, KHÔNG BỊ NHẢY) -->
   <div id="teacher-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -546,7 +540,7 @@
       <div id="history-display-area" style="margin-top: 10px;"></div>
     </div>
 
-    <!-- PHÒNG CHỜ LINH VẬT TRÊN MÀN HÌNH GIÁO VIÊN -->
+    <!-- PHÒNG CHỜ TRÊN MÁY GLV: GIỮ NGUYÊN GIAO DIỆN CỐ ĐỊNH -->
     <div style="border-top: 2px dashed rgba(255,255,255,0.15); padding-top: 16px; margin-top: 16px;">
       <label><strong>Chọn bài thi chuẩn bị phát:</strong></label>
       <select id="active-quiz-select" style="font-weight: 900; color: #6ee7b7;"></select>
@@ -589,12 +583,13 @@
     </button>
   </div>
 
-  <!-- 6. PHÒNG CHỜ LINH VẬT CỦA HỌC SINH -->
+  <!-- 6. PHÒNG CHỜ LINH VẬT CỦA HỌC SINH (CÓ TƯƠNG TÁC CHẠM NHẢY CHỖ) -->
   <div id="lobby-screen" class="card" style="display: none; text-align: center;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
+    <!-- THẺ LINH VẬT RIÊNG (BẤM VÀO SẼ TỰ NHẢY VÀ ĐỔI CHỖ) -->
     <div class="my-mascot-card">
-      <div id="my-mascot-icon" class="my-mascot-icon">🦁</div>
+      <div id="my-mascot-icon" class="my-mascot-icon" onclick="dodgeInteractiveMascot(this)" title="Chạm vào mình đi!">🦁</div>
       <h2 id="my-mascot-title" style="margin: 6px 0 0 0; font-size: 20px; font-weight: 1000; color: #ffd166;">Linh vật: Sư Tử Dũng Mãnh</h2>
       <p style="margin: 4px 0 0 0; font-size: 16px;">Đoàn sinh: <strong id="lobby-my-name" style="color: #6ee7b7;">--</strong> (Phòng: <span id="lobby-my-room">--</span>)</p>
     </div>
@@ -602,7 +597,7 @@
     <div style="background: rgba(0, 0, 0, 0.28); border: 2px dashed rgba(255, 255, 255, 0.15); padding: 14px; border-radius: 20px;">
       <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;">
         <span style="font-weight: 900; font-size: 14px; color: #6ee7b7;">👥 CÁC BẠN TRONG LỚP (<span id="lobby-count">0</span>)</span>
-        <span style="font-size: 11px; color: var(--text-muted);">Sẵn sàng...</span>
+        <span style="font-size: 11px; color: #ffd166;">(Chạm vào linh vật để chơi)</span>
       </div>
       <div id="lobby-students-container" class="lobby-grid"></div>
     </div>
@@ -698,6 +693,39 @@
     let isSelectedChoiceCorrect = false;
     let hasSelectedAnOption = false;
     let hasSubmittedCurrentQuestion = false;
+
+    const FUNNY_TEXTS = ['Ú òa! 😜', 'Né nè! ✨', 'Boing! 🎈', 'Bắt hụt rồi! 🚀', 'Hehe! 🌟', 'Vèo! 💨', 'Bí mật! 🐾'];
+
+    /* HIỆU ỨNG TỰ NHẢY VỊ TRÍ KHI ĐOÀN SINH CHẠM VÀO LINH VẬT */
+    function dodgeInteractiveMascot(el) {
+      if (myRole !== 'student') return; // Chỉ áp dụng trên màn hình học sinh
+
+      // Tạo độ lệch ngẫu nhiên
+      const randX = (Math.random() - 0.5) * 70;
+      const randY = (Math.random() - 0.5) * 50;
+      const randRot = (Math.random() - 0.5) * 50;
+      const randScale = 1.1 + Math.random() * 0.25;
+
+      el.style.transform = `translate(${randX}px, ${randY}px) rotate(${randRot}deg) scale(${randScale})`;
+
+      // Tạo bong bóng thoại bay lên
+      const bubble = document.createElement('div');
+      bubble.className = 'mascot-bubble';
+      bubble.innerText = FUNNY_TEXTS[Math.floor(Math.random() * FUNNY_TEXTS.length)];
+      bubble.style.left = `calc(50% + ${randX - 25}px)`;
+      bubble.style.top = `calc(50% + ${randY - 45}px)`;
+      
+      const parent = el.parentElement;
+      if (parent) {
+        parent.appendChild(bubble);
+        setTimeout(() => bubble.remove(), 800);
+      }
+
+      // Nhảy về tư thế sau 1.2s
+      setTimeout(() => {
+        el.style.transform = '';
+      }, 1200);
+    }
 
     function getRankBadge(idx) {
       if (idx === 0) return '🥇 <b style="color:#ffd166;">Nhất</b>';
@@ -1262,7 +1290,9 @@
       socket.emit('start_quiz', { parts, quizName: selectedQuizName, roomId: activeRoomId });
     }
 
+    /* HIỂN THỊ DANH SÁCH LINH VẬT */
     socket.on('update_students', (students) => {
+      // Màn hình Giáo Viên: Cố định vị trí, có nút kick
       if (myRole === 'teacher') {
         document.getElementById('count').innerText = students.length;
         const grid = document.getElementById('teacher-student-grid');
@@ -1275,12 +1305,13 @@
         `).join('');
       }
 
+      // Màn hình Học Sinh: Có thêm sự kiện onclick="dodgeInteractiveMascot(this)" để nhảy né vui nhộn
       if (myRole === 'student') {
         document.getElementById('lobby-count').innerText = students.length;
         const container = document.getElementById('lobby-students-container');
         container.innerHTML = students.map(s => `
           <div class="lobby-student-chip">
-            <div class="lobby-student-avatar">${s.mascot ? s.mascot.icon : '🦁'}</div>
+            <div class="lobby-student-avatar" onclick="dodgeInteractiveMascot(this)" title="Chạm vào mình đi!">${s.mascot ? s.mascot.icon : '🦁'}</div>
             <span class="lobby-student-name" title="${s.name}">${s.name}</span>
           </div>
         `).join('');
@@ -1331,8 +1362,10 @@
             if (opt) html += `<button class="opt-btn ${btnClass}" data-is-correct="${isCorrect}" type="button" onclick="selectChoice(${isCorrect}, this)"><b>${prefix}:</b> ${opt}</button>`;
           });
         } else if (q.type === 'tf') {
-          html += `<button class="opt-btn opt-btn-d" data-is-correct="${q.correct === 'Đúng'}" type="button" onclick="selectChoice(${q.correct === 'Đúng'}, this)">🟢 Đúng</button>
-                   <button class="opt-btn opt-btn-a" data-is-correct="${q.correct === 'Sai'}" type="button" onclick="selectChoice(${q.correct === 'Sai'}, this)">🔴 Sai</button>`;
+          const isTrueCorrect = (q.correct === 'Đúng');
+          const isFalseCorrect = (q.correct === 'Sai');
+          html += `<button class="opt-btn opt-btn-d" data-is-correct="${isTrueCorrect}" type="button" onclick="selectChoice(${isTrueCorrect}, this)">🟢 Đúng</button>
+                   <button class="opt-btn opt-btn-a" data-is-correct="${isFalseCorrect}" type="button" onclick="selectChoice(${isFalseCorrect}, this)">🔴 Sai</button>`;
         }
 
         html += `<button id="btn-submit" class="btn-submit-answer" type="button" onclick="submitCurrentAnswer()">📤 NỘP ĐÁP ÁN</button>`;
