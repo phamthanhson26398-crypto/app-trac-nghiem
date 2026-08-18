@@ -13,7 +13,7 @@
       --primary-dark: #059669;
       --secondary: #6366f1;
       --danger: #ef4444;
-      --warning: #f59e0b;
+      --warning: #ffb703;
       --bg: #072318;
       --glass-bg: rgba(13, 37, 27, 0.88);
       --glass-card: rgba(255, 255, 255, 0.08);
@@ -39,12 +39,10 @@
       min-height: 100vh;
     }
 
-    /* THANH CUỘN ĐẸP MẮT */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 10px; }
 
-    /* CARD CHÍNH GLASSMORPHISM */
     .card { 
       background: var(--glass-bg); 
       backdrop-filter: blur(16px);
@@ -73,7 +71,6 @@
       text-shadow: 0 0 12px rgba(255, 209, 102, 0.4);
     }
 
-    /* NÚT BẤM 3D GAMESHOW */
     button { 
       background: linear-gradient(180deg, #10b981 0%, #059669 100%);
       color: white; 
@@ -145,7 +142,7 @@
       margin-bottom: 12px; 
     }
 
-    /* 4 ĐÁP ÁN PHONG CÁCH KAHOOT NỔI BẬT CHO HỌC SINH */
+    /* 4 ĐÁP ÁN KAHOOT */
     .opt-btn { 
       text-align: left; 
       margin-top: 12px; 
@@ -164,7 +161,6 @@
       border: 2px solid transparent !important;
     }
     
-    /* Màu đáp án A, B, C, D */
     .opt-btn-a { background: linear-gradient(135deg, #e63946 0%, #d62828 100%) !important; box-shadow: 0 4px 0 #9d0208, 0 6px 15px rgba(230, 57, 70, 0.35) !important; }
     .opt-btn-b { background: linear-gradient(135deg, #3a86ff 0%, #0077b6 100%) !important; box-shadow: 0 4px 0 #023e8a, 0 6px 15px rgba(58, 134, 255, 0.35) !important; }
     .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 4px 0 #d62828, 0 6px 15px rgba(251, 133, 0, 0.35) !important; }
@@ -180,7 +176,6 @@
       box-shadow: 0 0 20px rgba(255, 255, 255, 0.7) !important;
     }
 
-    /* HIỆU ỨNG NHẤP NHÁY ĐÁP ÁN ĐÚNG TRONG 3S */
     .opt-btn.reveal-correct {
       background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
       border: 3px solid #a7f3d0 !important;
@@ -229,7 +224,7 @@
       50% { opacity: 0.8; text-shadow: 0 0 2px rgba(253, 224, 71, 0.1); }
     }
 
-    /* CARD LINH VẬT RỰC RỠ */
+    /* CARD LINH VẬT CÁ NHÂN */
     .my-mascot-card {
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(16, 185, 129, 0.3) 100%);
       border: 1.5px solid rgba(255, 255, 255, 0.2);
@@ -242,48 +237,107 @@
       backdrop-filter: blur(10px);
     }
     .my-mascot-icon {
-      font-size: 60px;
-      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));
-      animation: floatMascot 2.5s ease-in-out infinite;
+      font-size: 64px;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.45));
+      animation: quizizzFloatMain 3s ease-in-out infinite;
       display: inline-block;
     }
-    @keyframes floatMascot {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-8px) rotate(4deg); }
+    @keyframes quizizzFloatMain {
+      0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+      25% { transform: translateY(-10px) rotate(-6deg) scale(1.05); }
+      50% { transform: translateY(-4px) rotate(0deg) scale(1.02); }
+      75% { transform: translateY(-12px) rotate(6deg) scale(1.06); }
     }
 
+    /* LƯỚI LINH VẬT PHÒNG CHỜ QUIZIZZ */
     .lobby-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
-      gap: 12px;
-      margin-top: 12px;
-      max-height: 240px;
+      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+      gap: 14px 10px;
+      margin-top: 14px;
+      max-height: 250px;
       overflow-y: auto;
-      padding: 8px 4px;
+      padding: 10px 6px;
     }
+
     .lobby-student-chip {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       position: relative;
-      transition: all 0.2s;
+      animation: mascotPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
-    .lobby-student-chip:hover {
-      transform: scale(1.12);
+
+    @keyframes mascotPopIn {
+      0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+      70% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
     }
+
     .lobby-student-avatar {
-      width: 52px;
-      height: 52px;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%);
-      border: 2px solid #10b981;
+      width: 54px;
+      height: 54px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.06) 100%);
+      border: 2.5px solid #10b981;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.35), 0 0 10px rgba(16, 185, 129, 0.3);
+      font-size: 27px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.35), 0 0 12px rgba(16, 185, 129, 0.4);
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
+
+    /* HIỆU ỨNG NHẢY MÚA SO LE PHONG CÁCH QUIZIZZ */
+    .lobby-student-chip:nth-child(4n+1) .lobby-student-avatar {
+      animation: quizizzDanceA 2.2s ease-in-out infinite;
+    }
+    .lobby-student-chip:nth-child(4n+2) .lobby-student-avatar {
+      animation: quizizzDanceB 1.8s ease-in-out infinite 0.3s;
+      border-color: #38bdf8;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.35), 0 0 12px rgba(56, 189, 248, 0.4);
+    }
+    .lobby-student-chip:nth-child(4n+3) .lobby-student-avatar {
+      animation: quizizzDanceC 2.5s ease-in-out infinite 0.6s;
+      border-color: #ffd166;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.35), 0 0 12px rgba(255, 209, 102, 0.4);
+    }
+    .lobby-student-chip:nth-child(4n) .lobby-student-avatar {
+      animation: quizizzDanceD 2.0s ease-in-out infinite 0.9s;
+      border-color: #f472b6;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.35), 0 0 12px rgba(244, 114, 182, 0.4);
+    }
+
+    @keyframes quizizzDanceA {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      30% { transform: translateY(-7px) rotate(-6deg) scale(1.06); }
+      70% { transform: translateY(-3px) rotate(5deg) scale(1.02); }
+    }
+    @keyframes quizizzDanceB {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      40% { transform: translateY(-9px) scale(1.1) rotate(6deg); }
+      80% { transform: translateY(-2px) scale(0.98) rotate(-4deg); }
+    }
+    @keyframes quizizzDanceC {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(-8deg) scale(1.08); }
+    }
+    @keyframes quizizzDanceD {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      35% { transform: translateY(-6px) rotate(7deg) scale(1.05); }
+      65% { transform: translateY(-10px) rotate(-5deg) scale(1.09); }
+    }
+
+    /* RÊ CHUỘT / CHẠM VÀO LINH VẬT SẼ NHẢY LÊN */
+    .lobby-student-chip:hover .lobby-student-avatar {
+      transform: scale(1.25) translateY(-6px) rotate(12deg) !important;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 20px rgba(255, 255, 255, 0.8) !important;
+      z-index: 10;
+    }
+
     .lobby-student-name {
       font-size: 11px;
       font-weight: 900;
@@ -291,12 +345,13 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 70px;
+      max-width: 74px;
       text-align: center;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.6);
       padding: 3px 6px;
       border-radius: 10px;
       border: 1px solid rgba(255, 255, 255, 0.15);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
     }
 
     .btn-kick-student {
@@ -317,7 +372,7 @@
       justify-content: center;
       box-shadow: 0 2px 5px rgba(0,0,0,0.4) !important;
       padding: 0 !important;
-      z-index: 5;
+      z-index: 20;
     }
     .btn-kick-student:hover {
       background: #b91c1c !important;
@@ -1276,10 +1331,8 @@
             if (opt) html += `<button class="opt-btn ${btnClass}" data-is-correct="${isCorrect}" type="button" onclick="selectChoice(${isCorrect}, this)"><b>${prefix}:</b> ${opt}</button>`;
           });
         } else if (q.type === 'tf') {
-          const isTrueCorrect = (q.correct === 'Đúng');
-          const isFalseCorrect = (q.correct === 'Sai');
-          html += `<button class="opt-btn opt-btn-d" data-is-correct="${isTrueCorrect}" type="button" onclick="selectChoice(${isTrueCorrect}, this)">🟢 Đúng</button>
-                   <button class="opt-btn opt-btn-a" data-is-correct="${isFalseCorrect}" type="button" onclick="selectChoice(${isFalseCorrect}, this)">🔴 Sai</button>`;
+          html += `<button class="opt-btn opt-btn-d" data-is-correct="${q.correct === 'Đúng'}" type="button" onclick="selectChoice(${q.correct === 'Đúng'}, this)">🟢 Đúng</button>
+                   <button class="opt-btn opt-btn-a" data-is-correct="${q.correct === 'Sai'}" type="button" onclick="selectChoice(${q.correct === 'Sai'}, this)">🔴 Sai</button>`;
         }
 
         html += `<button id="btn-submit" class="btn-submit-answer" type="button" onclick="submitCurrentAnswer()">📤 NỘP ĐÁP ÁN</button>`;
