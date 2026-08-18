@@ -144,7 +144,7 @@
       margin-bottom: 10px; 
     }
 
-    /* 4 ĐÁP ÁN TRẮC NGHIỆM */
+    /* ĐÁP ÁN TRẮC NGHIỆM */
     .opt-btn { 
       text-align: left; 
       margin-top: 10px; 
@@ -165,7 +165,7 @@
     .opt-btn-a { background: linear-gradient(135deg, #e63946 0%, #d62828 100%) !important; box-shadow: 0 3px 0 #9d0208, 0 4px 10px rgba(230, 57, 70, 0.3) !important; }
     .opt-btn-b { background: linear-gradient(135deg, #3a86ff 0%, #0077b6 100%) !important; box-shadow: 0 3px 0 #023e8a, 0 4px 10px rgba(58, 134, 255, 0.3) !important; }
     .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 3px 0 #d62828, 0 4px 10px rgba(251, 133, 0, 0.3) !important; }
-    .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 3px 0 #047857, 0 4px 10px rgba(6, 214, 160, 0.3) !important; }
+    .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 4px 0 #047857, 0 4px 10px rgba(6, 214, 160, 0.3) !important; }
 
     .opt-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
     .opt-btn.selected { 
@@ -517,7 +517,7 @@
       pointer-events: auto;
     }
 
-    /* KHUNG DUYỆT TỰ LUẬN CỦA GV */
+    /* KHUNG DUYỆT TỰ LUẬN */
     .teacher-review-panel {
       background: rgba(0,0,0,0.5);
       border: 1.5px solid #f59e0b;
@@ -620,7 +620,7 @@
       <div id="qrcode"></div>
     </div>
 
-    <!-- KHO BÀI THI TỔNG HỢP (GỘP TRẮC NGHIỆM & TỰ LUẬN) -->
+    <!-- KHO BÀI THI TỔNG HỢP -->
     <div class="quiz-manager">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h3 style="margin: 0; font-size: 15px; font-weight: 800;">📁 Kho Bài Thi (Trắc nghiệm + Tự luận)</h3>
@@ -720,7 +720,7 @@
     </div>
   </div>
 
-  <!-- 7. MÀN HÌNH LÀM BÀI (TRẮC NGHIỆM & TỰ LUẬN) -->
+  <!-- 7. MÀN HÌNH LÀM BÀI -->
   <div id="quiz-screen" class="card" style="display: none;">
     <div class="header-banner" style="font-size: 11px; padding: 3px 10px; margin-bottom: 8px;">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -751,8 +751,8 @@
 
       <!-- BẢNG DUYỆT TỰ LUẬN CHỈ DÀNH CHO GIÁO VIÊN -->
       <div id="teacher-review-panel" class="teacher-review-panel" style="display: none;">
-        <h3 style="color: #ffd166; margin: 0 0 6px 0; font-size: 16px;">👩‍🏫 Duyệt Đáp Án Tự Luận Ngắn</h3>
-        <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;">Dưới đây là các câu tự luận máy chấm <b>SAI</b>. Thầy/cô có thể xem lại, nếu HS ghi ý đúng thì bấm "Chấp nhận" để cộng lại điểm.</p>
+        <h3 style="color: #ffd166; margin: 0 0 6px 0; font-size: 15px;">👩‍🏫 Duyệt Đáp Án Tự Luận Ngắn</h3>
+        <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;">Dưới đây là các câu tự luận máy chấm <b>SAI</b>. Thầy/cô có thể xem lại, nếu chấp nhận sẽ được cộng đúng số giây mà em đó đã nộp bài.</p>
         <div id="review-list-container" style="max-height: 240px; overflow-y: auto;"></div>
       </div>
 
@@ -1132,7 +1132,7 @@
 
       const keys = Object.keys(currentQuizzes);
       if (keys.length === 0) {
-        listContainer.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-size: 13px; margin: 4px 0;">Chưa có bài thi nào trong kho này.</p>';
+        listContainer.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-size: 13px; margin: 4px 0;">Chưa có bài thi nào được lưu.</p>';
         activeSelect.innerHTML = '<option value="">(Chưa có bài)</option>';
         return;
       }
@@ -1542,7 +1542,6 @@
       hasSelectedAnOption = false;
       hasSubmittedCurrentQuestion = false;
 
-      // Reset sạch Màn hình kết quả cũ
       document.getElementById('result-screen').style.display = 'none';
       document.getElementById('champion-stage').style.display = 'none';
       document.getElementById('suspense-container').style.display = 'none';
@@ -1757,7 +1756,6 @@
       });
     }
 
-    /* KẾT THÚC BÀI THI - GIÁO VIÊN DUYỆT TỰ LUẬN TRƯỚC KHI CÔNG BỐ */
     socket.on('quiz_ended', ({ quizName, essaySubmissions, leaderboard }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
@@ -1787,7 +1785,8 @@
               <div style="font-size: 12px; color: #94a3b8;">Học sinh: <b style="color: #fff;">${s.studentName}</b> ${s.mascot ? s.mascot.icon : ''}</div>
               <div style="font-size: 13px; margin: 4px 0;"><b>Hỏi:</b> ${s.questionTitle}</div>
               <div style="font-size: 14px; color: #fca5a5; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 6px;"><b>Đã điền:</b> ${s.answerText}</div>
-              <button onclick="approveEssay('${s.studentId}', ${s.potentialPoints}, ${idx})" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); padding: 6px 10px; font-size: 12px; margin-top: 8px; width: 100%; box-shadow: 0 2px 0 #047857;">✅ Chấp nhận & Cộng ${s.potentialPoints} đ</button>
+              <div style="font-size: 12px; color: #ffd166; margin-top: 4px;">⏱️ Nộp lúc còn: <b>${s.potentialPoints} giây</b></div>
+              <button onclick="approveEssay('${s.studentId}', ${s.potentialPoints}, ${idx})" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); padding: 6px 10px; font-size: 12px; margin-top: 8px; width: 100%; box-shadow: 0 2px 0 #047857;">✅ Chấp nhận & Cộng ${s.potentialPoints} điểm</button>
             </div>
           `).join('');
         } else {
@@ -1805,7 +1804,6 @@
       }
     });
 
-    /* HÀM DUYỆT CỘNG ĐIỂM (DÀNH CHO GIÁO LÝ VIÊN) */
     function approveEssay(studentId, points, idx) {
       socket.emit('override_essay', { roomId: activeRoomId, studentId: studentId, points: points });
       
@@ -1813,7 +1811,7 @@
       if (itemEl) {
         itemEl.style.borderLeftColor = '#10b981';
         itemEl.style.background = 'rgba(16, 185, 129, 0.15)';
-        itemEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 10px 0;">✅ Đã duyệt đúng & Cộng điểm thành công</div>`;
+        itemEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 10px 0;">✅ Đã duyệt đúng & Cộng ${points} điểm theo giây nộp bài</div>`;
         setTimeout(() => { itemEl.style.display = 'none'; }, 1500);
       }
     }
