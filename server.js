@@ -86,11 +86,11 @@ function advanceToNextQuestion(roomId) {
 
   room.currentIndex++;
 
+  // Khi hoàn thành tất cả câu hỏi: Báo kết thúc bài thi nhưng GIỮ BÍ MẬT kết quả
   if (room.currentIndex >= room.queue.length) {
     room.status = 'ended';
     room.currentItem = null;
     io.to(roomId).emit('quiz_ended', { 
-      leaderboard: Object.values(room.students), 
       quizName: room.quizName 
     });
     return;
@@ -161,25 +161,19 @@ io.on('connection', (socket) => {
     }
   });
 
-  // GIÁO VIÊN XÓA ĐÍCH DANH 1 ĐOÀN SINH KHỎI PHÒNG
   socket.on('kick_student', ({ studentId, roomId }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId] && rooms[targetRoomId].students[studentId]) {
       delete rooms[targetRoomId].students[studentId];
-      // Báo riêng cho học sinh đó là bị kick
       io.to(studentId).emit('kicked_by_teacher');
-      // Cập nhật lại danh sách phòng
       io.to(targetRoomId).emit('update_students', Object.values(rooms[targetRoomId].students));
     }
   });
 
-  // GIÁO VIÊN ĐĂNG XUẤT HOẶC F5 -> GIẢI TÁN PHÒNG, ĐÁ TOÀN BỘ ĐOÀN SINH
   socket.on('clear_room_students', ({ roomId }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId]) {
-      // Thông báo cho toàn bộ học sinh trong phòng out ra
       socket.to(targetRoomId).emit('kicked_by_teacher');
-      // Xóa sạch danh sách học sinh
       rooms[targetRoomId].students = {};
       rooms[targetRoomId].status = 'waiting';
       io.to(targetRoomId).emit('update_students', []);
@@ -263,6 +257,17 @@ io.on('connection', (socket) => {
           student.currentScore = isCorrect ? Math.max(1, parseInt(remainingTime) || 0) : 0;
         }
       }
+    }
+  });
+
+  // KHI GIÁO LÝ VIÊN BẤM NÚT "CÔNG BỐ KẾT QUẢ" -> PHÁT LỆNH VINH DANH TOÀN PHÒNG
+  socket.on('reveal_results', ({ roomId }) => {
+    const targetRoomId = roomId || currentRoomId;
+    if (targetRoomId && rooms[targetRoomId]) {
+      io.to(targetRoomId).emit('results_revealed', {
+        leaderboard: Object.values(rooms[targetRoomId].students),
+        quizName: rooms[targetRoomId].quizName
+      });
     }
   });
 
