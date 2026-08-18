@@ -43,13 +43,13 @@ function getOrCreateRoom(roomId) {
   if (!rooms[roomId]) {
     rooms[roomId] = {
       status: 'waiting',
-      quizType: 'mc',
       quizName: '',
       queue: [],
       currentIndex: 0,
       currentItem: null,
       currentDuration: 0,
       students: {},
+      essaySubmissions: [], // Lưu trữ bài tự luận để GV duyệt
       timerTimeout: null,
       isAdvancing: false
     };
@@ -67,7 +67,7 @@ function advanceToNextQuestion(roomId) {
     room.timerTimeout = null;
   }
 
-  // Cộng dồn điểm số
+  // Cộng dồn điểm và thống kê
   Object.keys(room.students).forEach(id => {
     const st = room.students[id];
     st.score += st.currentScore;
@@ -81,25 +81,25 @@ function advanceToNextQuestion(roomId) {
     } else {
       st.unansweredCount = (st.unansweredCount || 0) + 1;
     }
-
     st.currentScore = 0;
   });
 
   room.currentIndex++;
 
-  // Kết thúc bài thi
+  // Nếu đã hết câu hỏi -> Gửi kết quả bí mật kèm bài tự luận cho GV
   if (room.currentIndex >= room.queue.length) {
     room.status = 'ended';
     room.currentItem = null;
     room.isAdvancing = false;
     io.to(roomId).emit('quiz_ended', { 
       quizName: room.quizName,
-      quizType: room.quizType
+      essaySubmissions: room.essaySubmissions,
+      leaderboard: Object.values(room.students)
     });
     return;
   }
 
-  // 3 giây đệm trước khi sang câu mới
+  // 3s đệm trước khi sang câu mới
   setTimeout(() => {
     room.currentItem = room.queue[room.currentIndex];
     room.currentDuration = parseInt(room.currentItem.question.duration) || 10;
@@ -115,11 +115,9 @@ function advanceToNextQuestion(roomId) {
       item: room.currentItem,
       duration: room.currentDuration,
       currentIndex: room.currentIndex,
-      totalQuestions: room.queue.length,
-      quizType: room.quizType
+      totalQuestions: room.queue.length
     });
 
-    // Server chủ động đếm thời gian tự chuyển câu (thời gian làm bài + 3.5s đệm)
     room.timerTimeout = setTimeout(() => {
       advanceToNextQuestion(roomId);
     }, (room.currentDuration + 3.5) * 1000);
@@ -159,8 +157,7 @@ io.on('connection', (socket) => {
           item: room.currentItem,
           duration: room.currentDuration,
           currentIndex: room.currentIndex,
-          totalQuestions: room.queue.length,
-          quizType: room.quizType
+          totalQuestions: room.queue.length
         });
       }
     } else if (role === 'teacher') {
@@ -182,12 +179,13 @@ io.on('connection', (socket) => {
     if (targetRoomId && rooms[targetRoomId]) {
       socket.to(targetRoomId).emit('kicked_by_teacher');
       rooms[targetRoomId].students = {};
+      rooms[targetRoomId].essaySubmissions = [];
       rooms[targetRoomId].status = 'waiting';
       io.to(targetRoomId).emit('update_students', []);
     }
   });
 
-  socket.on('start_quiz', ({ parts, quizName, roomId, quizType }) => {
+  socket.on('start_quiz', ({ parts, quizName, roomId }) => {
     if (!roomId) roomId = currentRoomId || 'default_room';
     const room = getOrCreateRoom(roomId);
 
@@ -217,10 +215,10 @@ io.on('connection', (socket) => {
     if (queue.length === 0) return;
 
     room.status = 'playing';
-    room.quizType = quizType || 'mc';
     room.quizName = quizName || 'Bài thi';
     room.queue = queue;
     room.currentIndex = -1;
+    room.essaySubmissions = []; // Reset kho tự luận
     room.isAdvancing = false;
 
     Object.keys(room.students).forEach(id => {
@@ -241,8 +239,7 @@ io.on('connection', (socket) => {
       item: room.currentItem,
       duration: room.currentDuration,
       currentIndex: room.currentIndex,
-      totalQuestions: room.queue.length,
-      quizType: room.quizType
+      totalQuestions: room.queue.length
     });
 
     room.timerTimeout = setTimeout(() => {
@@ -257,7 +254,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('submit_answer', ({ isCorrect, remainingTime, roomId }) => {
+  socket.on('submit_answer', ({ isCorrect, remainingTime, roomId, type, answerText, questionTitle }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId] && rooms[targetRoomId].status === 'playing') {
       const room = rooms[targetRoomId];
@@ -265,8 +262,34 @@ io.on('connection', (socket) => {
         const student = room.students[socket.id];
         if (!student.answered) {
           student.answered = true;
-          student.currentScore = isCorrect ? Math.max(1, parseInt(remainingTime) || 0) : 0;
+          const pointsEarned = isCorrect ? Math.max(1, parseInt(remainingTime) || 0) : 0;
+          student.currentScore = pointsEarned;
+
+          // Nếu là câu Tự luận, lưu lại để cuối giờ GV có thể duyệt
+          if (type === 'short_answer') {
+            room.essaySubmissions.push({
+              studentId: socket.id,
+              studentName: student.name,
+              questionTitle: questionTitle,
+              answerText: answerText || '(Trống)',
+              isCorrect: isCorrect,
+              potentialPoints: Math.max(1, parseInt(remainingTime) || 0)
+            });
+          }
         }
+      }
+    }
+  });
+
+  // Sự kiện GV duyệt tay: Chấp nhận đáp án tự luận sai thành đúng
+  socket.on('override_essay', ({ roomId, studentId, points }) => {
+    const targetRoomId = roomId || currentRoomId;
+    if (targetRoomId && rooms[targetRoomId]) {
+      const room = rooms[targetRoomId];
+      if (room.students[studentId]) {
+        room.students[studentId].score += points;
+        room.students[studentId].correctCount = (room.students[studentId].correctCount || 0) + 1;
+        room.students[studentId].wrongCount = Math.max(0, (room.students[studentId].wrongCount || 0) - 1);
       }
     }
   });
@@ -276,8 +299,7 @@ io.on('connection', (socket) => {
     if (targetRoomId && rooms[targetRoomId]) {
       io.to(targetRoomId).emit('results_revealed', {
         leaderboard: Object.values(rooms[targetRoomId].students),
-        quizName: rooms[targetRoomId].quizName,
-        quizType: rooms[targetRoomId].quizType
+        quizName: rooms[targetRoomId].quizName
       });
     }
   });
