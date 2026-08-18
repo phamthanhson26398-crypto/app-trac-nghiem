@@ -43,7 +43,7 @@ function getOrCreateRoom(roomId) {
   if (!rooms[roomId]) {
     rooms[roomId] = {
       status: 'waiting',
-      quizType: 'mc', // 'mc' hoặc 'essay'
+      quizType: 'mc',
       quizName: '',
       queue: [],
       currentIndex: 0,
@@ -67,7 +67,7 @@ function advanceToNextQuestion(roomId) {
     room.timerTimeout = null;
   }
 
-  // Cộng dồn điểm và thống kê
+  // Cộng dồn điểm số
   Object.keys(room.students).forEach(id => {
     const st = room.students[id];
     st.score += st.currentScore;
@@ -87,9 +87,11 @@ function advanceToNextQuestion(roomId) {
 
   room.currentIndex++;
 
+  // Kết thúc bài thi
   if (room.currentIndex >= room.queue.length) {
     room.status = 'ended';
     room.currentItem = null;
+    room.isAdvancing = false;
     io.to(roomId).emit('quiz_ended', { 
       quizName: room.quizName,
       quizType: room.quizType
@@ -97,6 +99,7 @@ function advanceToNextQuestion(roomId) {
     return;
   }
 
+  // 3 giây đệm trước khi sang câu mới
   setTimeout(() => {
     room.currentItem = room.queue[room.currentIndex];
     room.currentDuration = parseInt(room.currentItem.question.duration) || 10;
@@ -116,9 +119,10 @@ function advanceToNextQuestion(roomId) {
       quizType: room.quizType
     });
 
+    // Server chủ động đếm thời gian tự chuyển câu (thời gian làm bài + 3.5s đệm)
     room.timerTimeout = setTimeout(() => {
       advanceToNextQuestion(roomId);
-    }, (room.currentDuration + 4) * 1000);
+    }, (room.currentDuration + 3.5) * 1000);
   }, 3000);
 }
 
@@ -243,18 +247,20 @@ io.on('connection', (socket) => {
 
     room.timerTimeout = setTimeout(() => {
       advanceToNextQuestion(roomId);
-    }, (room.currentDuration + 4) * 1000);
+    }, (room.currentDuration + 3.5) * 1000);
   });
 
-  socket.on('time_up', () => {
-    if (currentRoomId && rooms[currentRoomId] && rooms[currentRoomId].status === 'playing') {
-      advanceToNextQuestion(currentRoomId);
+  socket.on('time_up', ({ roomId } = {}) => {
+    const targetRoomId = roomId || currentRoomId;
+    if (targetRoomId && rooms[targetRoomId] && rooms[targetRoomId].status === 'playing') {
+      advanceToNextQuestion(targetRoomId);
     }
   });
 
-  socket.on('submit_answer', ({ isCorrect, remainingTime }) => {
-    if (currentRoomId && rooms[currentRoomId] && rooms[currentRoomId].status === 'playing') {
-      const room = rooms[currentRoomId];
+  socket.on('submit_answer', ({ isCorrect, remainingTime, roomId }) => {
+    const targetRoomId = roomId || currentRoomId;
+    if (targetRoomId && rooms[targetRoomId] && rooms[targetRoomId].status === 'playing') {
+      const room = rooms[targetRoomId];
       if (room.students[socket.id]) {
         const student = room.students[socket.id];
         if (!student.answered) {
