@@ -121,6 +121,33 @@
     }
     select option { background: #0d251b; color: #fff; }
 
+    /* TAB CHỌN KHO BÀI THI */
+    .tab-container {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      background: rgba(0,0,0,0.3);
+      padding: 6px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-weight: 900;
+      border-radius: 12px;
+      background: transparent;
+      box-shadow: none;
+      color: var(--text-muted);
+      border: none;
+    }
+    .tab-btn.active {
+      background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+      color: white;
+      box-shadow: 0 3px 0 #047857;
+    }
+
     .sub-panel {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -144,24 +171,23 @@
       margin-bottom: 12px; 
     }
 
+    /* 4 ĐÁP ÁN TRẮC NGHIỆM */
     .opt-btn { 
       text-align: left; 
       margin-top: 12px; 
       width: 100%; 
       font-size: 17px; 
-      font-weight: 900;
+      font-weight: 900; 
       padding: 16px 20px; 
       border-radius: 18px; 
       cursor: pointer; 
       display: flex;
       align-items: center;
-      justify-content: flex-start;
       gap: 12px;
       transition: all 0.15s ease;
       color: #fff !important;
       border: 2px solid transparent !important;
     }
-    
     .opt-btn-a { background: linear-gradient(135deg, #e63946 0%, #d62828 100%) !important; box-shadow: 0 4px 0 #9d0208, 0 6px 15px rgba(230, 57, 70, 0.35) !important; }
     .opt-btn-b { background: linear-gradient(135deg, #3a86ff 0%, #0077b6 100%) !important; box-shadow: 0 4px 0 #023e8a, 0 6px 15px rgba(58, 134, 255, 0.35) !important; }
     .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 4px 0 #d62828, 0 6px 15px rgba(251, 133, 0, 0.35) !important; }
@@ -179,7 +205,6 @@
       border: 3px solid #a7f3d0 !important;
       animation: neonBlinkGreen 0.45s infinite alternate !important;
       opacity: 1 !important;
-      z-index: 2;
     }
     @keyframes neonBlinkGreen {
       0% { box-shadow: 0 0 4px #10b981; transform: scale(1); }
@@ -190,8 +215,24 @@
       background: #4a0404 !important;
       border: 3px solid #ef4444 !important;
       color: #fca5a5 !important;
-      box-shadow: 0 0 15px rgba(239, 68, 68, 0.6) !important;
       opacity: 0.9 !important;
+    }
+
+    /* Ô NHẬP TỰ LUẬN */
+    .essay-input-box {
+      width: 100%;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: 800;
+      border: 2px solid #ffd166;
+      border-radius: 18px;
+      background: rgba(0, 0, 0, 0.5);
+      color: #ffd166;
+      margin-top: 10px;
+    }
+    .essay-input-box:focus {
+      border-color: #10b981;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
     }
 
     .btn-submit-answer {
@@ -222,7 +263,6 @@
       50% { opacity: 0.8; text-shadow: 0 0 2px rgba(253, 224, 71, 0.1); }
     }
 
-    /* CARD LINH VẬT CÁ NHÂN */
     .my-mascot-card {
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(16, 185, 129, 0.3) 100%);
       border: 1.5px solid rgba(255, 255, 255, 0.2);
@@ -588,10 +628,16 @@
       <div id="qrcode"></div>
     </div>
 
+    <!-- TAB CHUYỂN ĐỔI: KHO TRẮC NGHIỆM / KHO TỰ LUẬN -->
+    <div class="tab-container">
+      <button id="tab-mc-btn" class="tab-btn active" onclick="switchQuizTypeTab('mc')">🎯 KHO TRẮC NGHIỆM</button>
+      <button id="tab-essay-btn" class="tab-btn" onclick="switchQuizTypeTab('essay')">📝 KHO TỰ LUẬN</button>
+    </div>
+
     <!-- DANH SÁCH BÀI THI -->
     <div class="quiz-manager">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin: 0; font-size: 16px; font-weight: 900;">📁 Kho Bài Thi Của Bạn</h3>
+        <h3 id="quiz-list-title" style="margin: 0; font-size: 16px; font-weight: 900;">📁 Kho Bài Trắc Nghiệm</h3>
         <button onclick="createNewQuizSection()" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); font-size: 13px; padding: 8px 14px; box-shadow: 0 3px 0 #047857;">➕ Soạn Bài Mới</button>
       </div>
       <div id="quiz-list-container" style="margin-top: 10px;"></div>
@@ -688,7 +734,7 @@
     </div>
   </div>
 
-  <!-- 7. MÀN HÌNH LÀM BÀI TRẮC NGHIỆM -->
+  <!-- 7. MÀN HÌNH LÀM BÀI THI (HỖ TRỢ CẢ TRẮC NGHIỆM & TỰ LUẬN NHẬP ĐÁP ÁN) -->
   <div id="quiz-screen" class="card" style="display: none;">
     <div class="header-banner" style="font-size: 12px; padding: 4px 12px; margin-bottom: 10px;">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -705,10 +751,11 @@
     <div id="questions-container"></div>
   </div>
 
-  <!-- 8. MÀN HÌNH KẾT QUẢ VINH DANH QUÁN QUÂN & ĐỒNG QUÁN QUÂN -->
+  <!-- 8. MÀN HÌNH KẾT QUẢ VINH DANH QUÁN QUÂN -->
   <div id="result-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
+    <!-- KHUNG HỒI HỘP BAN ĐẦU -->
     <div id="suspense-container" class="suspense-box">
       <div class="suspense-icon">🥁</div>
       <h2 style="color: #ffd166; font-size: 24px; font-weight: 1000; margin: 10px 0 6px 0;">🎉 CHÚC MỪNG CÁC ĐOÀN SINH!</h2>
@@ -727,6 +774,7 @@
       </div>
     </div>
 
+    <!-- KHUNG TÔN VINH VÔ ĐỊCH / ĐỒNG VÔ ĐỊCH -->
     <div id="champion-stage" class="champion-podium" style="display: none;">
       <div id="champion-badge-title" class="champion-title-badge">👑 NHÀ VÔ ĐỊCH 👑</div>
       <br>
@@ -794,7 +842,11 @@
     let currentTeacherUser = '';
     let activeRoomId = '';
     let myAssignedMascot = { icon: '🦁', title: 'Sư Tử Dũng Mãnh' };
-    let allQuizzes = {};
+    
+    let currentQuizTypeTab = 'mc'; // 'mc' hoặc 'essay'
+    let allMcQuizzes = {};
+    let allEssayQuizzes = {};
+
     let partCount = 0;
     let editingQuizKey = null;
     let localTimerInterval = null;
@@ -802,6 +854,7 @@
     let isAuthRegisterMode = false;
     let isLeaderboardShown = false;
     let currentQuizName = '';
+    let currentItemData = null;
     
     let isSelectedChoiceCorrect = false;
     let hasSelectedAnOption = false;
@@ -809,21 +862,26 @@
 
     const FUNNY_TEXTS = ['Ú òa! 😜', 'Né nè! ✨', 'Boing! 🎈', 'Bắt hụt rồi! 🚀', 'Hehe! 🌟', 'Vèo! 💨', 'Bí mật! 🐾'];
 
-    /* HÀM XỬ LÝ NHẢY LOẠN XẠ & NÉ ĐÒN CỦA LINH VẬT */
+    function switchQuizTypeTab(type) {
+      currentQuizTypeTab = type;
+      document.getElementById('tab-mc-btn').classList.toggle('active', type === 'mc');
+      document.getElementById('tab-essay-btn').classList.toggle('active', type === 'essay');
+      document.getElementById('quiz-list-title').innerText = type === 'mc' ? '📁 Kho Bài Trắc Nghiệm' : '📁 Kho Bài Tự Luận';
+      closeEditor();
+      loadSavedQuizzes();
+    }
+
     function dodgeInteractiveMascot(el) {
       if (myRole !== 'student') return;
 
-      // Tính toán vị trí nhảy ngẫu nhiên trong phạm vi ±60px
       const randX = Math.floor((Math.random() - 0.5) * 120);
       const randY = Math.floor((Math.random() - 0.5) * 80);
       const randRot = Math.floor((Math.random() - 0.5) * 70);
       const randScale = (1.15 + Math.random() * 0.25).toFixed(2);
 
-      // Kích hoạt di chuyển tức thì với hiệu ứng nảy lò xo
       el.style.transform = `translate(${randX}px, ${randY}px) rotate(${randRot}deg) scale(${randScale})`;
       el.style.zIndex = '50';
 
-      // Tạo bong bóng chữ vui nhộn
       const bubble = document.createElement('div');
       bubble.className = 'mascot-bubble';
       bubble.innerText = FUNNY_TEXTS[Math.floor(Math.random() * FUNNY_TEXTS.length)];
@@ -836,7 +894,6 @@
         setTimeout(() => bubble.remove(), 750);
       }
 
-      // Tự động thu hồi về vị trí cũ sau 1.5s
       setTimeout(() => {
         el.style.transform = 'translate(0px, 0px) rotate(0deg) scale(1)';
         el.style.zIndex = '';
@@ -848,15 +905,11 @@
       const animationEnd = Date.now() + duration;
       const defaults = { startVelocity: 35, spread: 360, ticks: 70, zIndex: 999 };
 
-      function randomInRange(min, max) {
-        return Math.random() * (max - min) + min;
-      }
+      function randomInRange(min, max) { return Math.random() * (max - min) + min; }
 
       const interval = setInterval(function() {
         const timeLeft = animationEnd - Date.now();
-        if (timeLeft <= 0) {
-          return clearInterval(interval);
-        }
+        if (timeLeft <= 0) return clearInterval(interval);
         const particleCount = 60 * (timeLeft / duration);
         confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
         confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
@@ -1010,6 +1063,7 @@
         delete users[username];
         localStorage.setItem('tntt_teachers_db', JSON.stringify(users));
         localStorage.removeItem(`all_quizzes_user_${username}`);
+        localStorage.removeItem(`all_essay_quizzes_user_${username}`);
         localStorage.removeItem(`quiz_history_user_${username}`);
         loadAdminUserTable();
       }
@@ -1078,7 +1132,7 @@
     }
 
     function getTeacherQuizStorageKey() {
-      return `all_quizzes_user_${currentTeacherUser}`;
+      return currentQuizTypeTab === 'mc' ? `all_quizzes_user_${currentTeacherUser}` : `all_essay_quizzes_user_${currentTeacherUser}`;
     }
 
     function getTeacherHistoryStorageKey() {
@@ -1087,7 +1141,7 @@
 
     function loadSavedQuizzes() {
       const saved = localStorage.getItem(getTeacherQuizStorageKey());
-      allQuizzes = saved ? JSON.parse(saved) : {};
+      const currentQuizzes = saved ? JSON.parse(saved) : {};
 
       const listContainer = document.getElementById('quiz-list-container');
       const historySelect = document.getElementById('history-quiz-select');
@@ -1097,9 +1151,9 @@
       historySelect.innerHTML = '<option value="">-- Chọn bài kiểm tra để xem điểm --</option>';
       activeSelect.innerHTML = '';
 
-      const keys = Object.keys(allQuizzes);
+      const keys = Object.keys(currentQuizzes);
       if (keys.length === 0) {
-        listContainer.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-size: 14px; margin: 5px 0;">Chưa có bài thi nào được lưu.</p>';
+        listContainer.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-size: 14px; margin: 5px 0;">Chưa có bài thi nào trong kho này.</p>';
         activeSelect.innerHTML = '<option value="">(Chưa có bài)</option>';
         return;
       }
@@ -1123,7 +1177,7 @@
 
     function createNewQuizSection() {
       editingQuizKey = null;
-      document.getElementById('current-quiz-title').innerText = '📝 Tạo Bài Kiểm Tra Mới';
+      document.getElementById('current-quiz-title').innerText = currentQuizTypeTab === 'mc' ? '📝 Soạn Bài Trắc Nghiệm Mới' : '📝 Soạn Bài Tự Luận Mới';
       document.getElementById('quiz-name-input').value = '';
       document.getElementById('parts-list').innerHTML = '';
       partCount = 0;
@@ -1132,7 +1186,10 @@
     }
 
     function editQuiz(name) {
-      if (!allQuizzes[name]) return;
+      const saved = localStorage.getItem(getTeacherQuizStorageKey());
+      const currentQuizzes = saved ? JSON.parse(saved) : {};
+      if (!currentQuizzes[name]) return;
+
       editingQuizKey = name;
       document.getElementById('current-quiz-title').innerText = `📝 Chỉnh Sửa: ${name}`;
       document.getElementById('quiz-name-input').value = name;
@@ -1141,7 +1198,7 @@
       container.innerHTML = '';
       partCount = 0;
 
-      allQuizzes[name].forEach(part => addPartInput(part));
+      currentQuizzes[name].forEach(part => addPartInput(part));
       document.getElementById('editor-section').style.display = 'block';
     }
 
@@ -1156,12 +1213,15 @@
       const parts = getStructureFromScreen();
       if (parts.length === 0) return alert('Bài thi phải có ít nhất 1 Phần và 1 câu hỏi hoàn chỉnh!');
 
+      const saved = localStorage.getItem(getTeacherQuizStorageKey());
+      const currentQuizzes = saved ? JSON.parse(saved) : {};
+
       if (editingQuizKey && editingQuizKey !== newName) {
-        delete allQuizzes[editingQuizKey];
+        delete currentQuizzes[editingQuizKey];
       }
 
-      allQuizzes[newName] = parts;
-      localStorage.setItem(getTeacherQuizStorageKey(), JSON.stringify(allQuizzes));
+      currentQuizzes[newName] = parts;
+      localStorage.setItem(getTeacherQuizStorageKey(), JSON.stringify(currentQuizzes));
       alert(`Đã lưu thành công bài thi "${newName}"!`);
 
       closeEditor();
@@ -1170,8 +1230,10 @@
 
     function deleteQuiz(name) {
       if (confirm(`Bạn có chắc muốn xóa bài "${name}" không?`)) {
-        delete allQuizzes[name];
-        localStorage.setItem(getTeacherQuizStorageKey(), JSON.stringify(allQuizzes));
+        const saved = localStorage.getItem(getTeacherQuizStorageKey());
+        const currentQuizzes = saved ? JSON.parse(saved) : {};
+        delete currentQuizzes[name];
+        localStorage.setItem(getTeacherQuizStorageKey(), JSON.stringify(currentQuizzes));
 
         const historyData = JSON.parse(localStorage.getItem(getTeacherHistoryStorageKey()) || '{}');
         delete historyData[name];
@@ -1211,30 +1273,51 @@
       const qDiv = document.createElement('div');
       qDiv.className = 'q-block';
 
-      const type = data ? data.type : 'multiple';
+      const type = data ? data.type : (currentQuizTypeTab === 'mc' ? 'multiple' : 'short_answer');
       const title = data ? data.title : '';
-      const duration = data ? data.duration : 10;
+      const duration = data ? data.duration : (currentQuizTypeTab === 'mc' ? 10 : 20);
 
-      qDiv.innerHTML = `
-        <button class="btn-delete" style="float:right;" onclick="this.parentElement.remove()">❌ Xóa</button>
-        <div style="display: flex; gap: 10px;">
-          <div style="flex: 2;">
-            <label><strong>Dạng câu hỏi:</strong></label>
-            <select class="q-type" onchange="renderQuestionTypeUI(this)">
-              <option value="multiple" ${type === 'multiple' ? 'selected' : ''}>Trắc nghiệm A/B/C/D</option>
-              <option value="tf" ${type === 'tf' ? 'selected' : ''}>Đúng / Sai</option>
-            </select>
+      if (currentQuizTypeTab === 'mc') {
+        qDiv.innerHTML = `
+          <button class="btn-delete" style="float:right;" onclick="this.parentElement.remove()">❌ Xóa</button>
+          <div style="display: flex; gap: 10px;">
+            <div style="flex: 2;">
+              <label><strong>Dạng câu hỏi:</strong></label>
+              <select class="q-type" onchange="renderQuestionTypeUI(this)">
+                <option value="multiple" ${type === 'multiple' ? 'selected' : ''}>Trắc nghiệm A/B/C/D</option>
+                <option value="tf" ${type === 'tf' ? 'selected' : ''}>Đúng / Sai</option>
+              </select>
+            </div>
+            <div style="flex: 1;">
+              <label style="color: #f87171;"><strong>⏱️ Giây:</strong></label>
+              <input type="number" class="q-duration" value="${duration}">
+            </div>
           </div>
-          <div style="flex: 1;">
-            <label style="color: #f87171;"><strong>⏱️ Giây:</strong></label>
-            <input type="number" class="q-duration" value="${duration}">
+          
+          <label>Nội dung câu hỏi:</label>
+          <input type="text" class="q-title" value="${title}" placeholder="Nhập câu hỏi...">
+          <div class="q-options-area"></div>
+        `;
+      } else {
+        qDiv.innerHTML = `
+          <button class="btn-delete" style="float:right;" onclick="this.parentElement.remove()">❌ Xóa</button>
+          <div style="display: flex; gap: 10px;">
+            <div style="flex: 2;">
+              <label><strong>Dạng câu hỏi:</strong></label>
+              <input type="text" value="📝 Tự luận (Điền đáp án ngắn)" disabled style="background: rgba(255,255,255,0.05); color: #ffd166; font-weight: bold;">
+              <input type="hidden" class="q-type" value="short_answer">
+            </div>
+            <div style="flex: 1;">
+              <label style="color: #f87171;"><strong>⏱️ Giây:</strong></label>
+              <input type="number" class="q-duration" value="${duration}">
+            </div>
           </div>
-        </div>
-        
-        <label>Nội dung câu hỏi:</label>
-        <input type="text" class="q-title" value="${title}" placeholder="Nhập câu hỏi...">
-        <div class="q-options-area"></div>
-      `;
+          
+          <label>Nội dung câu hỏi tự luận:</label>
+          <input type="text" class="q-title" value="${title}" placeholder="Ví dụ: Chúa Giê-su sinh ra tại thành phố nào?">
+          <div class="q-options-area"></div>
+        `;
+      }
 
       container.appendChild(qDiv);
       renderQuestionTypeUI(qDiv.querySelector('.q-type'), data);
@@ -1273,6 +1356,12 @@
             <option value="Sai" ${correct === 'Sai' ? 'selected' : ''}>Sai</option>
           </select>
         `;
+      } else if (type === 'short_answer') {
+        optionsArea.innerHTML = `
+          <label style="color: #6ee7b7;"><strong>💡 Các đáp án được chấp nhận đúng (Cách nhau bằng dấu | hoặc dấu phẩy):</strong></label>
+          <input type="text" class="q-essay-correct" value="${correct || ''}" placeholder="Ví dụ: Bê-lem | Belem | Bethleem | Bê lem" style="border-color: #10b981;">
+          <small style="color: var(--text-muted); display: block; margin-top: -8px; margin-bottom: 10px;">(Học sinh gõ trúng 1 trong những từ này sẽ được tính là ĐÚNG, không phân biệt chữ hoa/thường)</small>
+        `;
       }
     }
 
@@ -1300,6 +1389,9 @@
           } else if (type === 'tf') {
             const correct = qBlock.querySelector('.q-correct').value;
             if (title) questions.push({ type, title, duration, options: ['Đúng', 'Sai'], correct });
+          } else if (type === 'short_answer') {
+            const correct = qBlock.querySelector('.q-essay-correct').value;
+            if (title && correct) questions.push({ type, title, duration, options: [], correct });
           }
         });
 
@@ -1433,7 +1525,10 @@
       const activeSelect = document.getElementById('active-quiz-select');
       const selectedQuizName = activeSelect.value;
 
-      if (!selectedQuizName || !allQuizzes[selectedQuizName]) {
+      const saved = localStorage.getItem(getTeacherQuizStorageKey());
+      const currentQuizzes = saved ? JSON.parse(saved) : {};
+
+      if (!selectedQuizName || !currentQuizzes[selectedQuizName]) {
         return alert('Vui lòng tạo hoặc chọn một bài kiểm tra để phát!');
       }
 
@@ -1443,8 +1538,13 @@
       btn.style.background = '#475569';
       btn.style.boxShadow = 'none';
 
-      const parts = allQuizzes[selectedQuizName];
-      socket.emit('start_quiz', { parts, quizName: selectedQuizName, roomId: activeRoomId });
+      const parts = currentQuizzes[selectedQuizName];
+      socket.emit('start_quiz', { 
+        parts, 
+        quizName: selectedQuizName, 
+        roomId: activeRoomId,
+        quizType: currentQuizTypeTab
+      });
     }
 
     socket.on('update_students', (students) => {
@@ -1472,13 +1572,14 @@
       }
     });
 
-    socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
+    socket.on('question_started', ({ item, duration, currentIndex, totalQuestions, quizType }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
         localTimerInterval = null;
       }
 
       currentRemainingSeconds = duration;
+      currentItemData = item;
       isSelectedChoiceCorrect = false;
       hasSelectedAnOption = false;
       hasSubmittedCurrentQuestion = false;
@@ -1487,7 +1588,8 @@
         const liveBox = document.getElementById('teacher-live-box');
         if (liveBox) {
           liveBox.style.display = 'block';
-          document.getElementById('teacher-current-q').innerText = `${item.partTitle} - Câu ${item.questionIndex} (Tổng: ${currentIndex + 1}/${totalQuestions})`;
+          const typeBadge = item.question.type === 'short_answer' ? '📝 [TỰ LUẬN]' : '🎯 [TRẮC NGHIỆM]';
+          document.getElementById('teacher-current-q').innerText = `${typeBadge} ${item.partTitle} - Câu ${item.questionIndex} (Tổng: ${currentIndex + 1}/${totalQuestions})`;
           document.getElementById('teacher-timer').innerText = currentRemainingSeconds;
         }
       } else {
@@ -1516,12 +1618,20 @@
             if (opt) html += `<button class="opt-btn ${btnClass}" data-is-correct="${isCorrect}" type="button" onclick="selectChoice(${isCorrect}, this)"><b>${prefix}:</b> ${opt}</button>`;
           });
         } else if (q.type === 'tf') {
-          html += `<button class="opt-btn opt-btn-d" data-is-correct="${q.correct === 'Đúng'}" type="button" onclick="selectChoice(${q.correct === 'Đúng'}, this)">🟢 Đúng</button>
-                   <button class="opt-btn opt-btn-a" data-is-correct="${q.correct === 'Sai'}" type="button" onclick="selectChoice(${q.correct === 'Sai'}, this)">🔴 Sai</button>`;
+          const isTrueCorrect = (q.correct === 'Đúng');
+          const isFalseCorrect = (q.correct === 'Sai');
+          html += `<button class="opt-btn opt-btn-d" data-is-correct="${isTrueCorrect}" type="button" onclick="selectChoice(${isTrueCorrect}, this)">🟢 Đúng</button>
+                   <button class="opt-btn opt-btn-a" data-is-correct="${isFalseCorrect}" type="button" onclick="selectChoice(${isFalseCorrect}, this)">🔴 Sai</button>`;
+        } else if (q.type === 'short_answer') {
+          html += `
+            <label style="font-weight: 900; color: #6ee7b7;">✍️ Nhập câu trả lời của em:</label>
+            <input type="text" id="student-essay-input" class="essay-input-box" placeholder="Gõ câu trả lời vào đây..." autocomplete="off">
+          `;
         }
 
         html += `<button id="btn-submit" class="btn-submit-answer" type="button" onclick="submitCurrentAnswer()">📤 NỘP ĐÁP ÁN</button>`;
         html += `<div id="waiting-box" class="waiting-status-box" style="display: none;">⏳ ĐÃ GHI NHẬN ĐÁP ÁN! ĐANG CHỜ HẾT THỜI GIAN ĐỂ SANG CÂU TIẾP THEO...</div>`;
+        html += `<div id="essay-reveal-box" style="display: none; margin-top: 15px; padding: 14px; border-radius: 16px; font-weight: 900; text-align: center;"></div>`;
 
         container.innerHTML = html;
       }
@@ -1536,6 +1646,7 @@
         const teacherTimerEl = document.getElementById('teacher-timer');
         if (teacherTimerEl) teacherTimerEl.innerText = Math.max(0, currentRemainingSeconds);
 
+        // KHI HẾT GIỜ: HIỂN THỊ ĐÁP ÁN ĐÚNG
         if (currentRemainingSeconds <= 0) {
           clearInterval(localTimerInterval);
           localTimerInterval = null;
@@ -1543,25 +1654,50 @@
           const submitBtn = document.getElementById('btn-submit');
           if (submitBtn) submitBtn.style.display = 'none';
 
-          const optButtons = document.querySelectorAll('.opt-btn');
-          optButtons.forEach(b => {
-            b.style.pointerEvents = 'none';
-            const isCorrect = b.getAttribute('data-is-correct') === 'true';
+          if (currentItemData && currentItemData.question.type === 'short_answer') {
+            if (!hasSubmittedCurrentQuestion) {
+              submitCurrentAnswer();
+            }
+            const essayInput = document.getElementById('student-essay-input');
+            if (essayInput) essayInput.disabled = true;
 
-            if (isCorrect) {
-              b.classList.remove('selected');
-              b.classList.add('reveal-correct');
-              if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅ (ĐÚNG)';
-            } else {
-              if (b.classList.contains('selected')) {
-                b.classList.remove('selected');
-                b.classList.add('reveal-wrong');
-                if (!b.innerHTML.includes('❌')) b.innerHTML += ' ❌ (SAI)';
+            const revealBox = document.getElementById('essay-reveal-box');
+            if (revealBox) {
+              revealBox.style.display = 'block';
+              const correctList = currentItemData.question.correct.split(/[,|]/).map(s => s.trim()).filter(Boolean);
+              if (isSelectedChoiceCorrect) {
+                revealBox.style.background = 'rgba(16, 185, 129, 0.25)';
+                revealBox.style.color = '#6ee7b7';
+                revealBox.style.border = '2px solid #10b981';
+                revealBox.innerHTML = `🎉 <b>CHÍNH XÁC!</b><br>Các đáp án đúng: <span style="color:#ffd166;">${correctList.join(', ')}</span>`;
               } else {
-                b.style.opacity = '0.35';
+                revealBox.style.background = 'rgba(239, 68, 68, 0.25)';
+                revealBox.style.color = '#fca5a5';
+                revealBox.style.border = '2px solid #ef4444';
+                revealBox.innerHTML = `❌ <b>CHƯA CHÍNH XÁC!</b><br>Đáp án đúng được chấp nhận: <span style="color:#ffd166;">${correctList.join(', ')}</span>`;
               }
             }
-          });
+          } else {
+            const optButtons = document.querySelectorAll('.opt-btn');
+            optButtons.forEach(b => {
+              b.style.pointerEvents = 'none';
+              const isCorrect = b.getAttribute('data-is-correct') === 'true';
+
+              if (isCorrect) {
+                b.classList.remove('selected');
+                b.classList.add('reveal-correct');
+                if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅ (ĐÚNG)';
+              } else {
+                if (b.classList.contains('selected')) {
+                  b.classList.remove('selected');
+                  b.classList.add('reveal-wrong');
+                  if (!b.innerHTML.includes('❌')) b.innerHTML += ' ❌ (SAI)';
+                } else {
+                  b.style.opacity = '0.35';
+                }
+              }
+            });
+          }
 
           let restSeconds = 3;
           const waitingBox = document.getElementById('waiting-box');
@@ -1570,13 +1706,13 @@
             waitingBox.style.background = 'rgba(16, 185, 129, 0.2)';
             waitingBox.style.color = '#6ee7b7';
             waitingBox.style.borderColor = 'rgba(16, 185, 129, 0.5)';
-            waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG PHÁT SÁNG!</b> Câu tiếp theo sau <b>${restSeconds}s</b>...`;
+            waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG HIỂN THỊ!</b> Câu tiếp theo sau <b>${restSeconds}s</b>...`;
           }
 
           const restInterval = setInterval(() => {
             restSeconds--;
             if (waitingBox && restSeconds > 0) {
-              waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG PHÁT SÁNG!</b> Câu tiếp theo sau <b>${restSeconds}s</b>...`;
+              waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG HIỂN THỊ!</b> Câu tiếp theo sau <b>${restSeconds}s</b>...`;
             }
             if (restSeconds <= 0) {
               clearInterval(restInterval);
@@ -1606,8 +1742,24 @@
 
     function submitCurrentAnswer() {
       if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0) return;
-      if (!hasSelectedAnOption) {
-        return alert('Em hãy chọn một đáp án trước khi bấm Nộp!');
+
+      if (currentItemData && currentItemData.question.type === 'short_answer') {
+        const inputEl = document.getElementById('student-essay-input');
+        const userText = inputEl ? inputEl.value.trim().toLowerCase() : '';
+
+        // Tách danh sách đáp án đúng theo dấu | hoặc dấu phẩy
+        const rawCorrect = currentItemData.question.correct || '';
+        const acceptableAnswers = rawCorrect.split(/[,|]/).map(s => s.trim().toLowerCase()).filter(Boolean);
+
+        // So khớp thông minh
+        isSelectedChoiceCorrect = acceptableAnswers.some(ans => ans === userText);
+        hasSelectedAnOption = true;
+
+        if (inputEl) inputEl.disabled = true;
+      } else {
+        if (!hasSelectedAnOption) {
+          return alert('Em hãy chọn một đáp án trước khi bấm Nộp!');
+        }
       }
 
       hasSubmittedCurrentQuestion = true;
@@ -1633,8 +1785,7 @@
       });
     }
 
-    /* GIAI ĐOẠN 1: HẾT GIỜ BÀI THI - HIỆN MÀN HÌNH CHỜ */
-    socket.on('quiz_ended', ({ quizName }) => {
+    socket.on('quiz_ended', ({ quizName, quizType }) => {
       if (localTimerInterval) {
         clearInterval(localTimerInterval);
         localTimerInterval = null;
@@ -1666,8 +1817,7 @@
       socket.emit('reveal_results', { roomId: activeRoomId });
     }
 
-    /* GIAI ĐOẠN 2: BÙNG NỔ KẾT QUẢ */
-    socket.on('results_revealed', ({ leaderboard, quizName }) => {
+    socket.on('results_revealed', ({ leaderboard, quizName, quizType }) => {
       document.getElementById('suspense-container').style.display = 'none';
 
       const sortedList = leaderboard.sort((a, b) => {
@@ -1711,8 +1861,6 @@
       }
 
       document.getElementById('champion-stage').style.display = 'block';
-
-      // BẮN PHÁO HOA TUNG BAY
       triggerChampionConfetti();
 
       if (myRole === 'teacher') {
