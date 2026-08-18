@@ -37,8 +37,7 @@ const MASCOTS = [
   { icon: '🦹', title: 'Siêu Anh Hùng' }
 ];
 
-// CƠ SỞ DỮ LIỆU TẬP TRUNG TRÊN SERVER
-const teachersDB = {}; // { username: password }
+const teachersDB = {};
 const rooms = {};
 
 function getOrCreateRoom(roomId) {
@@ -69,20 +68,35 @@ function advanceToNextQuestion(roomId) {
     room.timerTimeout = null;
   }
 
-  // Cộng dồn điểm và thống kê câu hỏi
+  const currentQType = room.currentItem && room.currentItem.question ? room.currentItem.question.type : 'multiple';
+
+  // Cộng dồn điểm và thống kê riêng từng loại câu hỏi
   Object.keys(room.students).forEach(id => {
     const st = room.students[id];
     st.score += st.currentScore;
 
-    if (st.answered) {
-      if (st.currentScore > 0) {
-        st.correctCount = (st.correctCount || 0) + 1;
+    if (currentQType === 'short_answer') {
+      if (st.answered) {
+        if (st.currentScore > 0) {
+          st.essayCorrect = (st.essayCorrect || 0) + 1;
+        } else {
+          st.essayWrong = (st.essayWrong || 0) + 1;
+        }
       } else {
-        st.wrongCount = (st.wrongCount || 0) + 1;
+        st.essayUnanswered = (st.essayUnanswered || 0) + 1;
       }
     } else {
-      st.unansweredCount = (st.unansweredCount || 0) + 1;
+      if (st.answered) {
+        if (st.currentScore > 0) {
+          st.mcCorrect = (st.mcCorrect || 0) + 1;
+        } else {
+          st.mcWrong = (st.mcWrong || 0) + 1;
+        }
+      } else {
+        st.mcUnanswered = (st.mcUnanswered || 0) + 1;
+      }
     }
+
     st.currentScore = 0;
   });
 
@@ -127,7 +141,6 @@ function advanceToNextQuestion(roomId) {
 io.on('connection', (socket) => {
   let currentRoomId = null;
 
-  // QUẢN LÝ TÀI KHOẢN TẬP TRUNG CHO GLV VÀ ADMIN
   socket.on('teacher_register', ({ username, password }) => {
     if (!username || !password) return socket.emit('auth_response', { success: false, message: 'Vui lòng điền đủ thông tin!' });
     if (teachersDB[username]) return socket.emit('auth_response', { success: false, message: 'Tên tài khoản này đã tồn tại!' });
@@ -180,9 +193,12 @@ io.on('connection', (socket) => {
         score: 0,
         currentScore: 0,
         answered: false,
-        correctCount: 0,
-        wrongCount: 0,
-        unansweredCount: 0
+        mcCorrect: 0,
+        mcWrong: 0,
+        mcUnanswered: 0,
+        essayCorrect: 0,
+        essayWrong: 0,
+        essayUnanswered: 0
       };
       
       socket.emit('my_mascot_assigned', randomMascot);
@@ -261,9 +277,12 @@ io.on('connection', (socket) => {
       room.students[id].score = 0;
       room.students[id].currentScore = 0;
       room.students[id].answered = false;
-      room.students[id].correctCount = 0;
-      room.students[id].wrongCount = 0;
-      room.students[id].unansweredCount = 0;
+      room.students[id].mcCorrect = 0;
+      room.students[id].mcWrong = 0;
+      room.students[id].mcUnanswered = 0;
+      room.students[id].essayCorrect = 0;
+      room.students[id].essayWrong = 0;
+      room.students[id].essayUnanswered = 0;
     });
 
     room.currentIndex = 0;
@@ -290,7 +309,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('submit_answer', ({ isCorrect, remainingTime, roomId, type, answerText, questionTitle }) => {
+  socket.on('submit_answer', ({ isCorrect, remainingTime, roomId, type, answerText, questionTitle, teacherAnswers }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId] && rooms[targetRoomId].status === 'playing') {
       const room = rooms[targetRoomId];
@@ -307,6 +326,7 @@ io.on('connection', (socket) => {
               studentName: student.name,
               mascot: student.mascot,
               questionTitle: questionTitle,
+              teacherAnswers: teacherAnswers || '',
               answerText: answerText || '(Trống)',
               isCorrect: isCorrect,
               potentialPoints: secondsLeft
@@ -324,8 +344,8 @@ io.on('connection', (socket) => {
       if (room.students[studentId]) {
         const addedScore = parseInt(points) || 0;
         room.students[studentId].score += addedScore;
-        room.students[studentId].correctCount = (room.students[studentId].correctCount || 0) + 1;
-        room.students[studentId].wrongCount = Math.max(0, (room.students[studentId].wrongCount || 0) - 1);
+        room.students[studentId].essayCorrect = (room.students[studentId].essayCorrect || 0) + 1;
+        room.students[studentId].essayWrong = Math.max(0, (room.students[studentId].essayWrong || 0) - 1);
       }
     }
   });
