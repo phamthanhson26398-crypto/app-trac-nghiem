@@ -144,7 +144,7 @@
       margin-bottom: 10px; 
     }
 
-    /* ĐÁP ÁN CÁCH NHAU RÕ RÀNG & THOÁNG ĐẸP */
+    /* ĐÁP ÁN CÁCH NHAU RÕ RÀNG */
     .opt-btn { 
       text-align: left; 
       margin-top: 14px; 
@@ -159,14 +159,14 @@
       gap: 10px;
       color: #fff !important;
       border: 2.5px solid transparent !important;
-      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: all 0.2s ease;
     }
     .opt-btn-a { background: linear-gradient(135deg, #e63946 0%, #d62828 100%) !important; box-shadow: 0 4px 0 #9d0208, 0 5px 12px rgba(230, 57, 70, 0.3) !important; }
     .opt-btn-b { background: linear-gradient(135deg, #3a86ff 0%, #0077b6 100%) !important; box-shadow: 0 4px 0 #023e8a, 0 5px 12px rgba(58, 134, 255, 0.3) !important; }
     .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 4px 0 #d62828, 0 5px 12px rgba(251, 133, 0, 0.3) !important; }
     .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 4px 0 #047857, 0 5px 12px rgba(6, 214, 160, 0.3) !important; }
 
-    /* ĐÁP ÁN ĐƯỢC HỌC SINH CHỌN SẼ SÁNG RỰC RỠ */
+    /* ĐÁP ÁN ĐƯỢC CHỌN SÁNG RỰC RỠ */
     .opt-btn.selected {
       border: 2.5px solid #ffd166 !important;
       box-shadow: 0 0 20px rgba(255, 209, 102, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.4) !important;
@@ -174,7 +174,7 @@
       filter: brightness(1.15);
     }
 
-    /* NÚT NỘP BÀI CĂN GIỮA & CÁCH ĐỀU */
+    /* NÚT NỘP BÀI CĂN GIỮA */
     .btn-submit-answer {
       display: flex !important;
       width: 90% !important;
@@ -188,7 +188,6 @@
       box-shadow: 0 4px 0 #065f46, 0 6px 18px rgba(16, 185, 129, 0.45) !important;
       text-align: center;
       justify-content: center;
-      letter-spacing: 0.5px;
     }
 
     .opt-btn.reveal-correct {
@@ -368,19 +367,24 @@
     </button>
   </div>
 
-  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV -->
+  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV (BỔ SUNG THÔNG BÁO TẠI CHỖ & FORM SUBMIT) -->
   <div id="auth-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 id="auth-title" style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
     <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Mỗi tài khoản sẽ có một Phòng Thi & Mã QR riêng</p>
 
-    <label style="font-size: 13.5px;"><strong>Tài khoản (Tên đăng nhập):</strong></label>
-    <input type="text" id="auth-username" placeholder="Ví dụ: huynh_truong_01">
+    <!-- Hộp thông báo phản hồi ngay trên màn hình -->
+    <div id="auth-status-box" style="display: none; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 800; text-align: center; margin-bottom: 12px;"></div>
 
-    <label style="font-size: 13.5px;"><strong>Mật khẩu:</strong></label>
-    <input type="password" id="auth-password" placeholder="••••••••">
+    <form onsubmit="handleAuthSubmit(event)">
+      <label style="font-size: 13.5px;"><strong>Tài khoản (Tên đăng nhập):</strong></label>
+      <input type="text" id="auth-username" placeholder="Ví dụ: huynh_truong_01" required autocomplete="username">
 
-    <button id="auth-submit-btn" onclick="handleAuthSubmit()" style="width: 100%; padding: 13px; font-size: 15px; margin-top: 4px;">Đăng Nhập Ngay</button>
+      <label style="font-size: 13.5px;"><strong>Mật khẩu:</strong></label>
+      <input type="password" id="auth-password" placeholder="••••••••" required autocomplete="current-password">
+
+      <button type="submit" id="auth-submit-btn" style="width: 100%; padding: 13px; font-size: 15px; margin-top: 4px;">Đăng Nhập Ngay</button>
+    </form>
 
     <div style="text-align: center; margin-top: 14px; font-size: 13px;">
       <span id="auth-toggle-text" style="color: var(--text-muted);">Chưa có tài khoản?</span>
@@ -640,6 +644,9 @@
   </div>
 
   <script>
+    /* ==========================================================
+       1. KHỞI TẠO BIẾN TOÀN CỤC & SOCKET
+       ========================================================== */
     const socket = io({ transports: ['websocket', 'polling'] });
     let myRole = '';
     let currentStudentName = '';
@@ -663,9 +670,153 @@
     let isClientPaused = false;
     let currentSelectedIndex = null;
     let allQuizQuestionsList = [];
+    let isStudentReviewOpen = false;
 
     const FUNNY_TEXTS = ['Ú òa! 😜', 'Né nè! ✨', 'Boing! 🎈', 'Bắt hụt rồi! 🚀', 'Hehe! 🌟', 'Vèo! 💨', 'Bí mật! 🐾'];
 
+    /* ==========================================================
+       2. HÀM ĐIỀU HƯỚNG & XỬ LÝ ĐĂNG NHẬP / ĐĂNG KÝ
+       ========================================================== */
+    function showAuthNotice(msg, isSuccess = false) {
+      const box = document.getElementById('auth-status-box');
+      if (!box) return;
+      box.style.display = 'block';
+      box.style.background = isSuccess ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)';
+      box.style.color = isSuccess ? '#6ee7b7' : '#fca5a5';
+      box.style.border = isSuccess ? '1.5px solid #10b981' : '1.5px solid #ef4444';
+      box.innerText = msg;
+    }
+
+    function selectRole(role) {
+      myRole = role;
+      document.getElementById('role-screen').style.display = 'none';
+      if (role === 'teacher') document.getElementById('auth-screen').style.display = 'block';
+      else if (role === 'student') document.getElementById('student-screen').style.display = 'block';
+      else if (role === 'admin') {
+        const adminPass = prompt('Mật khẩu Admin:');
+        if (adminPass === 'tnttthaiha') {
+          document.getElementById('admin-screen').style.display = 'block';
+          socket.emit('admin_get_users');
+        } else {
+          alert('Sai mật khẩu!'); document.getElementById('role-screen').style.display = 'block';
+        }
+      }
+    }
+
+    function toggleAuthMode() {
+      isAuthRegisterMode = !isAuthRegisterMode;
+      const box = document.getElementById('auth-status-box');
+      if (box) box.style.display = 'none';
+      document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
+      document.getElementById('auth-submit-btn').innerText = isAuthRegisterMode ? 'Tạo Tài Khoản Mới' : 'Đăng Nhập Ngay';
+      document.getElementById('auth-toggle-text').innerText = isAuthRegisterMode ? 'Đã có tài khoản?' : 'Chưa có tài khoản?';
+      document.querySelector('#auth-screen a').innerText = isAuthRegisterMode ? 'Đăng Nhập' : 'Đăng Ký Mới';
+    }
+
+    function handleAuthSubmit(event) {
+      if (event) event.preventDefault();
+      const username = document.getElementById('auth-username').value.trim();
+      const pass = document.getElementById('auth-password').value.trim();
+      if (!username || !pass) {
+        showAuthNotice('⚠️ Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
+        return;
+      }
+
+      const btn = document.getElementById('auth-submit-btn');
+      btn.innerText = '⏳ Đang gửi yêu cầu...';
+
+      if (isAuthRegisterMode) {
+        socket.emit('teacher_register', { username, password: pass });
+      } else {
+        socket.emit('teacher_login', { username, password: pass });
+      }
+    }
+
+    socket.on('auth_response', ({ success, message, isRegister, username }) => {
+      const btn = document.getElementById('auth-submit-btn');
+      if (btn) btn.innerText = isAuthRegisterMode ? 'Tạo Tài Khoản Mới' : 'Đăng Nhập Ngay';
+
+      if (!success) {
+        showAuthNotice(message || '❌ Đăng nhập thất bại. Nếu máy chủ vừa khởi động lại, hãy bấm Đăng Ký Mới!');
+        return;
+      }
+      
+      if (isRegister) {
+        showAuthNotice(message || 'Đăng ký thành công! Hãy đăng nhập.', true);
+        toggleAuthMode();
+      } else {
+        currentTeacherUser = username; activeRoomId = username;
+        sessionStorage.setItem('tntt_current_teacher', username);
+        document.getElementById('logged-user-name').innerText = username;
+        document.getElementById('teacher-room-id-badge').innerText = activeRoomId;
+        document.getElementById('teacher-room-code-txt').innerText = activeRoomId;
+
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('teacher-screen').style.display = 'block';
+
+        generateRoomQRCode(activeRoomId);
+        loadSavedQuizzes();
+        socket.emit('clear_room_students', { roomId: activeRoomId });
+        socket.emit('join_room', { role: 'teacher', roomId: activeRoomId });
+      }
+    });
+
+    function backToRoleScreen() {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('admin-screen').style.display = 'none';
+      document.getElementById('student-screen').style.display = 'none';
+      document.getElementById('role-screen').style.display = 'block';
+    }
+
+    function logoutTeacher() {
+      if (activeRoomId) socket.emit('clear_room_students', { roomId: activeRoomId });
+      sessionStorage.removeItem('tntt_current_teacher');
+      currentTeacherUser = ''; activeRoomId = '';
+      location.reload();
+    }
+
+    /* ==========================================================
+       3. QUẢN TRỊ ADMIN
+       ========================================================== */
+    socket.on('admin_user_list_update', (users) => {
+      const tbody = document.getElementById('admin-user-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      const userList = Object.keys(users);
+      if (userList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Chưa có tài khoản nào.</td></tr>';
+        return;
+      }
+      userList.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><b>${u}</b></td>
+          <td style="color:#ffd166;">${users[u]}</td>
+          <td style="text-align:right;">
+            <button class="btn-edit" onclick="adminResetPass('${u}')">Đổi MK</button>
+            <button class="btn-delete" onclick="adminDeleteUser('${u}')">Xóa</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+
+    function adminResetPass(username) {
+      const newPass = prompt(`Nhập mật khẩu mới cho ${username}:`);
+      if (newPass && newPass.trim()) {
+        socket.emit('admin_reset_pass', { username, newPass: newPass.trim() });
+      }
+    }
+
+    function adminDeleteUser(username) {
+      if (confirm(`Bạn có chắc muốn xóa tài khoản ${username}?`)) {
+        socket.emit('admin_delete_user', { username });
+      }
+    }
+
+    /* ==========================================================
+       4. BỘ ĐẾM & TIỆN ÍCH
+       ========================================================== */
     function dodgeInteractiveMascot(el) {
       if (myRole !== 'student') return;
       const randX = Math.floor((Math.random() - 0.5) * 110);
@@ -783,99 +934,9 @@
       }
     }
 
-    /* ĐĂNG NHẬP / ĐĂNG KÝ GLV */
-    function toggleAuthMode() {
-      isAuthRegisterMode = !isAuthRegisterMode;
-      document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
-      document.getElementById('auth-submit-btn').innerText = isAuthRegisterMode ? 'Tạo Tài Khoản Mới' : 'Đăng Nhập Ngay';
-      document.getElementById('auth-toggle-text').innerText = isAuthRegisterMode ? 'Đã có tài khoản?' : 'Chưa có tài khoản?';
-      document.querySelector('#auth-screen a').innerText = isAuthRegisterMode ? 'Đăng Nhập' : 'Đăng Ký Mới';
-    }
-
-    function handleAuthSubmit() {
-      const username = document.getElementById('auth-username').value.trim();
-      const pass = document.getElementById('auth-password').value.trim();
-      if (!username || !pass) return alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
-
-      if (isAuthRegisterMode) {
-        socket.emit('teacher_register', { username, password: pass });
-      } else {
-        socket.emit('teacher_login', { username, password: pass });
-      }
-    }
-
-    socket.on('auth_response', ({ success, message, isRegister, username }) => {
-      if (!success) return alert(message);
-      if (isRegister) {
-        alert(message);
-        toggleAuthMode();
-      } else {
-        currentTeacherUser = username; activeRoomId = username;
-        sessionStorage.setItem('tntt_current_teacher', username);
-        document.getElementById('logged-user-name').innerText = username;
-        document.getElementById('teacher-room-id-badge').innerText = activeRoomId;
-        document.getElementById('teacher-room-code-txt').innerText = activeRoomId;
-
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('teacher-screen').style.display = 'block';
-
-        generateRoomQRCode(activeRoomId);
-        loadSavedQuizzes();
-        socket.emit('clear_room_students', { roomId: activeRoomId });
-        socket.emit('join_room', { role: 'teacher', roomId: activeRoomId });
-      }
-    });
-
-    /* QUẢN TRỊ ADMIN */
-    socket.on('admin_user_list_update', (users) => {
-      const tbody = document.getElementById('admin-user-table-body');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-      const userList = Object.keys(users);
-      if (userList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Chưa có tài khoản nào.</td></tr>';
-        return;
-      }
-      userList.forEach(u => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><b>${u}</b></td>
-          <td style="color:#ffd166;">${users[u]}</td>
-          <td style="text-align:right;">
-            <button class="btn-edit" onclick="adminResetPass('${u}')">Đổi MK</button>
-            <button class="btn-delete" onclick="adminDeleteUser('${u}')">Xóa</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    });
-
-    function adminResetPass(username) {
-      const newPass = prompt(`Nhập mật khẩu mới cho ${username}:`);
-      if (newPass && newPass.trim()) {
-        socket.emit('admin_reset_pass', { username, newPass: newPass.trim() });
-      }
-    }
-
-    function adminDeleteUser(username) {
-      if (confirm(`Bạn có chắc muốn xóa tài khoản ${username}?`)) {
-        socket.emit('admin_delete_user', { username });
-      }
-    }
-
-    function logoutTeacher() {
-      if (activeRoomId) socket.emit('clear_room_students', { roomId: activeRoomId });
-      sessionStorage.removeItem('tntt_current_teacher');
-      currentTeacherUser = ''; activeRoomId = '';
-      location.reload();
-    }
-
-    function backToRoleScreen() {
-      document.getElementById('auth-screen').style.display = 'none';
-      document.getElementById('admin-screen').style.display = 'none';
-      document.getElementById('role-screen').style.display = 'block';
-    }
-
+    /* ==========================================================
+       5. QUẢN LÝ ĐỀ THI & LỊCH SỬ
+       ========================================================== */
     function getTeacherQuizStorageKey() { return `all_quizzes_user_${currentTeacherUser}`; }
     function getTeacherHistoryStorageKey() { return `quiz_history_user_${currentTeacherUser}`; }
 
@@ -981,7 +1042,6 @@
       }
     }
 
-    /* 1. CÀI ĐẶT THỜI GIAN THEO PHẦN */
     function addPartInput(data = null) {
       partCount++;
       const container = document.getElementById('parts-list');
@@ -1158,7 +1218,83 @@
       }
     }
 
-    /* 3. MÀN HÌNH THEO DÕI LIVE CỦA GLV */
+    /* ==========================================================
+       6. ĐIỀU KHIỂN BÀI THI & HỌC SINH THAM GIA
+       ========================================================== */
+    function joinQuiz() {
+      const roomInput = document.getElementById('student-room-input').value.trim();
+      const name = document.getElementById('student-name').value.trim();
+      if (!roomInput || !name) return alert('Nhập đủ mã phòng và tên!');
+      activeRoomId = roomInput; currentStudentName = name; myRole = 'student';
+      document.getElementById('student-screen').style.display = 'none';
+      document.getElementById('lobby-screen').style.display = 'block';
+      document.getElementById('lobby-my-name').innerText = name;
+      document.getElementById('lobby-my-room').innerText = activeRoomId;
+      socket.emit('join_room', { name, role: 'student', roomId: activeRoomId });
+    }
+
+    socket.on('my_mascot_assigned', (mascot) => {
+      myAssignedMascot = mascot;
+      document.getElementById('my-mascot-icon').innerText = mascot.icon;
+      document.getElementById('my-mascot-title').innerText = `Linh vật: ${mascot.title}`;
+    });
+
+    function startQuiz() {
+      const activeSelect = document.getElementById('active-quiz-select');
+      const selectedQuizName = activeSelect.value;
+      const saved = localStorage.getItem(getTeacherQuizStorageKey());
+      const currentQuizzes = saved ? JSON.parse(saved) : {};
+      if (!selectedQuizName || !currentQuizzes[selectedQuizName]) return alert('Chọn bài thi!');
+
+      const btn = document.getElementById('start-btn');
+      btn.disabled = true; btn.innerText = '⏳ BÀI THI ĐANG DIỄN RA...';
+      socket.emit('start_quiz', { parts: currentQuizzes[selectedQuizName], quizName: selectedQuizName, roomId: activeRoomId });
+    }
+
+    function togglePauseQuiz() { socket.emit('toggle_pause', { roomId: activeRoomId }); }
+
+    socket.on('update_students', (students) => {
+      if (myRole === 'teacher') {
+        document.getElementById('count').innerText = students.length;
+        document.getElementById('teacher-student-grid').innerHTML = students.map(s => `
+          <div class="lobby-student-chip">
+            <button class="btn-kick-student" onclick="kickStudent('${s.id}', '${s.name}')">✕</button>
+            <div class="lobby-student-avatar">${s.mascot ? s.mascot.icon : '🦁'}</div>
+            <span class="lobby-student-name">${s.name}</span>
+          </div>
+        `).join('');
+      } else if (myRole === 'student') {
+        document.getElementById('lobby-count').innerText = students.length;
+        document.getElementById('lobby-students-container').innerHTML = students.map(s => `
+          <div class="lobby-student-chip">
+            <div class="lobby-student-avatar" onclick="dodgeInteractiveMascot(this)">${s.mascot ? s.mascot.icon : '🦁'}</div>
+            <span class="lobby-student-name">${s.name}</span>
+          </div>
+        `).join('');
+      }
+    });
+
+    socket.on('quiz_paused', () => {
+      isClientPaused = true;
+      if (myRole === 'student') document.getElementById('pause-overlay').style.display = 'flex';
+      if (myRole === 'teacher') {
+        const btn = document.getElementById('btn-toggle-pause');
+        if (btn) { btn.innerHTML = '▶️ Tiếp Tục'; btn.style.background = '#f59e0b'; }
+      }
+    });
+
+    socket.on('quiz_resumed', () => {
+      isClientPaused = false;
+      if (myRole === 'student') document.getElementById('pause-overlay').style.display = 'none';
+      if (myRole === 'teacher') {
+        const btn = document.getElementById('btn-toggle-pause');
+        if (btn) { btn.innerHTML = '⏸ Tạm Dừng'; btn.style.background = '#6366f1'; }
+      }
+    });
+
+    /* ==========================================================
+       7. MÀN HÌNH THEO DÕI LIVE & LÀM BÀI
+       ========================================================== */
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
@@ -1230,7 +1366,6 @@
       }, 1000);
     });
 
-    /* 2 & 3. NGHỈ CHUYỂN CÂU 10S & HIỆN ĐÁP ÁN TỰ LUẬN KHI HẾT GIỜ */
     socket.on('question_time_up', () => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (myRole === 'student') document.getElementById('timer').innerText = '0';
@@ -1378,6 +1513,9 @@
       });
     }
 
+    /* ==========================================================
+       8. KẾT THÚC BÀI THI & DUYỆT TỰ LUẬN
+       ========================================================== */
     socket.on('quiz_ended', ({ quizName, essaySubmissions, leaderboard, allQuestions }) => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
@@ -1463,7 +1601,9 @@
 
     function revealWinnerCeremony() { socket.emit('reveal_results', { roomId: activeRoomId }); }
 
-    /* 5. HIỂN THỊ KẾT QUẢ & BẢNG ĐIỂM CHI TIẾT TỰ ĐỘNG BẬT SÁNG */
+    /* ==========================================================
+       9. CÔNG BỐ KẾT QUẢ & HIỂN THỊ CHI TIẾT BÀI LÀM
+       ========================================================== */
     socket.on('results_revealed', ({ leaderboard, quizName, allQuestions }) => {
       document.getElementById('suspense-container').style.display = 'none';
       if (allQuestions) allQuizQuestionsList = allQuestions;
@@ -1540,8 +1680,6 @@
       }
     });
 
-    /* HIỂN THỊ CHI TIẾT ĐÁP ÁN CHO HỌC SINH XEM LẠI */
-    let isStudentReviewOpen = false;
     function toggleStudentReviewModal() {
       isStudentReviewOpen = !isStudentReviewOpen;
       const box = document.getElementById('student-answers-review-container');
