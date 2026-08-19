@@ -1201,7 +1201,6 @@
                  <button class="opt-btn opt-btn-a" data-is-correct="${isFalseCorrect}" type="button" ${myRole === 'student' ? `onclick="selectChoice(${isFalseCorrect}, this)"` : 'style="pointer-events:none;"'}>🔴 Sai</button>`;
       } else if (q.type === 'short_answer') {
         html += `
-          <label style="font-weight: 800; color: #6ee7b7; font-size: 13.5px;">✍️ ${myRole === 'teacher' ? 'Đáp án chuẩn:' : 'Nhập câu trả lời của em:'}</label>
           <input type="text" ${myRole === 'teacher' ? 'value="' + q.correct + '" disabled' : 'id="student-essay-input" placeholder="Gõ câu trả lời..."'} class="essay-input-box" autocomplete="off">
         `;
       }
@@ -1272,7 +1271,7 @@
             const banner = document.createElement('div');
             banner.id = 'teacher-essay-answer-banner';
             banner.style.cssText = 'margin-top: 12px; background: rgba(16, 185, 129, 0.2); border: 1.5px solid #10b981; padding: 10px; border-radius: 10px; color: #6ee7b7; font-weight: 800; text-align: center;';
-            banner.innerHTML = `🎯 <b>ĐÁP ÁN CHUẨN:</b> <span style="color:#ffd166;">${currentItemData.question.correct}</span>`;
+            banner.innerHTML = `🎯 <b>ĐÁP ÁN:</b> <span style="color:#ffd166;">${currentItemData.question.correct}</span>`;
             screenBox.appendChild(banner);
           }
         }
