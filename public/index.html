@@ -1052,6 +1052,21 @@
       }
     }
 
+    function updateQuestionNumbers(partBlock) {
+      const qBlocks = partBlock.querySelectorAll('.q-block');
+      qBlocks.forEach((qBlock, idx) => {
+        let titleLabel = qBlock.querySelector('.q-num-label');
+        if (!titleLabel) {
+          titleLabel = document.createElement('div');
+          titleLabel.className = 'q-num-label';
+          titleLabel.style.cssText = 'font-weight: 900; color: #ffd166; font-size: 13.5px; margin-bottom: 4px;';
+          const typeBox = qBlock.querySelector('div');
+          if (typeBox) typeBox.before(titleLabel);
+        }
+        titleLabel.innerText = `❓ Câu số ${idx + 1}`;
+      });
+    }
+
     function addPartInput(data = null) {
       partCount++;
       const container = document.getElementById('parts-list');
@@ -1077,8 +1092,12 @@
       container.appendChild(pDiv);
 
       const qContainer = pDiv.querySelector('.q-container');
-      if (data && data.questions) data.questions.forEach(q => addQuestionToPart(qContainer, q));
-      else addQuestionToPart(qContainer);
+      if (data && data.questions) {
+        data.questions.forEach(q => addQuestionToPart(qContainer, q));
+      } else {
+        addQuestionToPart(qContainer);
+      }
+      updateQuestionNumbers(pDiv);
     }
 
     function addQuestionToPart(container, data = null) {
@@ -1089,7 +1108,7 @@
       const title = data ? data.title : '';
 
       qDiv.innerHTML = `
-        <button class="btn-delete" style="float:right;" onclick="this.parentElement.remove()">❌ Xóa</button>
+        <button class="btn-delete" style="float:right;" onclick="const p = this.closest('.part-block'); this.parentElement.remove(); updateQuestionNumbers(p);">❌ Xóa</button>
         <div style="margin-bottom: 8px;">
           <label style="font-size: 12.5px;"><strong>Dạng câu hỏi:</strong></label>
           <select class="q-type" onchange="renderQuestionTypeUI(this)">
@@ -1105,6 +1124,9 @@
 
       container.appendChild(qDiv);
       renderQuestionTypeUI(qDiv.querySelector('.q-type'), data);
+      
+      const pBlock = container.closest('.part-block');
+      if (pBlock) updateQuestionNumbers(pBlock);
     }
 
     function renderQuestionTypeUI(selectEl, data = null) {
