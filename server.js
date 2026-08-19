@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
+const fs = require('fs'); // Thư viện đọc/ghi file của Node.js
 
 const app = express();
 const server = http.createServer(app);
@@ -17,6 +18,31 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+const DB_FILE = path.join(__dirname, 'teachers.json');
+
+// --- HÀM ĐỌC / GHI DỮ LIỆU TÀI KHOẢN TỰ ĐỘNG VÀO FILE ---
+function loadTeachersDB() {
+  try {
+    if (fs.existsSync(DB_FILE)) {
+      const data = fs.readFileSync(DB_FILE, 'utf8');
+      return JSON.parse(data);
+    }
+  } catch (err) {
+    console.error("Lỗi đọc file teachers.json:", err);
+  }
+  return {};
+}
+
+function saveTeachersDB(db) {
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf8');
+  } catch (err) {
+    console.error("Lỗi ghi file teachers.json:", err);
+  }
+}
+
+// Khởi tạo DB từ file đã lưu
+let teachersDB = loadTeachersDB();
 
 const MASCOTS = [
   { icon: '🦁', title: 'Sư Tử Dũng Mãnh' },
@@ -37,7 +63,6 @@ const MASCOTS = [
   { icon: '🦹', title: 'Siêu Anh Hùng' }
 ];
 
-const teachersDB = {};
 const rooms = {};
 
 function getOrCreateRoom(roomId) {
@@ -129,15 +154,22 @@ function startRoomTimer(roomId) {
 io.on('connection', (socket) => {
   let currentRoomId = null;
 
+  // ĐĂNG KÝ: Lưu vào biến và ghi trực tiếp vào file teachers.json
   socket.on('teacher_register', ({ username, password }) => {
     if (!username || !password) return socket.emit('auth_response', { success: false, message: 'Vui lòng điền đủ thông tin!' });
     if (teachersDB[username]) return socket.emit('auth_response', { success: false, message: 'Tên tài khoản này đã tồn tại!' });
+    
     teachersDB[username] = password;
+    saveTeachersDB(teachersDB); // Ghi file vĩnh viễn
+
     socket.emit('auth_response', { success: true, isRegister: true, message: 'Đăng ký thành công! Hãy đăng nhập.' });
     io.emit('admin_user_list_update', teachersDB);
   });
 
+  // ĐĂNG NHẬP
   socket.on('teacher_login', ({ username, password }) => {
+    // Đọc lại từ file để đảm bảo dữ liệu mới nhất
+    teachersDB = loadTeachersDB();
     if (teachersDB[username] && teachersDB[username] === password) {
       socket.emit('auth_response', { success: true, isRegister: false, username: username });
     } else {
@@ -146,12 +178,14 @@ io.on('connection', (socket) => {
   });
 
   socket.on('admin_get_users', () => { 
+    teachersDB = loadTeachersDB();
     socket.emit('admin_user_list_update', teachersDB); 
   });
 
   socket.on('admin_reset_pass', ({ username, newPass }) => {
     if (teachersDB[username]) {
       teachersDB[username] = newPass;
+      saveTeachersDB(teachersDB); // Ghi file
       io.emit('admin_user_list_update', teachersDB);
     }
   });
@@ -159,6 +193,7 @@ io.on('connection', (socket) => {
   socket.on('admin_delete_user', ({ username }) => {
     if (teachersDB[username]) {
       delete teachersDB[username];
+      saveTeachersDB(teachersDB); // Ghi file
       io.emit('admin_user_list_update', teachersDB);
     }
   });
