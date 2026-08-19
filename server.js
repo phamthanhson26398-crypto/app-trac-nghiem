@@ -96,7 +96,7 @@ function startRoomTimer(roomId) {
         });
 
       } else if (room.phase === 'transition') {
-        // HẾT 10 GIÂY -> SANG CÂU TIẾP THEO HOẶC KẾT THÚC
+        // HẾT 10 GIÂY -> SANG CÂU MỚI HOẶC KẾT THÚC
         room.currentIndex++;
         if (room.currentIndex >= room.queue.length) {
           clearInterval(room.timerInterval);
@@ -104,7 +104,8 @@ function startRoomTimer(roomId) {
           io.to(roomId).emit('quiz_ended', { 
             quizName: room.quizName,
             essaySubmissions: room.essaySubmissions,
-            leaderboard: Object.values(room.students)
+            leaderboard: Object.values(room.students),
+            allQuestions: room.queue
           });
         } else {
           room.phase = 'question';
@@ -172,7 +173,8 @@ io.on('connection', (socket) => {
       const randomMascot = MASCOTS[Math.floor(Math.random() * MASCOTS.length)];
       room.students[socket.id] = {
         id: socket.id, name: name || 'Đoàn sinh', mascot: randomMascot, score: 0, currentScore: 0,
-        answered: false, mcCorrect: 0, mcWrong: 0, mcUnanswered: 0, essayCorrect: 0, essayWrong: 0, essayUnanswered: 0
+        answered: false, mcCorrect: 0, mcWrong: 0, mcUnanswered: 0, essayCorrect: 0, essayWrong: 0, essayUnanswered: 0,
+        answerHistory: []
       };
       socket.emit('my_mascot_assigned', randomMascot);
       io.to(roomId).emit('update_students', Object.values(room.students));
@@ -243,6 +245,7 @@ io.on('connection', (socket) => {
       room.students[id].score = 0; room.students[id].currentScore = 0; room.students[id].answered = false;
       room.students[id].mcCorrect = 0; room.students[id].mcWrong = 0; room.students[id].mcUnanswered = 0;
       room.students[id].essayCorrect = 0; room.students[id].essayWrong = 0; room.students[id].essayUnanswered = 0;
+      room.students[id].answerHistory = [];
     });
 
     room.currentItem = room.queue[0];
@@ -270,7 +273,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('submit_answer', ({ isCorrect, remainingTime, roomId, type, answerText, questionTitle, teacherAnswers }) => {
+  socket.on('submit_answer', ({ isCorrect, remainingTime, roomId, type, answerText, questionTitle, teacherAnswers, selectedIndex }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId] && rooms[targetRoomId].status === 'playing') {
       const room = rooms[targetRoomId];
@@ -281,11 +284,27 @@ io.on('connection', (socket) => {
           const secondsLeft = Math.max(1, parseInt(remainingTime) || 0);
           student.currentScore = isCorrect ? secondsLeft : 0;
 
+          const submissionRecord = {
+            questionIndex: room.currentIndex,
+            partTitle: room.currentItem.partTitle,
+            questionTitle: questionTitle,
+            type: type,
+            isCorrect: isCorrect,
+            userAnswer: answerText || '(Trống)',
+            selectedIndex: selectedIndex,
+            teacherAnswers: teacherAnswers || '',
+            points: isCorrect ? secondsLeft : 0,
+            isOverridden: false
+          };
+
+          student.answerHistory.push(submissionRecord);
+
           if (type === 'short_answer') {
             room.essaySubmissions.push({
               studentId: socket.id, studentName: student.name, mascot: student.mascot,
               questionTitle: questionTitle, teacherAnswers: teacherAnswers || '',
-              answerText: answerText || '(Trống)', isCorrect: isCorrect, potentialPoints: secondsLeft
+              answerText: answerText || '(Trống)', isCorrect: isCorrect, potentialPoints: secondsLeft,
+              qIndex: room.currentIndex
             });
           }
         }
@@ -293,7 +312,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('override_essay', ({ roomId, studentId, points }) => {
+  socket.on('override_essay', ({ roomId, studentId, points, qIndex }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId]) {
       const room = rooms[targetRoomId];
@@ -302,6 +321,14 @@ io.on('connection', (socket) => {
         room.students[studentId].score += addedScore;
         room.students[studentId].essayCorrect = (room.students[studentId].essayCorrect || 0) + 1;
         room.students[studentId].essayWrong = Math.max(0, (room.students[studentId].essayWrong || 0) - 1);
+        
+        // Cập nhật trạng thái duyệt tích xanh vào lịch sử của học sinh
+        const historyItem = room.students[studentId].answerHistory.find(h => h.questionIndex === qIndex || h.questionTitle);
+        if (historyItem) {
+          historyItem.isCorrect = true;
+          historyItem.isOverridden = true;
+          historyItem.points = addedScore;
+        }
       }
     }
   });
@@ -311,7 +338,8 @@ io.on('connection', (socket) => {
     if (targetRoomId && rooms[targetRoomId]) {
       io.to(targetRoomId).emit('results_revealed', {
         leaderboard: Object.values(rooms[targetRoomId].students),
-        quizName: rooms[targetRoomId].quizName
+        quizName: rooms[targetRoomId].quizName,
+        allQuestions: rooms[targetRoomId].queue
       });
     }
   });
