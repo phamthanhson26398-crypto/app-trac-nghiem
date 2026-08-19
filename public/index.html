@@ -174,7 +174,7 @@
     }
     @keyframes neonBlinkGreen {
       0% { box-shadow: 0 0 4px #10b981; transform: scale(1); }
-      100% { box-shadow: 0 0 20px #10b981, 0 0 40px rgba(16, 185, 129, 0.8); transform: scale(1.025); }
+      100% { box-shadow: 0 0 26px #10b981, 0 0 40px rgba(16, 185, 129, 0.8); transform: scale(1.025); }
     }
 
     .opt-btn.reveal-wrong {
@@ -576,7 +576,7 @@
     <div id="student-result-view" style="display: none; text-align: center; margin-top: 12px;">
       <div style="background: rgba(0, 0, 0, 0.4); border-radius: 18px; padding: 14px; margin: 12px 0; border: 1px solid rgba(255, 255, 255, 0.15);">
         <p style="margin: 0; font-size: 14px; color: #fff;">Đoàn sinh: <strong id="my-student-name" style="color: #ffd166;">--</strong></p>
-        <h2 style="font-size: 30px; color: #6ee7b7; margin: 4px 0 0 0; font-weight: 900;"><span id="my-final-score">0</span> <small style="font-size: 18px; color: #fff;">điểm</small></h2>
+        <h2 style="font-size: 30px; color: #6ee7b7; margin: 4px 0 0 0; font-weight: 900;"><span id="my-final-score">0</span> <small style="font-size: 15px; color: #fff;">điểm</small></h2>
       </div>
 
       <div class="stat-grid">
@@ -788,10 +788,9 @@
         html += `<button class="opt-btn opt-btn-d" data-is-correct="${isTrueCorrect}" type="button" ${myRole === 'student' ? `onclick="selectChoice(${isTrueCorrect}, this)"` : 'style="pointer-events:none;"'}>🟢 Đúng</button>
                  <button class="opt-btn opt-btn-a" data-is-correct="${isFalseCorrect}" type="button" ${myRole === 'student' ? `onclick="selectChoice(${isFalseCorrect}, this)"` : 'style="pointer-events:none;"'}>🔴 Sai</button>`;
       } else if (q.type === 'short_answer') {
-        // MÀN HÌNH GV: ẨN ĐÁP ÁN CHUẨN KHI ĐANG THI, CHỈ HIỆN KHI HẾT GIỜ
         html += `
-          <label style="font-weight: 800; color: #6ee7b7; font-size: 13.5px;">✍️ ${myRole === 'teacher' ? 'Màn hình theo dõi câu tự luận:' : 'Nhập câu trả lời của em:'}</label>
-          <input type="text" ${myRole === 'teacher' ? 'placeholder="(Đang làm bài...)" disabled' : 'id="student-essay-input" placeholder="Gõ câu trả lời..."'} class="essay-input-box" autocomplete="off">
+          <label style="font-weight: 800; color: #6ee7b7; font-size: 13.5px;">✍️ ${myRole === 'teacher' ? 'Đáp án chuẩn:' : 'Nhập câu trả lời của em:'}</label>
+          <input type="text" ${myRole === 'teacher' ? 'value="' + q.correct + '" disabled' : 'id="student-essay-input" placeholder="Gõ câu trả lời..."'} class="essay-input-box" autocomplete="off">
         `;
       }
 
@@ -848,7 +847,7 @@
           });
         }
       } else {
-        // MÀN HÌNH GV: KHI HẾT GIỜ MỚI HIỆN ĐÁP ÁN ĐÚNG/CHUẨN Ở DƯỚI
+        // Màn hình GV: Sáng đáp án đúng (hoặc hiển thị rõ đáp án tự luận)
         const teacherOptButtons = document.querySelectorAll('#teacher-student-like-screen .opt-btn');
         teacherOptButtons.forEach(b => {
           const isCorrect = b.getAttribute('data-is-correct') === 'true';
@@ -856,6 +855,7 @@
           else { b.style.opacity = '0.35'; }
         });
 
+        // Nếu là câu tự luận, hiển thị rõ đáp án chuẩn ngay trên màn hình GV khi hết giờ
         if (currentItemData && currentItemData.question.type === 'short_answer') {
           const screenBox = document.getElementById('teacher-student-like-screen');
           if (screenBox && !document.getElementById('teacher-essay-answer-banner')) {
