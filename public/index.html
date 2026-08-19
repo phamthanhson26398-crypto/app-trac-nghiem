@@ -569,7 +569,7 @@
       <div id="teacher-review-panel" class="teacher-review-panel" style="display: none;">
         <h3 style="color: #ffd166; margin: 0 0 4px 0; font-size: 16px;">👩‍🏫 Duyệt Đáp Án Tự Luận (Theo Từng Câu Hỏi)</h3>
         <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.4;">
-          Đối chiếu trả lời của HS với <b>🎯 Đáp án chuẩn của GV</b>. Bấm <b>"✅ Chấp nhận"</b> để cộng bù điểm hoặc <b>"❌ Bỏ qua"</b> nếu không hợp lệ.
+          Đối chiếu trả lời của Thí Sinh với <b>🎯 Đáp án chuẩn</b>. Bấm <b>"✅ Chấp nhận"</b> để cộng thêm điểm hoặc <b>"❌ Bỏ qua"</b> nếu không hợp lệ.
         </p>
         <div id="review-list-container" style="max-height: 480px; overflow-y: auto; padding-right: 4px;"></div>
       </div>
@@ -672,7 +672,7 @@
     let allQuizQuestionsList = [];
     let isStudentReviewOpen = false;
 
-    const FUNNY_TEXTS = ['Ahihi Đồ Ngốc! 😜', 'Né nè! ✨', 'Em dễ vỡ nhẹ tay thui nà! 🎈', 'Bắt em đi! 🚀', 'Sao lấp ló! 🌟', 'Xời quá easy! 💨', 'yêu nhó! 🐾'];
+    const FUNNY_TEXTS = ['Ahihi Đồ Ngốc! 😜', 'Né nè! ✨', 'Em dễ vỡ nhẹ tay thui nà! 🎈', 'Bắt em đi! 🚀', 'Còn cái nịt! 🌟', 'Xời easy! 💨', 'yêu nhó! 🐾'];
 
     /* ==========================================================
        2. HÀM ĐIỀU HƯỚNG & XỬ LÝ ĐĂNG NHẬP / ĐĂNG KÝ
@@ -1720,11 +1720,11 @@
               badge = '🎯 (Đáp án đúng)';
             } else if (isStudentChosen && !isThisCorrect) {
               itemClass += ' review-opt-wrong-choice';
-              badge = '❌ (Em đã chọn)';
+              badge = '❌ (Đã chọn)';
             }
 
             if (isStudentChosen && isThisCorrect) {
-              badge = '✅ (Em chọn đúng)';
+              badge = '✅ (Chọn đúng)';
             }
 
             html += `
@@ -1747,11 +1747,11 @@
               badge = '🎯 (Đáp án đúng)';
             } else if (isStudentChosen && !isThisCorrect) {
               itemClass += ' review-opt-wrong-choice';
-              badge = '❌ (Em đã chọn)';
+              badge = '❌ (Đã chọn)';
             }
 
             if (isStudentChosen && isThisCorrect) {
-              badge = '✅ (Em chọn đúng)';
+              badge = '✅ (Chọn đúng)';
             }
 
             html += `
@@ -1772,11 +1772,11 @@
                 ✍️ Câu trả lời của em: 
                 <b style="color: ${isCorrect ? '#6ee7b7' : '#fca5a5'};">"${userVal}"</b>
                 ${isCorrect && !isOverridden ? ' ✅' : ''}
-                ${!isCorrect ? ' ❌' : ''}
-                ${isOverridden ? '<span style="color:#6ee7b7; font-weight:800; margin-left:6px;">✅ (Được GV duyệt chấp nhận +' + studentAns.points + 'đ)</span>' : ''}
+                ${!isCorrect ? ' ❌ Sai' : ''}
+                ${isOverridden ? '<span style="color:#6ee7b7; font-weight:800; margin-left:6px;">✅ (Được chấp nhận +' + studentAns.points + 'đ)</span>' : ''}
               </div>
               <div style="font-size: 13px; color: #ffd166; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 6px;">
-                🎯 Đáp án chuẩn của GV: <b>${teacherVal}</b>
+                🎯 Đáp án chuẩn: <b>${teacherVal}</b>
               </div>
             </div>
           `;
