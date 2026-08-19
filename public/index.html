@@ -144,6 +144,7 @@
       margin-bottom: 10px; 
     }
 
+    /* ĐÁP ÁN CÁCH NHAU RÕ RÀNG */
     .opt-btn { 
       text-align: left; 
       margin-top: 14px; 
@@ -165,6 +166,7 @@
     .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 4px 0 #d62828, 0 5px 12px rgba(251, 133, 0, 0.3) !important; }
     .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 4px 0 #047857, 0 5px 12px rgba(6, 214, 160, 0.3) !important; }
 
+    /* ĐÁP ÁN ĐƯỢC CHỌN SÁNG RỰC RỠ */
     .opt-btn.selected {
       border: 2.5px solid #ffd166 !important;
       box-shadow: 0 0 20px rgba(255, 209, 102, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.4) !important;
@@ -172,6 +174,7 @@
       filter: brightness(1.15);
     }
 
+    /* NÚT NỘP BÀI CĂN GIỮA */
     .btn-submit-answer {
       display: flex !important;
       width: 90% !important;
@@ -306,6 +309,7 @@
     .teacher-ref-answer { background: rgba(16, 185, 129, 0.12); border: 1px dashed #10b981; color: #6ee7b7; padding: 8px 12px; border-radius: 10px; font-size: 12.5px; margin-top: 10px; line-height: 1.4; }
     .student-review-row { background: rgba(0, 0, 0, 0.35); border-left: 3.5px solid #ef4444; border-radius: 10px; padding: 10px 12px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 
+    /* CSS CHO PHẦN XEM LẠI BÀI LÀM CỦA HỌC SINH */
     .review-question-box {
       background: rgba(0, 0, 0, 0.3);
       border: 1.5px solid rgba(255, 255, 255, 0.12);
@@ -340,12 +344,14 @@
 </head>
 <body>
 
+  <!-- MÀN HÌNH TẠM DỪNG CHO HỌC SINH -->
   <div id="pause-overlay" class="pause-overlay">
     <div class="pause-icon">⏸</div>
     <h2 style="font-weight: 900; margin-top: 10px; font-size: 24px;">BÀI THI ĐANG TẠM DỪNG</h2>
     <p style="color: #cbd5e1; font-size: 14.5px;">Các Thí Sinh hãy đợi một chút nhé!</p>
   </div>
 
+  <!-- 1. MÀN HÌNH CHỌN VAI TRÒ -->
   <div id="role-screen" class="card">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 style="text-align: center; margin-top: 0; font-size: 22px; font-weight: 900; letter-spacing: -0.3px;">🎯 BẠN LÀ AI?</h2>
@@ -361,6 +367,7 @@
     </button>
   </div>
 
+  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV -->
   <div id="auth-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 id="auth-title" style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
@@ -386,6 +393,7 @@
     <button onclick="backToRoleScreen()" style="background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.15); width: 100%; margin-top: 12px; box-shadow: none; font-size: 13px;">← Quay Lại</button>
   </div>
 
+  <!-- 3. MÀN HÌNH QUẢN TRỊ ADMIN -->
   <div id="admin-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -410,6 +418,7 @@
     </div>
   </div>
 
+  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV -->
   <div id="teacher-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -435,6 +444,7 @@
       <div id="quiz-list-container" style="margin-top: 8px;"></div>
     </div>
 
+    <!-- KHUNG SOẠN ĐỀ -->
     <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 14px; border-radius: 16px; margin-bottom: 14px; background: rgba(0,0,0,0.4);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 15px;">📝 Soạn Đề Thi</h3>
@@ -450,12 +460,14 @@
       <button onclick="saveCurrentQuiz()" style="background: linear-gradient(180deg, #10b981 0%, #047857 100%); width: 100%; font-size: 14.5px; padding: 12px; box-shadow: 0 3px 0 #064e3b;">💾 LƯU BÀI KIỂM TRA</button>
     </div>
 
+    <!-- LỊCH SỬ THI -->
     <div class="quiz-manager">
       <h3 style="margin: 0 0 8px 0; font-size: 15px; font-weight: 800;">📊 Bảng Điểm & Lịch Sử Thi</h3>
       <select id="history-quiz-select" onchange="renderHistoryUI()"><option value="">-- Chọn bài kiểm tra để xem điểm --</option></select>
       <div id="history-display-area" style="margin-top: 8px;"></div>
     </div>
 
+    <!-- PHÒNG CHỜ TRÊN MÁY GLV -->
     <div style="border-top: 1.5px dashed rgba(255,255,255,0.15); padding-top: 14px; margin-top: 14px;">
       <label style="font-size: 13.5px;"><strong>Chọn bài thi chuẩn bị phát:</strong></label>
       <select id="active-quiz-select" style="font-weight: 800; color: #6ee7b7;"></select>
@@ -473,6 +485,7 @@
       </button>
     </div>
 
+    <!-- MÀN HÌNH THEO DÕI LIVE CỦA GLV -->
     <div id="teacher-live-box" style="display: none; margin-top: 16px; background: rgba(16, 185, 129, 0.1); padding: 16px; border-radius: 16px; border: 1.5px solid #10b981; text-align: center;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
         <h3 id="teacher-live-status-title" style="margin: 0; color: #6ee7b7; font-size: 14px;">📡 MÀN HÌNH THEO DÕI (Đang thi)</h3>
@@ -481,7 +494,7 @@
       <h2 style="color: #ffd166; font-size: 32px; margin: 4px 0 10px 0; text-shadow: 0 0 12px rgba(255, 209, 102, 0.5);">⏰ <span id="teacher-timer">--</span>s</h2>
       
       <div id="teacher-student-like-screen" style="text-align: left; background: rgba(0,0,0,0.3); padding: 14px; border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.1);"></div>
-      
+
       <!-- KHUNG CHẤM TỰ LUẬN TRỰC TIẾP GIỮA GIỜ -->
       <div id="teacher-live-essay-review" style="display: none; margin-top: 14px; background: rgba(0,0,0,0.55); border: 1.5px solid #f59e0b; border-radius: 14px; padding: 12px; text-align: left;">
         <h4 style="color: #ffd166; margin: 0 0 4px 0; font-size: 14.5px;">✍️ Chấm Tự Luận Câu Này (Trực tiếp lúc nghỉ):</h4>
@@ -490,6 +503,7 @@
     </div>
   </div>
 
+  <!-- 5. MÀN HÌNH HỌC SINH NHẬP TÊN -->
   <div id="student-screen" class="card" style="display: none; text-align: center;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 style="margin: 0 0 4px 0; font-size: 22px; font-weight: 900;">👋 Báo Danh Tham Gia</h2>
@@ -507,6 +521,7 @@
     </button>
   </div>
 
+  <!-- 6. PHÒNG CHỜ LINH VẬT CỦA HỌC SINH -->
   <div id="lobby-screen" class="card" style="display: none; text-align: center;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -529,6 +544,7 @@
     </div>
   </div>
 
+  <!-- 7. MÀN HÌNH LÀM BÀI CỦA HỌC SINH -->
   <div id="quiz-screen" class="card" style="display: none;">
     <div class="header-banner" style="font-size: 11px; padding: 3px 10px; margin-bottom: 8px;">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -544,6 +560,7 @@
     <div id="questions-container"></div>
   </div>
 
+  <!-- 8. MÀN HÌNH KẾT QUẢ & CÔNG BỐ GIẢI -->
   <div id="result-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -565,6 +582,7 @@
       </div>
     </div>
 
+    <!-- KHUNG TÔN VINH VÔ ĐỊCH -->
     <div id="champion-stage" class="champion-podium" style="display: none;">
       <div id="champion-badge-title" class="champion-title-badge">👑 NHÀ VÔ ĐỊCH 👑</div>
       <br>
@@ -573,6 +591,7 @@
       <div id="champion-score" class="champion-score">🔥 0 Điểm</div>
     </div>
 
+    <!-- BẢNG ĐIỂM CỦA GIÁO LÝ VIÊN -->
     <div id="teacher-result-view" style="display: none; margin-top: 14px;">
       <div style="background: rgba(0,0,0,0.35); border-radius: 16px; padding: 14px; border: 1px solid rgba(255,255,255,0.15);">
         <h3 style="margin: 0 0 10px 0; color: #ffd166; font-size: 16px; text-align: center; font-weight: 900;">📊 BẢNG XẾP HẠNG TOÀN BỘ THÍ SINH</h3>
@@ -595,6 +614,7 @@
       </button>
     </div>
 
+    <!-- KẾT QUẢ CÁ NHÂN CỦA HỌC SINH + NÚT XEM LẠI BÀI LÀM -->
     <div id="student-result-view" style="display: none; text-align: center; margin-top: 12px;">
       <div style="background: rgba(0, 0, 0, 0.4); border-radius: 18px; padding: 14px; margin: 12px 0; border: 1px solid rgba(255, 255, 255, 0.15);">
         <p style="margin: 0; font-size: 14px; color: #fff;">Thí sinh: <strong id="my-student-name" style="color: #ffd166;">--</strong></p>
@@ -1341,7 +1361,6 @@
       document.getElementById('teacher-result-view').style.display = 'none';
       document.getElementById('student-result-view').style.display = 'none';
 
-      // Ẩn khung chấm tự luận giữa giờ khi bắt đầu câu mới
       const liveEssayReview = document.getElementById('teacher-live-essay-review');
       if (liveEssayReview) liveEssayReview.style.display = 'none';
 
@@ -1454,7 +1473,6 @@
             screenBox.appendChild(banner);
           }
 
-          // HIỂN THỊ DANH SÁCH CHẤM TỰ LUẬN NGAY TẠI GIỮA GIỜ
           const liveEssayBox = document.getElementById('teacher-live-essay-review');
           const liveEssayList = document.getElementById('teacher-live-essay-list');
           if (liveEssayBox && liveEssayList) {
