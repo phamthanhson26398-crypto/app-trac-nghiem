@@ -50,10 +50,8 @@ function getOrCreateRoom(roomId) {
       currentItem: null,
       students: {},
       essaySubmissions: [],
-      
-      // Timer Controller Mới
       timerInterval: null,
-      phase: 'question', // 'question' | 'transition'
+      phase: 'question',
       phaseTimeLeft: 0,
       isPaused: false
     };
@@ -61,24 +59,22 @@ function getOrCreateRoom(roomId) {
   return rooms[roomId];
 }
 
-// Hàm khởi chạy bộ đếm độc lập trên Server
 function startRoomTimer(roomId) {
   const room = rooms[roomId];
   if (room.timerInterval) clearInterval(room.timerInterval);
 
   room.timerInterval = setInterval(() => {
-    if (room.isPaused) return; // Nếu bị tạm dừng -> Đóng băng thời gian
+    if (room.isPaused) return;
 
     room.phaseTimeLeft--;
 
     if (room.phaseTimeLeft <= 0) {
       if (room.phase === 'question') {
-        // HẾT GIỜ LÀM BÀI -> CHUYỂN SANG PHASE CHỜ (3 GIÂY)
+        // HẾT GIỜ LÀM BÀI -> CHUYỂN SANG PHASE CHỜ 10 GIÂY
         room.phase = 'transition';
-        room.phaseTimeLeft = 3; 
+        room.phaseTimeLeft = 10; 
         io.to(roomId).emit('question_time_up');
 
-        // Tính điểm cho học sinh
         Object.keys(room.students).forEach(id => {
           const st = room.students[id];
           st.score += st.currentScore;
@@ -100,7 +96,7 @@ function startRoomTimer(roomId) {
         });
 
       } else if (room.phase === 'transition') {
-        // HẾT 3 GIÂY CHỜ -> LOAD CÂU HỎI MỚI HOẶC KẾT THÚC
+        // HẾT 10 GIÂY CHỜ -> SANG CÂU MỚI HOẶC KẾT THÚC
         room.currentIndex++;
         if (room.currentIndex >= room.queue.length) {
           clearInterval(room.timerInterval);
@@ -181,7 +177,6 @@ io.on('connection', (socket) => {
       socket.emit('my_mascot_assigned', randomMascot);
       io.to(roomId).emit('update_students', Object.values(room.students));
 
-      // Gửi trạng thái hiện tại cho HS vào trễ
       if (room.status === 'playing' && room.currentItem) {
         if (room.phase === 'question') {
           socket.emit('question_started', {
@@ -265,17 +260,13 @@ io.on('connection', (socket) => {
     startRoomTimer(roomId);
   });
 
-  // TÍNH NĂNG TẠM DỪNG MỚI
   socket.on('toggle_pause', ({ roomId }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId] && rooms[targetRoomId].status === 'playing') {
       const room = rooms[targetRoomId];
       room.isPaused = !room.isPaused;
-      if (room.isPaused) {
-        io.to(targetRoomId).emit('quiz_paused');
-      } else {
-        io.to(targetRoomId).emit('quiz_resumed');
-      }
+      if (room.isPaused) io.to(targetRoomId).emit('quiz_paused');
+      else io.to(targetRoomId).emit('quiz_resumed');
     }
   });
 
