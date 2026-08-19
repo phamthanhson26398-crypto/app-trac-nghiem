@@ -481,6 +481,12 @@
       <h2 style="color: #ffd166; font-size: 32px; margin: 4px 0 10px 0; text-shadow: 0 0 12px rgba(255, 209, 102, 0.5);">⏰ <span id="teacher-timer">--</span>s</h2>
       
       <div id="teacher-student-like-screen" style="text-align: left; background: rgba(0,0,0,0.3); padding: 14px; border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.1);"></div>
+      
+      <!-- KHUNG CHẤM TỰ LUẬN TRỰC TIẾP GIỮA GIỜ -->
+      <div id="teacher-live-essay-review" style="display: none; margin-top: 14px; background: rgba(0,0,0,0.55); border: 1.5px solid #f59e0b; border-radius: 14px; padding: 12px; text-align: left;">
+        <h4 style="color: #ffd166; margin: 0 0 4px 0; font-size: 14.5px;">✍️ Chấm Tự Luận Câu Này (Trực tiếp lúc nghỉ):</h4>
+        <div id="teacher-live-essay-list" style="max-height: 250px; overflow-y: auto; margin-top: 8px;"></div>
+      </div>
     </div>
   </div>
 
@@ -545,16 +551,8 @@
       <div class="suspense-icon">🥁</div>
       <h2 style="color: #ffd166; font-size: 20px; font-weight: 900; margin: 8px 0 4px 0;">🎉 BÀI THI ĐÃ KẾT THÚC!</h2>
       <p id="suspense-guide-text" style="color: #ffffff; font-size: 14px; margin: 0 0 12px 0; opacity: 0.9;">
-        Tất cả các thí sinh đã hoàn thành xuất sắc bài thi!
+        Tất cả các thí sinh đã hoàn thành xuất sắc bài thi! Bấm nút bên dưới để xem kết quả!
       </p>
-
-      <div id="teacher-review-panel" class="teacher-review-panel" style="display: none;">
-        <h3 style="color: #ffd166; margin: 0 0 4px 0; font-size: 16px;">👩‍🏫 Duyệt Đáp Án Tự Luận (Theo Từng Câu Hỏi)</h3>
-        <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.4;">
-          Đối chiếu trả lời của Thí Sinh với <b>🎯 Đáp án chuẩn</b>. Bấm <b>"✅ Chấp nhận"</b> để cộng thêm điểm hoặc <b>"❌ Bỏ qua"</b> nếu không hợp lệ.
-        </p>
-        <div id="review-list-container" style="max-height: 480px; overflow-y: auto; padding-right: 4px;"></div>
-      </div>
 
       <div id="teacher-reveal-action" style="display: none;">
         <button onclick="revealWinnerCeremony()" class="btn-reveal-ceremony">
@@ -1342,7 +1340,10 @@
       document.getElementById('suspense-container').style.display = 'none';
       document.getElementById('teacher-result-view').style.display = 'none';
       document.getElementById('student-result-view').style.display = 'none';
-      document.getElementById('teacher-review-panel').style.display = 'none';
+
+      // Ẩn khung chấm tự luận giữa giờ khi bắt đầu câu mới
+      const liveEssayReview = document.getElementById('teacher-live-essay-review');
+      if (liveEssayReview) liveEssayReview.style.display = 'none';
 
       if (myRole === 'teacher') {
         document.getElementById('teacher-live-box').style.display = 'block';
@@ -1401,7 +1402,7 @@
       }, 1000);
     });
 
-    socket.on('question_time_up', () => {
+    socket.on('question_time_up', ({ wrongEssaysForThisQuestion }) => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (myRole === 'student') document.getElementById('timer').innerText = '0';
       if (myRole === 'teacher') document.getElementById('teacher-timer').innerText = '0';
@@ -1452,6 +1453,29 @@
             banner.innerHTML = `🎯 <b>ĐÁP ÁN:</b> <span style="color:#ffd166;">${currentItemData.question.correct}</span>`;
             screenBox.appendChild(banner);
           }
+
+          // HIỂN THỊ DANH SÁCH CHẤM TỰ LUẬN NGAY TẠI GIỮA GIỜ
+          const liveEssayBox = document.getElementById('teacher-live-essay-review');
+          const liveEssayList = document.getElementById('teacher-live-essay-list');
+          if (liveEssayBox && liveEssayList) {
+            if (wrongEssaysForThisQuestion && wrongEssaysForThisQuestion.length > 0) {
+              liveEssayBox.style.display = 'block';
+              liveEssayList.innerHTML = wrongEssaysForThisQuestion.map(s => `
+                <div class="student-review-row" id="live-review-item-${s.studentId}">
+                  <div style="flex: 1;">
+                    <div style="font-size: 12px; color: #cbd5e1;">👤 Thí sinh: <b style="color: #fff;">${s.studentName}</b> ${s.mascot ? s.mascot.icon : ''} <span style="color: #ffd166;">(⏱️ ${s.potentialPoints}s)</span></div>
+                    <div style="font-size: 13.5px; color: #fca5a5; font-weight: bold; margin-top: 3px;">Đã điền: "${s.answerText}"</div>
+                  </div>
+                  <div style="display: flex; gap: 6px;">
+                    <button onclick="approveLiveEssay('${s.studentId}', ${s.potentialPoints})" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); padding: 5px 9px; font-size: 11px; white-space: nowrap;">✅ Chấp nhận</button>
+                    <button onclick="dismissLiveEssay(this)" style="background: #64748b; padding: 5px 9px; font-size: 11px; white-space: nowrap;">❌ Bỏ qua</button>
+                  </div>
+                </div>
+              `).join('');
+            } else {
+              liveEssayBox.style.display = 'none';
+            }
+          }
         }
       }
 
@@ -1489,6 +1513,20 @@
       }, 1000);
     });
 
+    function approveLiveEssay(studentId, points) {
+      socket.emit('override_essay_live', { roomId: activeRoomId, studentId: studentId, points: points });
+      const rowEl = document.getElementById(`live-review-item-${studentId}`);
+      if (rowEl) {
+        rowEl.style.borderLeftColor = '#10b981'; rowEl.style.background = 'rgba(16, 185, 129, 0.15)';
+        rowEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 5px 0; width: 100%;">✅ Đã duyệt đúng (+${points} điểm)</div>`;
+      }
+    }
+
+    function dismissLiveEssay(btn) {
+      const rowEl = btn.closest('.student-review-row');
+      if (rowEl) { rowEl.style.opacity = '0'; setTimeout(() => rowEl.remove(), 300); }
+    }
+
     function selectChoice(isCorrect, element, selectedIdx) {
       if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0 || isClientPaused) return;
       isSelectedChoiceCorrect = isCorrect;
@@ -1522,7 +1560,7 @@
         if (currentItemData.question.type === 'multiple') {
           answerTextVal = currentItemData.question.options[currentSelectedIndex] || '';
         } else if (currentItemData.question.type === 'tf') {
-          answerTextVal = currentSelectedIndex;
+          answerTextVal = selectedIndex;
         }
       }
 
@@ -1548,7 +1586,7 @@
       });
     }
 
-    socket.on('quiz_ended', ({ quizName, essaySubmissions, leaderboard, allQuestions }) => {
+    socket.on('quiz_ended', ({ quizName, leaderboard, allQuestions }) => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
       currentQuizName = quizName;
@@ -1563,73 +1601,15 @@
       document.getElementById('suspense-container').style.display = 'block';
 
       if (myRole === 'teacher') {
-        const wrongEssays = essaySubmissions ? essaySubmissions.filter(s => !s.isCorrect && s.answerText !== '(Trống)') : [];
-        const reviewPanel = document.getElementById('teacher-review-panel');
-        const reviewList = document.getElementById('review-list-container');
-        
-        if (wrongEssays.length > 0) {
-          reviewPanel.style.display = 'block';
-          const groupedByQuestion = {};
-          wrongEssays.forEach((item, idx) => {
-            if (!groupedByQuestion[item.questionTitle]) {
-              groupedByQuestion[item.questionTitle] = { teacherAnswers: item.teacherAnswers, list: [] };
-            }
-            groupedByQuestion[item.questionTitle].list.push({ ...item, originIdx: idx });
-          });
-
-          let html = '';
-          Object.keys(groupedByQuestion).forEach((qTitle, qIdx) => {
-            const group = groupedByQuestion[qTitle];
-            html += `
-              <div class="question-review-card" id="q-card-${qIdx}">
-                <div style="font-size: 14px; font-weight: 800; color: #ffd166; margin-bottom: 6px;">❓ Câu: ${qTitle}</div>
-                <div>
-                  ${group.list.map(s => `
-                    <div class="student-review-row" id="review-item-${s.originIdx}">
-                      <div style="flex: 1;">
-                        <div style="font-size: 12px; color: #cbd5e1;">👤 Thí sinh: <b style="color: #fff;">${s.studentName}</b> ${s.mascot ? s.mascot.icon : ''} <span style="color: #ffd166;">(⏱️ ${s.potentialPoints}s)</span></div>
-                        <div style="font-size: 13.5px; color: #fca5a5; font-weight: bold; margin-top: 3px;">Đã điền: "${s.answerText}"</div>
-                      </div>
-                      <div style="display: flex; gap: 6px;">
-                        <button onclick="approveEssay('${s.studentId}', ${s.potentialPoints}, ${s.originIdx}, ${s.qIndex})" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); padding: 6px 10px; font-size: 11.5px; white-space: nowrap;">✅ Chấp nhận</button>
-                        <button onclick="dismissEssay(${s.originIdx})" style="background: #64748b; padding: 6px 10px; font-size: 11.5px; white-space: nowrap;">❌ Bỏ qua</button>
-                      </div>
-                    </div>
-                  `).join('')}
-                </div>
-                <div class="teacher-ref-answer"><b>🎯 Đáp án chuẩn:</b> <span>${group.teacherAnswers || '(Chưa đặt)'}</span></div>
-              </div>
-            `;
-          });
-          reviewList.innerHTML = html;
-        } else {
-          reviewPanel.style.display = 'none';
-        }
-
         document.getElementById('teacher-reveal-action').style.display = 'block';
         document.getElementById('student-waiting-reveal').style.display = 'none';
-        document.getElementById('suspense-guide-text').innerText = 'Sau khi duyệt xong tự luận, Thầy/Cô bấm nút bên dưới để trao giải!';
+        document.getElementById('suspense-guide-text').innerText = 'Bài thi đã kết thúc! Toàn bộ tự luận đã được chấm trực tiếp. Bấm nút bên dưới để trao giải!';
       } else {
         document.getElementById('teacher-reveal-action').style.display = 'none';
-        document.getElementById('teacher-review-panel').style.display = 'none';
         document.getElementById('student-waiting-reveal').style.display = 'block';
         document.getElementById('suspense-guide-text').innerText = 'Em đã hoàn thành bài thi! Cùng chờ đợi kết quả nào...';
       }
     });
-
-    function approveEssay(studentId, points, idx, qIndex) {
-      socket.emit('override_essay', { roomId: activeRoomId, studentId: studentId, points: points, qIndex: qIndex });
-      const itemEl = document.getElementById(`review-item-${idx}`);
-      if (itemEl) {
-        itemEl.style.borderLeftColor = '#10b981'; itemEl.style.background = 'rgba(16, 185, 129, 0.15)';
-        itemEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 6px 0; width: 100%;">✅ Đã chấp nhận đúng (+${points} điểm)</div>`;
-      }
-    }
-
-    function dismissEssay(idx) {
-      const itemEl = document.getElementById(`review-item-${idx}`);
-      if (itemEl) { itemEl.style.opacity = '0'; setTimeout(() => { itemEl.style.display = 'none'; }, 300); }
-    }
 
     function revealWinnerCeremony() { socket.emit('reveal_results', { roomId: activeRoomId }); }
 
