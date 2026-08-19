@@ -42,17 +42,17 @@
       overflow-x: hidden;
     }
 
-    /* ĐIỀU CHỈNH GIAO DIỆN GIÁO LÝ VIÊN KHOẢNG 80% KHỔ NGANG MÀN HÌNH MÁY TÍNH */
+    /* ĐIỀU CHỈNH GIAO DIỆN GIÁO LÝ VIÊN ~80% KHỔ NGANG VÀ BỐ CỤC 3 CỘT MỚI */
     #teacher-screen {
-      max-width: 1400px !important;
-      width: 80% !important;
+      max-width: 1450px !important;
+      width: 85% !important;
       margin: auto !important;
       border-radius: 20px;
     }
     
     .teacher-dashboard-layout {
       display: grid;
-      grid-template-columns: 260px 1fr 380px; /* Cột 1: QR nhỏ | Cột 2: Học sinh | Cột 3: Kho đề & Cài đặt (~1/3) */
+      grid-template-columns: 260px 1fr 340px; /* Cột 1: QR | Cột 2: Nội dung kho đề (Rộng) | Cột 3: Số người tham gia */
       gap: 16px;
       align-items: start;
     }
@@ -272,7 +272,7 @@
     }
 
     .lobby-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 12px 8px; margin-top: 12px; max-height: 420px; overflow-y: auto; padding: 8px 4px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 12px 8px; margin-top: 12px; max-height: 480px; overflow-y: auto; padding: 8px 4px;
     }
     .lobby-student-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; user-select: none; }
     .lobby-student-avatar {
@@ -307,7 +307,7 @@
 
     #qrcode-box { background: rgba(255, 255, 255, 0.06); border: 2px dashed rgba(16, 185, 129, 0.5); padding: 14px; border-radius: 18px; text-align: center; position: relative; }
     #qrcode { background: white; padding: 6px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
-    #qrcode img { margin: auto; width: 110px !important; height: 110px !important; }
+    #qrcode img { margin: auto; width: 100px !important; height: 100px !important; }
 
     /* MODAL ZOOM QR CODE FULL MÀN HÌNH */
     .qr-zoom-modal {
@@ -461,7 +461,7 @@
     </div>
   </div>
 
-  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV (BỐ CỤC 3 CỘT - 80% KHỔ NGANG) -->
+  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV (BỐ CỤC 3 CỘT MỚI: TRÁI = QR, GIỮA = KHO ĐỀ, PHẢI = HỌC SINH) -->
   <div id="teacher-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -475,7 +475,7 @@
 
     <!-- BỐ CỤC 3 CỘT -->
     <div class="teacher-dashboard-layout">
-      <!-- CỘT 1: MÃ QR BÉ (CÓ NÚT PHÓNG TO) -->
+      <!-- CỘT 1 (BÊN TRÁI): MÃ QR NHỎ GỌN -->
       <div>
         <div id="qrcode-box">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
@@ -487,29 +487,20 @@
         </div>
       </div>
 
-      <!-- CỘT 2: SỐ NGƯỜI TRONG PHÒNG (Ở GIỮA) -->
-      <div style="background: rgba(0, 0, 0, 0.28); border: 1.5px dashed rgba(255, 255, 255, 0.15); padding: 14px; border-radius: 18px; min-height: 220px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-          <span style="font-weight: 800; font-size: 14px; color: #6ee7b7;">🐾 SỐ NGƯỜI TRONG PHÒNG (<span id="count">0</span>)</span>
-          <span style="font-size: 11px; color: var(--text-muted);">(Bấm ❌ để mời ra)</span>
-        </div>
-        <div id="teacher-student-grid" class="lobby-grid"></div>
-      </div>
-
-      <!-- CỘT 3: KHO BÀI THI, SOẠN ĐỀ, BẢNG ĐIỂM CHIẾM 1/3 KHỔ NGANG BÊN PHẢI -->
+      <!-- CỘT 2 (Ở GIỮA): KHO BÀI THI, SOẠN ĐỀ, BẢNG ĐIỂM VÀ NÚT PHÁT ĐỀ -->
       <div>
         <div class="quiz-manager">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <h3 style="margin: 0; font-size: 15px; font-weight: 800;">📁 Kho Bài Thi</h3>
             <button onclick="createNewQuizSection()" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); font-size: 12px; padding: 7px 12px; box-shadow: 0 2px 0 #047857;">➕ Soạn Bài Mới</button>
           </div>
-          <div id="quiz-list-container" style="margin-top: 8px; max-height: 180px; overflow-y: auto;"></div>
+          <div id="quiz-list-container" style="margin-top: 8px; max-height: 200px; overflow-y: auto;"></div>
         </div>
 
-        <!-- KHUNG SOẠN ĐỀ RỘNG RÃI -->
-        <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 16px; border-radius: 18px; margin-bottom: 14px; background: rgba(0,0,0,0.6);">
+        <!-- KHUNG SOẠN ĐỀ -->
+        <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 14px; border-radius: 16px; margin-bottom: 14px; background: rgba(0,0,0,0.6);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 16px;">📝 Soạn Đề Thi</h3>
+            <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 15px;">📝 Soạn Đề Thi</h3>
             <button onclick="closeEditor()" style="background: rgba(255,255,255,0.1); color: #cbd5e1; font-size: 11px; padding: 4px 8px; box-shadow: none;">❌ Đóng</button>
           </div>
 
@@ -538,6 +529,15 @@
             🚀 BẮT ĐẦU PHÁT ĐỀ
           </button>
         </div>
+      </div>
+
+      <!-- CỘT 3 (BÊN PHẢI): SỐ NGƯỜI TRONG PHÒNG (~340PX) -->
+      <div style="background: rgba(0, 0, 0, 0.28); border: 1.5px dashed rgba(255, 255, 255, 0.15); padding: 14px; border-radius: 18px; min-height: 250px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <span style="font-weight: 800; font-size: 13.5px; color: #6ee7b7;">🐾 SỐ NGƯỜI (<span id="count">0</span>)</span>
+          <span style="font-size: 10.5px; color: var(--text-muted);">(Bấm ❌ mời ra)</span>
+        </div>
+        <div id="teacher-student-grid" class="lobby-grid"></div>
       </div>
     </div>
 
@@ -938,7 +938,7 @@
       let hostUrl = window.location.origin;
       const roomUrl = `${hostUrl}?role=student&room=${encodeURIComponent(roomId)}`;
       
-      new QRCode(qrContainer, { text: roomUrl, width: 110, height: 110, colorDark : "#000000", colorLight : "#ffffff" });
+      new QRCode(qrContainer, { text: roomUrl, width: 100, height: 100, colorDark : "#000000", colorLight : "#ffffff" });
       new QRCode(qrZoomContainer, { text: roomUrl, width: 320, height: 320, colorDark : "#000000", colorLight : "#ffffff" });
       document.getElementById("zoom-room-code").innerText = roomId;
     }
