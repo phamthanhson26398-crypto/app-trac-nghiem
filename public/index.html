@@ -41,6 +41,23 @@
       overflow-x: hidden;
     }
 
+    /* ĐIỀU CHỈNH GIAO DIỆN GIÁO LÝ VIÊN TẬN DỤNG HẾT KHỔ MÀN HÌNH MÁY TÍNH */
+    #teacher-screen {
+      max-width: 1280px !important;
+      width: 95% !important;
+    }
+    .teacher-dashboard-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .teacher-dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 10px; }
@@ -276,9 +293,20 @@
     th, td { border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 6px; text-align: left; font-size: 12.5px; }
     th { background: rgba(255, 255, 255, 0.08); font-weight: 800; color: #ffd166; }
 
-    #qrcode-box { background: rgba(255, 255, 255, 0.06); border: 2px dashed rgba(16, 185, 129, 0.5); padding: 16px; border-radius: 18px; text-align: center; margin: 12px 0; }
+    #qrcode-box { background: rgba(255, 255, 255, 0.06); border: 2px dashed rgba(16, 185, 129, 0.5); padding: 16px; border-radius: 18px; text-align: center; margin: 12px 0; position: relative; }
     #qrcode { background: white; padding: 8px; border-radius: 14px; display: inline-block; box-shadow: 0 6px 16px rgba(0,0,0,0.4); }
     #qrcode img { margin: auto; }
+
+    /* CSS CHO MODAL ZOOM FULL MÀN HÌNH QR CODE */
+    .qr-zoom-modal {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(12px); z-index: 99999;
+      display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+    }
+    .qr-zoom-box {
+      background: white; padding: 24px; border-radius: 28px; box-shadow: 0 0 50px rgba(16, 185, 129, 0.6);
+      text-align: center; max-width: 90vw; max-height: 90vh;
+    }
 
     .suspense-box { text-align: center; padding: 20px 12px; }
     .suspense-icon { font-size: 60px; display: inline-block; filter: drop-shadow(0 0 16px rgba(255, 209, 102, 0.8)); }
@@ -340,15 +368,24 @@
 </head>
 <body>
 
-  <!-- MÀN HÌNH TẠM DỪNG CHO HỌC SINH -->
+  <!-- MODAL ZOOM QR CODE FULL MÀN HÌNH -->
+  <div id="qr-zoom-modal" class="qr-zoom-modal" onclick="closeQRZoom()">
+    <div class="qr-zoom-box" onclick="event.stopPropagation()">
+      <h3 style="color: #065f46; margin: 0 0 8px 0; font-size: 20px; font-weight: 900;">📲 QUÉT MÃ QR VÀO PHÒNG THI</h3>
+      <p style="color: #475569; margin: 0 0 16px 0; font-size: 15px;">Mã phòng: <b id="zoom-room-code" style="color: #059669;">--</b></p>
+      <div id="qrcode-zoom-display" style="background: white; padding: 12px; border-radius: 20px; display: inline-block;"></div>
+      <br><br>
+      <button onclick="closeQRZoom()" style="background: #ef4444; width: 100%; padding: 12px; font-size: 16px; box-shadow: 0 3px 0 #991b1b;">✕ Đóng Lại</button>
+    </div>
+  </div>
+
   <div id="pause-overlay" class="pause-overlay">
     <div class="pause-icon">⏸</div>
     <h2 style="font-weight: 900; margin-top: 10px; font-size: 24px;">BÀI THI ĐANG TẠM DỪNG</h2>
     <p style="color: #cbd5e1; font-size: 14.5px;">Các Thí Sinh hãy đợi một chút nhé!</p>
   </div>
 
-  <!-- 1. MÀN HÌNH CHỌN VAI TRÒ -->
-  <div id="role-screen" class="card">
+  <div id="role-screen" class="card" style="max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 style="text-align: center; margin-top: 0; font-size: 22px; font-weight: 900; letter-spacing: -0.3px;">🎯 BẠN LÀ AI?</h2>
     <p style="text-align: center; color: var(--text-muted); margin-top: -6px; margin-bottom: 18px; font-size: 13.5px;">Vui lòng chọn vai trò để bắt đầu</p>
@@ -363,8 +400,7 @@
     </button>
   </div>
 
-  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV -->
-  <div id="auth-screen" class="card" style="display: none;">
+  <div id="auth-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 id="auth-title" style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
     <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Mỗi tài khoản sẽ có một Phòng Thi & Mã QR riêng</p>
@@ -389,8 +425,7 @@
     <button onclick="backToRoleScreen()" style="background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.15); width: 100%; margin-top: 12px; box-shadow: none; font-size: 13px;">← Quay Lại</button>
   </div>
 
-  <!-- 3. MÀN HÌNH QUẢN TRỊ ADMIN -->
-  <div id="admin-screen" class="card" style="display: none;">
+  <div id="admin-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <div>
@@ -414,93 +449,105 @@
     </div>
   </div>
 
-  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV -->
+  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV (ĐÃ TỐI ƯU TRÊN MÁY TÍNH - DÀN TRẢI KHỔ LỚN) -->
   <div id="teacher-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 12px;">
       <div>
-        <h2 style="margin: 0; font-size: 19px; font-weight: 900;">👨‍🏫 <span id="logged-user-name" style="color: #6ee7b7;">GLV</span></h2>
-        <small style="color: var(--text-muted); font-size: 13px;">Phòng thi: <b id="teacher-room-id-badge" style="color: #ffd166; font-size: 14px;">--</b></small>
+        <h2 style="margin: 0; font-size: 22px; font-weight: 900;">👨‍🏫 <span id="logged-user-name" style="color: #6ee7b7;">GLV</span></h2>
+        <small style="color: var(--text-muted); font-size: 14px;">Phòng thi: <b id="teacher-room-id-badge" style="color: #ffd166; font-size: 15px;">--</b></small>
       </div>
-      <button onclick="logoutTeacher()" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-size: 12px; padding: 5px 12px; box-shadow: none; border: 1px solid rgba(239, 68, 68, 0.4);">Đăng Xuất</button>
+      <button onclick="logoutTeacher()" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-size: 13px; padding: 6px 14px; box-shadow: none; border: 1px solid rgba(239, 68, 68, 0.4);">Đăng Xuất</button>
     </div>
 
-    <div id="qrcode-box">
-      <h3 style="margin: 0; color: #6ee7b7; font-size: 16px; font-weight: 900;">📲 QUÉT MÃ QR VÀO PHÒNG THI</h3>
-      <p style="margin: 3px 0 10px 0; font-size: 13px; color: var(--text-muted);">Mã phòng: <strong id="teacher-room-code-txt" style="color: #ffd166; font-size: 15px;">--</strong></p>
-      <div id="qrcode"></div>
-    </div>
-
-    <div class="quiz-manager">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin: 0; font-size: 15px; font-weight: 800;">📁 Kho Bài Thi</h3>
-        <button onclick="createNewQuizSection()" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); font-size: 12.5px; padding: 7px 12px; box-shadow: 0 2px 0 #047857;">➕ Soạn Bài Mới</button>
-      </div>
-      <div id="quiz-list-container" style="margin-top: 8px;"></div>
-    </div>
-
-    <!-- KHUNG SOẠN ĐỀ -->
-    <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 14px; border-radius: 16px; margin-bottom: 14px; background: rgba(0,0,0,0.4);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 15px;">📝 Soạn Đề Thi</h3>
-        <button onclick="closeEditor()" style="background: rgba(255,255,255,0.1); color: #cbd5e1; font-size: 11px; padding: 4px 8px; box-shadow: none;">❌ Đóng</button>
-      </div>
-
-      <label style="font-size: 13.5px;"><strong>Tên Bài Kiểm Tra:</strong></label>
-      <input type="text" id="quiz-name-input" placeholder="Ví dụ: Đố vui Kinh Thánh - Tuần 1">
-
-      <div id="parts-list"></div>
-      
-      <button onclick="addPartInput()" style="background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%); width: 100%; margin-bottom: 8px; font-size: 13.5px; box-shadow: 0 2px 0 #075985;">➕ THÊM PHẦN MỚI</button>
-      <button onclick="saveCurrentQuiz()" style="background: linear-gradient(180deg, #10b981 0%, #047857 100%); width: 100%; font-size: 14.5px; padding: 12px; box-shadow: 0 3px 0 #064e3b;">💾 LƯU BÀI KIỂM TRA</button>
-    </div>
-
-    <!-- LỊCH SỬ THI -->
-    <div class="quiz-manager">
-      <h3 style="margin: 0 0 8px 0; font-size: 15px; font-weight: 800;">📊 Bảng Điểm & Lịch Sử Thi</h3>
-      <select id="history-quiz-select" onchange="renderHistoryUI()"><option value="">-- Chọn bài kiểm tra để xem điểm --</option></select>
-      <div id="history-display-area" style="margin-top: 8px;"></div>
-    </div>
-
-    <!-- PHÒNG CHỜ TRÊN MÁY GLV -->
-    <div style="border-top: 1.5px dashed rgba(255,255,255,0.15); padding-top: 14px; margin-top: 14px;">
-      <label style="font-size: 13.5px;"><strong>Chọn bài thi chuẩn bị phát:</strong></label>
-      <select id="active-quiz-select" style="font-weight: 800; color: #6ee7b7;"></select>
-
-      <div style="background: rgba(0, 0, 0, 0.28); border: 1.5px dashed rgba(255, 255, 255, 0.15); padding: 12px; border-radius: 16px; margin: 10px 0;">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;">
-          <span style="font-weight: 800; font-size: 13px; color: #6ee7b7;">🐾 SỐ NGƯỜI TRONG PHÒNG (<span id="count">0</span>)</span>
-          <span style="font-size: 10.5px; color: var(--text-muted);">(Bấm ❌ để mời ra)</span>
+    <!-- BỐ CỤC 2 CỘT CHO MÁY TÍNH -->
+    <div class="teacher-dashboard-layout">
+      <!-- CỘT BÊN TRÁI: QR CODE & PHÒNG CHỜ THÍ SINH -->
+      <div>
+        <div id="qrcode-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <h3 style="margin: 0; color: #6ee7b7; font-size: 15px; font-weight: 900;">📲 QUÉT MÃ QR VÀO PHÒNG</h3>
+            <button onclick="openQRZoom()" style="background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%); padding: 5px 10px; font-size: 12px; box-shadow: 0 2px 0 #312e81;" title="Phóng to mã QR full màn hình">🔍 Phóng To</button>
+          </div>
+          <p style="margin: 2px 0 10px 0; font-size: 13px; color: var(--text-muted);">Mã phòng: <strong id="teacher-room-code-txt" style="color: #ffd166; font-size: 14px;">--</strong></p>
+          <div id="qrcode"></div>
         </div>
-        <div id="teacher-student-grid" class="lobby-grid"></div>
+
+        <div style="background: rgba(0, 0, 0, 0.28); border: 1.5px dashed rgba(255, 255, 255, 0.15); padding: 14px; border-radius: 16px; margin-top: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px;">
+            <span style="font-weight: 800; font-size: 13.5px; color: #6ee7b7;">🐾 SỐ NGƯỜI TRONG PHÒNG (<span id="count">0</span>)</span>
+            <span style="font-size: 11px; color: var(--text-muted);">(Bấm ❌ để mời ra)</span>
+          </div>
+          <div id="teacher-student-grid" class="lobby-grid"></div>
+        </div>
       </div>
-      
-      <button id="start-btn" onclick="startQuiz()" style="background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); font-size: 16px; width: 100%; padding: 14px; box-shadow: 0 4px 0 #7f1d1d, 0 8px 20px rgba(239, 68, 68, 0.45);">
-        🚀 BẮT ĐẦU PHÁT ĐỀ
-      </button>
+
+      <!-- CỘT BÊN PHẢI: KHO BÀI THI, SOẠN ĐỀ, BẢNG ĐIỂM & ĐIỀU KHIỂN PHÁT ĐỀ -->
+      <div>
+        <div class="quiz-manager">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 16px; font-weight: 800;">📁 Kho Bài Thi</h3>
+            <button onclick="createNewQuizSection()" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); font-size: 13px; padding: 8px 14px; box-shadow: 0 2px 0 #047857;">➕ Soạn Bài Mới</button>
+          </div>
+          <div id="quiz-list-container" style="margin-top: 10px; max-height: 200px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- KHUNG SOẠN ĐỀ -->
+        <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 16px; border-radius: 18px; margin-bottom: 16px; background: rgba(0,0,0,0.5);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 16px;">📝 Soạn Đề Thi</h3>
+            <button onclick="closeEditor()" style="background: rgba(255,255,255,0.1); color: #cbd5e1; font-size: 12px; padding: 5px 10px; box-shadow: none;">❌ Đóng</button>
+          </div>
+
+          <label style="font-size: 13.5px;"><strong>Tên Bài Kiểm Tra:</strong></label>
+          <input type="text" id="quiz-name-input" placeholder="Ví dụ: Đố vui Kinh Thánh - Tuần 1">
+
+          <div id="parts-list"></div>
+          
+          <button onclick="addPartInput()" style="background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%); width: 100%; margin-bottom: 10px; font-size: 14px; box-shadow: 0 2px 0 #075985;">➕ THÊM PHẦN MỚI</button>
+          <button onclick="saveCurrentQuiz()" style="background: linear-gradient(180deg, #10b981 0%, #047857 100%); width: 100%; font-size: 15px; padding: 13px; box-shadow: 0 3px 0 #064e3b;">💾 LƯU BÀI KIỂM TRA</button>
+        </div>
+
+        <!-- LỊCH SỬ THI -->
+        <div class="quiz-manager">
+          <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 800;">📊 Bảng Điểm & Lịch Sử Thi</h3>
+          <select id="history-quiz-select" onchange="renderHistoryUI()"><option value="">-- Chọn bài kiểm tra để xem điểm --</option></select>
+          <div id="history-display-area" style="margin-top: 10px;"></div>
+        </div>
+
+        <!-- PHÁT ĐỀ THI -->
+        <div style="background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.12); padding: 16px; border-radius: 18px; margin-top: 16px;">
+          <label style="font-size: 14px;"><strong>Chọn bài thi chuẩn bị phát:</strong></label>
+          <select id="active-quiz-select" style="font-weight: 800; color: #6ee7b7; font-size: 15px;"></select>
+          
+          <button id="start-btn" onclick="startQuiz()" style="background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); font-size: 17px; width: 100%; padding: 15px; margin-top: 8px; box-shadow: 0 4px 0 #7f1d1d, 0 8px 20px rgba(239, 68, 68, 0.45);">
+            🚀 BẮT ĐẦU PHÁT ĐỀ
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- MÀN HÌNH THEO DÕI LIVE CỦA GLV -->
-    <div id="teacher-live-box" style="display: none; margin-top: 16px; background: rgba(16, 185, 129, 0.1); padding: 16px; border-radius: 16px; border: 1.5px solid #10b981; text-align: center;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <h3 id="teacher-live-status-title" style="margin: 0; color: #6ee7b7; font-size: 14px;">📡 MÀN HÌNH THEO DÕI (Đang thi)</h3>
-        <button id="btn-toggle-pause" onclick="togglePauseQuiz()" style="padding: 7px 14px; font-size: 12px; background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%); box-shadow: 0 3px 0 #312e81;">⏸ Tạm Dừng</button>
+    <div id="teacher-live-box" style="display: none; margin-top: 18px; background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 20px; border: 2px solid #10b981; text-align: center;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 id="teacher-live-status-title" style="margin: 0; color: #6ee7b7; font-size: 16px;">📡 MÀN HÌNH THEO DÕI (Đang thi)</h3>
+        <button id="btn-toggle-pause" onclick="togglePauseQuiz()" style="padding: 9px 18px; font-size: 13px; background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%); box-shadow: 0 3px 0 #312e81;">⏸ Tạm Dừng</button>
       </div>
-      <h2 style="color: #ffd166; font-size: 32px; margin: 4px 0 10px 0; text-shadow: 0 0 12px rgba(255, 209, 102, 0.5);">⏰ <span id="teacher-timer">--</span>s</h2>
+      <h2 style="color: #ffd166; font-size: 38px; margin: 4px 0 12px 0; text-shadow: 0 0 14px rgba(255, 209, 102, 0.6);">⏰ <span id="teacher-timer">--</span>s</h2>
       
-      <div id="teacher-student-like-screen" style="text-align: left; background: rgba(0,0,0,0.3); padding: 14px; border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.1);"></div>
+      <div id="teacher-student-like-screen" style="text-align: left; background: rgba(0,0,0,0.35); padding: 18px; border-radius: 16px; border: 1.5px solid rgba(255,255,255,0.12);"></div>
 
       <!-- KHUNG CHẤM TỰ LUẬN TRỰC TIẾP KHI BẤM TẠM DỪNG -->
-      <div id="teacher-live-essay-review" style="display: none; margin-top: 14px; background: rgba(0,0,0,0.55); border: 1.5px solid #f59e0b; border-radius: 14px; padding: 12px; text-align: left;">
-        <h4 style="color: #ffd166; margin: 0 0 4px 0; font-size: 14.5px;">✍️ Kiểm Tra & Chấm Điểm Tự Luận (Lúc Tạm Dừng):</h4>
-        <div id="teacher-live-essay-list" style="max-height: 250px; overflow-y: auto; margin-top: 8px;"></div>
+      <div id="teacher-live-essay-review" style="display: none; margin-top: 16px; background: rgba(0,0,0,0.65); border: 2px solid #f59e0b; border-radius: 16px; padding: 16px; text-align: left;">
+        <h4 style="color: #ffd166; margin: 0 0 6px 0; font-size: 16px;">✍️ Kiểm Tra & Chấm Điểm Tự Luận (Lúc Tạm Dừng):</h4>
+        <div id="teacher-live-essay-list" style="max-height: 320px; overflow-y: auto; margin-top: 10px;"></div>
       </div>
     </div>
   </div>
 
   <!-- 5. MÀN HÌNH HỌC SINH NHẬP TÊN -->
-  <div id="student-screen" class="card" style="display: none; text-align: center;">
+  <div id="student-screen" class="card" style="display: none; text-align: center; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 style="margin: 0 0 4px 0; font-size: 22px; font-weight: 900;">👋 Báo Danh Tham Gia</h2>
     <p style="color: var(--text-muted); font-size: 13px; margin-top: 0; margin-bottom: 16px;">Nhập tên và mã phòng để nhận Linh Vật may mắn</p>
@@ -518,7 +565,7 @@
   </div>
 
   <!-- 6. PHÒNG CHỜ LINH VẬT CỦA HỌC SINH -->
-  <div id="lobby-screen" class="card" style="display: none; text-align: center;">
+  <div id="lobby-screen" class="card" style="display: none; text-align: center; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
     <div class="my-mascot-card">
@@ -541,7 +588,7 @@
   </div>
 
   <!-- 7. MÀN HÌNH LÀM BÀI CỦA HỌC SINH -->
-  <div id="quiz-screen" class="card" style="display: none;">
+  <div id="quiz-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner" style="font-size: 11px; padding: 3px 10px; margin-bottom: 8px;">Thiếu Nhi Thánh Thể Việt Nam</div>
     
     <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 8px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
@@ -557,7 +604,7 @@
   </div>
 
   <!-- 8. MÀN HÌNH KẾT QUẢ & DUYỆT TỰ LUẬN -->
-  <div id="result-screen" class="card" style="display: none;">
+  <div id="result-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
     <div id="suspense-container" class="suspense-box">
@@ -871,10 +918,24 @@
 
     function generateRoomQRCode(roomId) {
       const qrContainer = document.getElementById("qrcode");
+      const qrZoomContainer = document.getElementById("qrcode-zoom-display");
       qrContainer.innerHTML = "";
+      qrZoomContainer.innerHTML = "";
+      
       let hostUrl = window.location.origin;
       const roomUrl = `${hostUrl}?role=student&room=${encodeURIComponent(roomId)}`;
-      new QRCode(qrContainer, { text: roomUrl, width: 150, height: 150, colorDark : "#000000", colorLight : "#ffffff" });
+      
+      new QRCode(qrContainer, { text: roomUrl, width: 140, height: 140, colorDark : "#000000", colorLight : "#ffffff" });
+      new QRCode(qrZoomContainer, { text: roomUrl, width: 300, height: 300, colorDark : "#000000", colorLight : "#ffffff" });
+      document.getElementById("zoom-room-code").innerText = roomId;
+    }
+
+    function openQRZoom() {
+      document.getElementById("qr-zoom-modal").style.display = "flex";
+    }
+
+    function closeQRZoom() {
+      document.getElementById("qr-zoom-modal").style.display = "none";
     }
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -1339,7 +1400,7 @@
         const btn = document.getElementById('btn-toggle-pause');
         if (btn) { btn.innerHTML = '▶️ Tiếp Tục'; btn.style.background = '#f59e0b'; }
 
-        // Khi bấm tạm dừng, nếu là câu tự luận, hiện danh sách đáp án học sinh để chấm lại điểm
+        // Khi bấm tạm dừng, nếu là câu tự luận, hiển thị danh sách đáp án để chấm điểm
         if (currentItemData && currentItemData.question.type === 'short_answer') {
           const liveEssayBox = document.getElementById('teacher-live-essay-review');
           const liveEssayList = document.getElementById('teacher-live-essay-list');
