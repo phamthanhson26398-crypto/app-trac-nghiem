@@ -1060,7 +1060,7 @@
       } else if (q.type === 'short_answer') {
         html += `
           <label style="font-weight: 800; color: #6ee7b7; font-size: 13.5px;">✍️ ${myRole === 'teacher' ? 'Màn hình theo dõi câu tự luận:' : 'Nhập câu trả lời của em:'}</label>
-          <input type="text" ${myRole === 'teacher' ? 'placeholder="🎯 <b>ĐÁP ÁN:</b> <span style="color:#ffd166;">${currentItemData.question.correct}</span>" disabled' : 'id="student-essay-input" placeholder="Gõ câu trả lời..."'} class="essay-input-box" autocomplete="off">
+          <input type="text" ${myRole === 'teacher' ? 'placeholder="(Đang làm bài...)" disabled' : 'id="student-essay-input" placeholder="Gõ câu trả lời..."'} class="essay-input-box" autocomplete="off">
         `;
       }
 
