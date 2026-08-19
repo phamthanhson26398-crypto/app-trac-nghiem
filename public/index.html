@@ -144,25 +144,52 @@
       margin-bottom: 10px; 
     }
 
+    /* ĐÁP ÁN CÁCH NHAU RÕ RÀNG & THOÁNG ĐẸP */
     .opt-btn { 
       text-align: left; 
-      margin-top: 10px; 
+      margin-top: 14px; 
       width: 100%; 
-      font-size: 15px; 
+      font-size: 15.5px; 
       font-weight: 700; 
-      line-height: 1.35;
-      padding: 13px 16px; 
-      border-radius: 15px; 
+      line-height: 1.4;
+      padding: 14px 18px; 
+      border-radius: 16px; 
       display: flex;
       align-items: center;
       gap: 10px;
       color: #fff !important;
-      border: 2px solid transparent !important;
+      border: 2.5px solid transparent !important;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .opt-btn-a { background: linear-gradient(135deg, #e63946 0%, #d62828 100%) !important; box-shadow: 0 3px 0 #9d0208, 0 4px 10px rgba(230, 57, 70, 0.3) !important; }
-    .opt-btn-b { background: linear-gradient(135deg, #3a86ff 0%, #0077b6 100%) !important; box-shadow: 0 3px 0 #023e8a, 0 4px 10px rgba(58, 134, 255, 0.3) !important; }
-    .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 3px 0 #d62828, 0 4px 10px rgba(251, 133, 0, 0.3) !important; }
-    .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 4px 0 #047857, 0 4px 10px rgba(6, 214, 160, 0.3) !important; }
+    .opt-btn-a { background: linear-gradient(135deg, #e63946 0%, #d62828 100%) !important; box-shadow: 0 4px 0 #9d0208, 0 5px 12px rgba(230, 57, 70, 0.3) !important; }
+    .opt-btn-b { background: linear-gradient(135deg, #3a86ff 0%, #0077b6 100%) !important; box-shadow: 0 4px 0 #023e8a, 0 5px 12px rgba(58, 134, 255, 0.3) !important; }
+    .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 4px 0 #d62828, 0 5px 12px rgba(251, 133, 0, 0.3) !important; }
+    .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 4px 0 #047857, 0 5px 12px rgba(6, 214, 160, 0.3) !important; }
+
+    /* ĐÁP ÁN ĐƯỢC HỌC SINH CHỌN SẼ SÁNG RỰC RỠ */
+    .opt-btn.selected {
+      border: 2.5px solid #ffd166 !important;
+      box-shadow: 0 0 20px rgba(255, 209, 102, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.4) !important;
+      transform: scale(1.02);
+      filter: brightness(1.15);
+    }
+
+    /* NÚT NỘP BÀI CĂN GIỮA & CÁCH ĐỀU */
+    .btn-submit-answer {
+      display: flex !important;
+      width: 90% !important;
+      max-width: 320px !important;
+      margin: 22px auto 6px auto !important;
+      padding: 14px 20px !important;
+      font-size: 16px !important;
+      font-weight: 900 !important;
+      border-radius: 16px !important;
+      background: linear-gradient(180deg, #10b981 0%, #047857 100%) !important;
+      box-shadow: 0 4px 0 #065f46, 0 6px 18px rgba(16, 185, 129, 0.45) !important;
+      text-align: center;
+      justify-content: center;
+      letter-spacing: 0.5px;
+    }
 
     .opt-btn.reveal-correct {
       background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
@@ -337,7 +364,7 @@
       🙋‍♂️ Tôi là Học Sinh / Đoàn Sinh
     </button>
     <button onclick="selectRole('admin')" style="background: linear-gradient(180deg, #475569 0%, #334155 100%); width: 100%; margin-top: 12px; padding: 10px; font-size: 13px; box-shadow: 0 2px 0 #1e293b;">
-      ⚙️ Quản Trị Viên
+      ⚙️ Quản Trị Viên (Admin Quản Lý Mật Khẩu)
     </button>
   </div>
 
@@ -604,12 +631,10 @@
         </div>
       </div>
 
-      <!-- Nút xem lại câu trả lời -->
       <button onclick="toggleStudentReviewModal()" style="background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%); width: 100%; padding: 13px; font-size: 15px; box-shadow: 0 3px 0 #1e40af; margin-top: 6px;">
         📖 Xem Lại Câu Trả Lời & Đáp Án
       </button>
 
-      <!-- Khung hiển thị chi tiết bài làm của học sinh -->
       <div id="student-answers-review-container" style="display: none; margin-top: 14px;"></div>
     </div>
   </div>
@@ -1089,92 +1114,49 @@
       return partsData;
     }
 
-    function selectRole(role) {
-      myRole = role;
-      document.getElementById('role-screen').style.display = 'none';
-      if (role === 'teacher') document.getElementById('auth-screen').style.display = 'block';
-      else if (role === 'student') document.getElementById('student-screen').style.display = 'block';
-      else if (role === 'admin') {
-        const adminPass = prompt('Mật khẩu Admin:');
-        if (adminPass === 'tnttthaiha') {
-          document.getElementById('admin-screen').style.display = 'block';
-          socket.emit('admin_get_users');
-        } else {
-          alert('Sai mật khẩu!'); document.getElementById('role-screen').style.display = 'block';
-        }
-      }
-    }
+    function renderHistoryUI() {
+      const select = document.getElementById('history-quiz-select');
+      const quizName = select.value;
+      const displayArea = document.getElementById('history-display-area');
+      if (!quizName) { displayArea.innerHTML = ''; return; }
+      const historyData = JSON.parse(localStorage.getItem(getTeacherHistoryStorageKey()) || '{}');
+      const records = historyData[quizName] || [];
+      if (records.length === 0) { displayArea.innerHTML = `<p style="color: var(--text-muted);">Chưa có lịch sử.</p>`; return; }
 
-    function joinQuiz() {
-      const roomInput = document.getElementById('student-room-input').value.trim();
-      const name = document.getElementById('student-name').value.trim();
-      if (!roomInput || !name) return alert('Nhập đủ mã phòng và tên!');
-      activeRoomId = roomInput; currentStudentName = name; myRole = 'student';
-      document.getElementById('student-screen').style.display = 'none';
-      document.getElementById('lobby-screen').style.display = 'block';
-      document.getElementById('lobby-my-name').innerText = name;
-      document.getElementById('lobby-my-room').innerText = activeRoomId;
-      socket.emit('join_room', { name, role: 'student', roomId: activeRoomId });
-    }
-
-    socket.on('my_mascot_assigned', (mascot) => {
-      myAssignedMascot = mascot;
-      document.getElementById('my-mascot-icon').innerText = mascot.icon;
-      document.getElementById('my-mascot-title').innerText = `Linh vật: ${mascot.title}`;
-    });
-
-    function startQuiz() {
-      const activeSelect = document.getElementById('active-quiz-select');
-      const selectedQuizName = activeSelect.value;
-      const saved = localStorage.getItem(getTeacherQuizStorageKey());
-      const currentQuizzes = saved ? JSON.parse(saved) : {};
-      if (!selectedQuizName || !currentQuizzes[selectedQuizName]) return alert('Chọn bài thi!');
-
-      const btn = document.getElementById('start-btn');
-      btn.disabled = true; btn.innerText = '⏳ BÀI THI ĐANG DIỄN RA...';
-      socket.emit('start_quiz', { parts: currentQuizzes[selectedQuizName], quizName: selectedQuizName, roomId: activeRoomId });
-    }
-
-    function togglePauseQuiz() { socket.emit('toggle_pause', { roomId: activeRoomId }); }
-
-    socket.on('update_students', (students) => {
-      if (myRole === 'teacher') {
-        document.getElementById('count').innerText = students.length;
-        document.getElementById('teacher-student-grid').innerHTML = students.map(s => `
-          <div class="lobby-student-chip">
-            <button class="btn-kick-student" onclick="kickStudent('${s.id}', '${s.name}')">✕</button>
-            <div class="lobby-student-avatar">${s.mascot ? s.mascot.icon : '🦁'}</div>
-            <span class="lobby-student-name">${s.name}</span>
+      let html = `<button onclick="clearQuizHistory('${quizName}')" style="background: var(--danger); font-size: 11px; padding: 4px 8px; margin-bottom: 8px;">Xóa lịch sử</button>`;
+      records.forEach(rec => {
+        const rankedResults = calculateRanks(rec.results.sort((a,b) => b.score - a.score));
+        html += `
+          <div class="history-card">
+            <strong>Lần ${rec.attempt}</strong> - <small>${rec.time}</small>
+            <table>
+              <thead><tr><th>Giải</th><th>Thí Sinh</th><th style="text-align:center;">Trắc Nghiệm</th><th style="text-align:center;">Tự Luận</th><th style="text-align:right;">Điểm</th></tr></thead>
+              <tbody>
+                ${rankedResults.map(s => `
+                  <tr>
+                    <td>${getRankBadgeFromRank(s.rank)}</td>
+                    <td><b>${s.name}</b></td>
+                    <td style="text-align:center;"><small>✅${s.mcCorrect||0} | ❌${s.mcWrong||0}</small></td>
+                    <td style="text-align:center;"><small>✅${s.essayCorrect||0} | ❌${s.essayWrong||0}</small></td>
+                    <td style="text-align:right;"><strong style="color:#6ee7b7;">${s.score}</strong> đ</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
           </div>
-        `).join('');
-      } else if (myRole === 'student') {
-        document.getElementById('lobby-count').innerText = students.length;
-        document.getElementById('lobby-students-container').innerHTML = students.map(s => `
-          <div class="lobby-student-chip">
-            <div class="lobby-student-avatar" onclick="dodgeInteractiveMascot(this)">${s.mascot ? s.mascot.icon : '🦁'}</div>
-            <span class="lobby-student-name">${s.name}</span>
-          </div>
-        `).join('');
-      }
-    });
+        `;
+      });
+      displayArea.innerHTML = html;
+    }
 
-    socket.on('quiz_paused', () => {
-      isClientPaused = true;
-      if (myRole === 'student') document.getElementById('pause-overlay').style.display = 'flex';
-      if (myRole === 'teacher') {
-        const btn = document.getElementById('btn-toggle-pause');
-        if (btn) { btn.innerHTML = '▶️ Tiếp Tục'; btn.style.background = '#f59e0b'; }
+    function clearQuizHistory(quizName) {
+      if (confirm('Xóa lịch sử bài này?')) {
+        const historyData = JSON.parse(localStorage.getItem(getTeacherHistoryStorageKey()) || '{}');
+        delete historyData[quizName];
+        localStorage.setItem(getTeacherHistoryStorageKey(), JSON.stringify(historyData));
+        renderHistoryUI();
       }
-    });
-
-    socket.on('quiz_resumed', () => {
-      isClientPaused = false;
-      if (myRole === 'student') document.getElementById('pause-overlay').style.display = 'none';
-      if (myRole === 'teacher') {
-        const btn = document.getElementById('btn-toggle-pause');
-        if (btn) { btn.innerHTML = '⏸ Tạm Dừng'; btn.style.background = '#6366f1'; }
-      }
-    });
+    }
 
     /* 3. MÀN HÌNH THEO DÕI LIVE CỦA GLV */
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
@@ -1481,7 +1463,7 @@
 
     function revealWinnerCeremony() { socket.emit('reveal_results', { roomId: activeRoomId }); }
 
-    /* 5. HIỂN THỊ KẾT QUẢ & BẢNG ĐIỂM CHI TIẾT */
+    /* 5. HIỂN THỊ KẾT QUẢ & BẢNG ĐIỂM CHI TIẾT TỰ ĐỘNG BẬT SÁNG */
     socket.on('results_revealed', ({ leaderboard, quizName, allQuestions }) => {
       document.getElementById('suspense-container').style.display = 'none';
       if (allQuestions) allQuizQuestionsList = allQuestions;
