@@ -28,7 +28,7 @@
     body { 
       font-family: 'Nunito', sans-serif; 
       padding: 10px 14px; 
-      max-width: 100% !important; /* Mở rộng tràn viền màn hình */
+      max-width: 100% !important; 
       width: 100% !important;
       margin: auto; 
       background-color: var(--bg);
@@ -42,7 +42,7 @@
       overflow-x: hidden;
     }
 
-    /* MÀN HÌNH GIÁO LÝ VIÊN TRÀN VIỀN TỐI ĐA TRÊN MÁY TÍNH */
+    /* BỐ CỤC 3 CỘT TRÀN VIỀN CHO MÀN HÌNH MÁY TÍNH GIÁO LÝ VIÊN */
     #teacher-screen {
       max-width: 100% !important;
       width: 100% !important;
@@ -50,11 +50,11 @@
     }
     .teacher-dashboard-layout {
       display: grid;
-      grid-template-columns: 400px 1fr;
-      gap: 20px;
+      grid-template-columns: 280px 1fr 380px; /* Trái (QR nhỏ): 280px | Giữa (Học sinh): Linh hoạt | Phải (Kho đề): 380px (~1/3) */
+      gap: 16px;
       align-items: start;
     }
-    @media (max-width: 1000px) {
+    @media (max-width: 1100px) {
       .teacher-dashboard-layout {
         grid-template-columns: 1fr;
       }
@@ -262,7 +262,7 @@
     }
 
     .lobby-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 12px 8px; margin-top: 12px; max-height: 320px; overflow-y: auto; padding: 8px 4px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 12px 8px; margin-top: 12px; max-height: 400px; overflow-y: auto; padding: 8px 4px;
     }
     .lobby-student-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; user-select: none; }
     .lobby-student-avatar {
@@ -295,9 +295,9 @@
     th, td { border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 6px; text-align: left; font-size: 12.5px; }
     th { background: rgba(255, 255, 255, 0.08); font-weight: 800; color: #ffd166; }
 
-    #qrcode-box { background: rgba(255, 255, 255, 0.06); border: 2px dashed rgba(16, 185, 129, 0.5); padding: 16px; border-radius: 18px; text-align: center; margin: 12px 0; position: relative; }
-    #qrcode { background: white; padding: 8px; border-radius: 14px; display: inline-block; box-shadow: 0 6px 16px rgba(0,0,0,0.4); }
-    #qrcode img { margin: auto; }
+    #qrcode-box { background: rgba(255, 255, 255, 0.06); border: 2px dashed rgba(16, 185, 129, 0.5); padding: 14px; border-radius: 18px; text-align: center; position: relative; }
+    #qrcode { background: white; padding: 6px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    #qrcode img { margin: auto; width: 120px !important; height: 120px !important; }
 
     /* MODAL ZOOM QR CODE FULL MÀN HÌNH */
     .qr-zoom-modal {
@@ -451,7 +451,7 @@
     </div>
   </div>
 
-  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV (TRÀN VIỀN MÀN HÌNH MÁY TÍNH) -->
+  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV (BỐ CỤC 3 CỘT TRÀN VIỀN) -->
   <div id="teacher-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -463,67 +463,68 @@
       <button onclick="logoutTeacher()" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-size: 13px; padding: 6px 14px; box-shadow: none; border: 1px solid rgba(239, 68, 68, 0.4);">Đăng Xuất</button>
     </div>
 
-    <!-- BỐ CỤC 2 CỘT CHO MÁY TÍNH -->
+    <!-- BỐ CỤC 3 CỘT TRÊN MÁY TÍNH -->
     <div class="teacher-dashboard-layout">
-      <!-- CỘT BÊN TRÁI: QR CODE & PHÒNG CHỜ THÍ SINH -->
+      <!-- CỘT 1 (BÊN TRÁI): MÃ QR CÙNG NÚT PHÓNG TO -->
       <div>
         <div id="qrcode-box">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <h3 style="margin: 0; color: #6ee7b7; font-size: 15px; font-weight: 900;">📲 QUÉT MÃ QR VÀO PHÒNG</h3>
-            <button onclick="openQRZoom()" style="background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%); padding: 5px 10px; font-size: 12px; box-shadow: 0 2px 0 #312e81;" title="Phóng to mã QR full màn hình">🔍 Phóng To</button>
+            <h3 style="margin: 0; color: #6ee7b7; font-size: 14px; font-weight: 900;">📲 QUÉT MÃ QR</h3>
+            <button onclick="openQRZoom()" style="background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%); padding: 4px 8px; font-size: 11px; box-shadow: 0 2px 0 #312e81;" title="Phóng to mã QR">🔍 Phóng To</button>
           </div>
-          <p style="margin: 2px 0 10px 0; font-size: 13px; color: var(--text-muted);">Mã phòng: <strong id="teacher-room-code-txt" style="color: #ffd166; font-size: 14px;">--</strong></p>
+          <p style="margin: 2px 0 8px 0; font-size: 12px; color: var(--text-muted);">Mã: <strong id="teacher-room-code-txt" style="color: #ffd166; font-size: 13px;">--</strong></p>
           <div id="qrcode"></div>
-        </div>
-
-        <div style="background: rgba(0, 0, 0, 0.28); border: 1.5px dashed rgba(255, 255, 255, 0.15); padding: 14px; border-radius: 16px; margin-top: 14px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px;">
-            <span style="font-weight: 800; font-size: 13.5px; color: #6ee7b7;">🐾 SỐ NGƯỜI TRONG PHÒNG (<span id="count">0</span>)</span>
-            <span style="font-size: 11px; color: var(--text-muted);">(Bấm ❌ để mời ra)</span>
-          </div>
-          <div id="teacher-student-grid" class="lobby-grid"></div>
         </div>
       </div>
 
-      <!-- CỘT BÊN PHẢI: KHO BÀI THI, SOẠN ĐỀ, BẢNG ĐIỂM & ĐIỀU KHIỂN PHÁT ĐỀ -->
+      <!-- CỘT 2 (Ở GIỮA): HIỂN THỊ DANH SÁCH HỌC SINH TRONG PHÒNG -->
+      <div style="background: rgba(0, 0, 0, 0.28); border: 1.5px dashed rgba(255, 255, 255, 0.15); padding: 14px; border-radius: 18px; min-height: 230px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <span style="font-weight: 800; font-size: 14px; color: #6ee7b7;">🐾 SỐ NGƯỜI TRONG PHÒNG (<span id="count">0</span>)</span>
+          <span style="font-size: 11px; color: var(--text-muted);">(Bấm ❌ để mời ra)</span>
+        </div>
+        <div id="teacher-student-grid" class="lobby-grid"></div>
+      </div>
+
+      <!-- CỘT 3 (BÊN PHẢI): KHO BÀI THI, SOẠN ĐỀ, LỊCH SỬ VÀ NÚT PHÁT ĐỀ (~1/3 KHỔ NGANG) -->
       <div>
         <div class="quiz-manager">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 16px; font-weight: 800;">📁 Kho Bài Thi</h3>
-            <button onclick="createNewQuizSection()" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); font-size: 13px; padding: 8px 14px; box-shadow: 0 2px 0 #047857;">➕ Soạn Bài Mới</button>
+            <h3 style="margin: 0; font-size: 15px; font-weight: 800;">📁 Kho Bài Thi</h3>
+            <button onclick="createNewQuizSection()" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); font-size: 12px; padding: 7px 12px; box-shadow: 0 2px 0 #047857;">➕ Soạn Bài Mới</button>
           </div>
-          <div id="quiz-list-container" style="margin-top: 10px; max-height: 220px; overflow-y: auto;"></div>
+          <div id="quiz-list-container" style="margin-top: 8px; max-height: 180px; overflow-y: auto;"></div>
         </div>
 
         <!-- KHUNG SOẠN ĐỀ -->
-        <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 16px; border-radius: 18px; margin-bottom: 16px; background: rgba(0,0,0,0.5);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 16px;">📝 Soạn Đề Thi</h3>
-            <button onclick="closeEditor()" style="background: rgba(255,255,255,0.1); color: #cbd5e1; font-size: 12px; padding: 5px 10px; box-shadow: none;">❌ Đóng</button>
+        <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 14px; border-radius: 16px; margin-bottom: 14px; background: rgba(0,0,0,0.5);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 15px;">📝 Soạn Đề Thi</h3>
+            <button onclick="closeEditor()" style="background: rgba(255,255,255,0.1); color: #cbd5e1; font-size: 11px; padding: 4px 8px; box-shadow: none;">❌ Đóng</button>
           </div>
 
-          <label style="font-size: 13.5px;"><strong>Tên Bài Kiểm Tra:</strong></label>
+          <label style="font-size: 13px;"><strong>Tên Bài Kiểm Tra:</strong></label>
           <input type="text" id="quiz-name-input" placeholder="Ví dụ: Đố vui Kinh Thánh - Tuần 1">
 
           <div id="parts-list"></div>
           
-          <button onclick="addPartInput()" style="background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%); width: 100%; margin-bottom: 10px; font-size: 14px; box-shadow: 0 2px 0 #075985;">➕ THÊM PHẦN MỚI</button>
-          <button onclick="saveCurrentQuiz()" style="background: linear-gradient(180deg, #10b981 0%, #047857 100%); width: 100%; font-size: 15px; padding: 13px; box-shadow: 0 3px 0 #064e3b;">💾 LƯU BÀI KIỂM TRA</button>
+          <button onclick="addPartInput()" style="background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%); width: 100%; margin-bottom: 8px; font-size: 13.5px; box-shadow: 0 2px 0 #075985;">➕ THÊM PHẦN MỚI</button>
+          <button onclick="saveCurrentQuiz()" style="background: linear-gradient(180deg, #10b981 0%, #047857 100%); width: 100%; font-size: 14.5px; padding: 12px; box-shadow: 0 3px 0 #064e3b;">💾 LƯU BÀI KIỂM TRA</button>
         </div>
 
         <!-- LỊCH SỬ THI -->
         <div class="quiz-manager">
-          <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 800;">📊 Bảng Điểm & Lịch Sử Thi</h3>
+          <h3 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 800;">📊 Bảng Điểm & Lịch Sử Thi</h3>
           <select id="history-quiz-select" onchange="renderHistoryUI()"><option value="">-- Chọn bài kiểm tra để xem điểm --</option></select>
-          <div id="history-display-area" style="margin-top: 10px;"></div>
+          <div id="history-display-area" style="margin-top: 8px;"></div>
         </div>
 
         <!-- PHÁT ĐỀ THI -->
-        <div style="background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.12); padding: 16px; border-radius: 18px; margin-top: 16px;">
-          <label style="font-size: 14px;"><strong>Chọn bài thi chuẩn bị phát:</strong></label>
-          <select id="active-quiz-select" style="font-weight: 800; color: #6ee7b7; font-size: 15px;"></select>
+        <div style="background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.12); padding: 14px; border-radius: 16px; margin-top: 14px;">
+          <label style="font-size: 13.5px;"><strong>Chọn bài thi chuẩn bị phát:</strong></label>
+          <select id="active-quiz-select" style="font-weight: 800; color: #6ee7b7; font-size: 14px;"></select>
           
-          <button id="start-btn" onclick="startQuiz()" style="background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); font-size: 17px; width: 100%; padding: 15px; margin-top: 8px; box-shadow: 0 4px 0 #7f1d1d, 0 8px 20px rgba(239, 68, 68, 0.45);">
+          <button id="start-btn" onclick="startQuiz()" style="background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); font-size: 16px; width: 100%; padding: 14px; margin-top: 6px; box-shadow: 0 4px 0 #7f1d1d, 0 8px 20px rgba(239, 68, 68, 0.45);">
             🚀 BẮT ĐẦU PHÁT ĐỀ
           </button>
         </div>
@@ -927,7 +928,7 @@
       let hostUrl = window.location.origin;
       const roomUrl = `${hostUrl}?role=student&room=${encodeURIComponent(roomId)}`;
       
-      new QRCode(qrContainer, { text: roomUrl, width: 140, height: 140, colorDark : "#000000", colorLight : "#ffffff" });
+      new QRCode(qrContainer, { text: roomUrl, width: 120, height: 120, colorDark : "#000000", colorLight : "#ffffff" });
       new QRCode(qrZoomContainer, { text: roomUrl, width: 320, height: 320, colorDark : "#000000", colorLight : "#ffffff" });
       document.getElementById("zoom-room-code").innerText = roomId;
     }
