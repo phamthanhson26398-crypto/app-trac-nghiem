@@ -162,7 +162,7 @@
     .opt-btn-a { background: linear-gradient(135deg, #e63946 0%, #d62828 100%) !important; box-shadow: 0 3px 0 #9d0208, 0 4px 10px rgba(230, 57, 70, 0.3) !important; }
     .opt-btn-b { background: linear-gradient(135deg, #3a86ff 0%, #0077b6 100%) !important; box-shadow: 0 3px 0 #023e8a, 0 4px 10px rgba(58, 134, 255, 0.3) !important; }
     .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 3px 0 #d62828, 0 4px 10px rgba(251, 133, 0, 0.3) !important; }
-    .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 3px 0 #047857, 0 4px 10px rgba(6, 214, 160, 0.3) !important; }
+    .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 4px 0 #047857, 0 4px 10px rgba(6, 214, 160, 0.3) !important; }
 
     .opt-btn.reveal-correct {
       background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
@@ -283,7 +283,7 @@
     .teacher-ref-answer { background: rgba(16, 185, 129, 0.12); border: 1px dashed #10b981; color: #6ee7b7; padding: 8px 12px; border-radius: 10px; font-size: 12.5px; margin-top: 10px; line-height: 1.4; }
     .student-review-row { background: rgba(0, 0, 0, 0.35); border-left: 3.5px solid #ef4444; border-radius: 10px; padding: 10px 12px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 
-    /* CSS CHO KHUNG XEM LẠI BÀI LÀM CỦA HỌC SINH */
+    /* CSS CHO PHẦN XEM LẠI BÀI LÀM CỦA HỌC SINH */
     .review-question-box {
       background: rgba(0, 0, 0, 0.3);
       border: 1.5px solid rgba(255, 255, 255, 0.12);
@@ -341,7 +341,7 @@
     </button>
   </div>
 
-  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV (GIỮ NGUYÊN 100% GỐC) -->
+  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV -->
   <div id="auth-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 id="auth-title" style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
@@ -563,7 +563,7 @@
       <div id="champion-score" class="champion-score">🔥 0 Điểm</div>
     </div>
 
-    <!-- BẢNG ĐIỂM CỦA GIÁO LÝ VIÊN (TỰ ĐỘNG HIỆN RÕ RÀNG NGAY DƯỚI NHÀ VÔ ĐỊCH) -->
+    <!-- BẢNG ĐIỂM CỦA GIÁO LÝ VIÊN -->
     <div id="teacher-result-view" style="display: none; margin-top: 14px;">
       <div style="background: rgba(0,0,0,0.35); border-radius: 16px; padding: 14px; border: 1px solid rgba(255,255,255,0.15);">
         <h3 style="margin: 0 0 10px 0; color: #ffd166; font-size: 16px; text-align: center; font-weight: 900;">📊 BẢNG XẾP HẠNG TOÀN BỘ THÍ SINH</h3>
@@ -604,12 +604,10 @@
         </div>
       </div>
 
-      <!-- Nút xem lại câu trả lời -->
       <button onclick="toggleStudentReviewModal()" style="background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%); width: 100%; padding: 13px; font-size: 15px; box-shadow: 0 3px 0 #1e40af; margin-top: 6px;">
         📖 Xem Lại Câu Trả Lời & Đáp Án
       </button>
 
-      <!-- Khung hiển thị chi tiết bài làm của học sinh -->
       <div id="student-answers-review-container" style="display: none; margin-top: 14px;"></div>
     </div>
   </div>
@@ -637,7 +635,7 @@
     let hasSubmittedCurrentQuestion = false;
     let isClientPaused = false;
     let currentSelectedIndex = null;
-    let allQuizQuestionsList = []; // Lưu toàn bộ câu hỏi để học sinh xem lại
+    let allQuizQuestionsList = [];
 
     const FUNNY_TEXTS = ['Ú òa! 😜', 'Né nè! ✨', 'Boing! 🎈', 'Bắt hụt rồi! 🚀', 'Hehe! 🌟', 'Vèo! 💨', 'Bí mật! 🐾'];
 
@@ -758,7 +756,7 @@
       }
     }
 
-    /* ĐĂNG NHẬP / ĐĂNG KÝ GLV (GIỮ NGUYÊN 100% GỐC) */
+    /* ĐĂNG NHẬP / ĐĂNG KÝ GLV */
     function toggleAuthMode() {
       isAuthRegisterMode = !isAuthRegisterMode;
       document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
@@ -1051,6 +1049,93 @@
       });
       return partsData;
     }
+
+    function selectRole(role) {
+      myRole = role;
+      document.getElementById('role-screen').style.display = 'none';
+      if (role === 'teacher') document.getElementById('auth-screen').style.display = 'block';
+      else if (role === 'student') document.getElementById('student-screen').style.display = 'block';
+      else if (role === 'admin') {
+        const adminPass = prompt('Mật khẩu Admin:');
+        if (adminPass === 'tnttthaiha') {
+          document.getElementById('admin-screen').style.display = 'block';
+          socket.emit('admin_get_users');
+        } else {
+          alert('Sai mật khẩu!'); document.getElementById('role-screen').style.display = 'block';
+        }
+      }
+    }
+
+    function joinQuiz() {
+      const roomInput = document.getElementById('student-room-input').value.trim();
+      const name = document.getElementById('student-name').value.trim();
+      if (!roomInput || !name) return alert('Nhập đủ mã phòng và tên!');
+      activeRoomId = roomInput; currentStudentName = name; myRole = 'student';
+      document.getElementById('student-screen').style.display = 'none';
+      document.getElementById('lobby-screen').style.display = 'block';
+      document.getElementById('lobby-my-name').innerText = name;
+      document.getElementById('lobby-my-room').innerText = activeRoomId;
+      socket.emit('join_room', { name, role: 'student', roomId: activeRoomId });
+    }
+
+    socket.on('my_mascot_assigned', (mascot) => {
+      myAssignedMascot = mascot;
+      document.getElementById('my-mascot-icon').innerText = mascot.icon;
+      document.getElementById('my-mascot-title').innerText = `Linh vật: ${mascot.title}`;
+    });
+
+    function startQuiz() {
+      const activeSelect = document.getElementById('active-quiz-select');
+      const selectedQuizName = activeSelect.value;
+      const saved = localStorage.getItem(getTeacherQuizStorageKey());
+      const currentQuizzes = saved ? JSON.parse(saved) : {};
+      if (!selectedQuizName || !currentQuizzes[selectedQuizName]) return alert('Chọn bài thi!');
+
+      const btn = document.getElementById('start-btn');
+      btn.disabled = true; btn.innerText = '⏳ BÀI THI ĐANG DIỄN RA...';
+      socket.emit('start_quiz', { parts: currentQuizzes[selectedQuizName], quizName: selectedQuizName, roomId: activeRoomId });
+    }
+
+    function togglePauseQuiz() { socket.emit('toggle_pause', { roomId: activeRoomId }); }
+
+    socket.on('update_students', (students) => {
+      if (myRole === 'teacher') {
+        document.getElementById('count').innerText = students.length;
+        document.getElementById('teacher-student-grid').innerHTML = students.map(s => `
+          <div class="lobby-student-chip">
+            <button class="btn-kick-student" onclick="kickStudent('${s.id}', '${s.name}')">✕</button>
+            <div class="lobby-student-avatar">${s.mascot ? s.mascot.icon : '🦁'}</div>
+            <span class="lobby-student-name">${s.name}</span>
+          </div>
+        `).join('');
+      } else if (myRole === 'student') {
+        document.getElementById('lobby-count').innerText = students.length;
+        document.getElementById('lobby-students-container').innerHTML = students.map(s => `
+          <div class="lobby-student-chip">
+            <div class="lobby-student-avatar" onclick="dodgeInteractiveMascot(this)">${s.mascot ? s.mascot.icon : '🦁'}</div>
+            <span class="lobby-student-name">${s.name}</span>
+          </div>
+        `).join('');
+      }
+    });
+
+    socket.on('quiz_paused', () => {
+      isClientPaused = true;
+      if (myRole === 'student') document.getElementById('pause-overlay').style.display = 'flex';
+      if (myRole === 'teacher') {
+        const btn = document.getElementById('btn-toggle-pause');
+        if (btn) { btn.innerHTML = '▶️ Tiếp Tục'; btn.style.background = '#f59e0b'; }
+      }
+    });
+
+    socket.on('quiz_resumed', () => {
+      isClientPaused = false;
+      if (myRole === 'student') document.getElementById('pause-overlay').style.display = 'none';
+      if (myRole === 'teacher') {
+        const btn = document.getElementById('btn-toggle-pause');
+        if (btn) { btn.innerHTML = '⏸ Tạm Dừng'; btn.style.background = '#6366f1'; }
+      }
+    });
 
     /* 3. MÀN HÌNH THEO DÕI LIVE CỦA GLV */
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
@@ -1453,7 +1538,6 @@
       allQuizQuestionsList.forEach((qItem, idx) => {
         const q = qItem.question;
         const studentAns = historyList.find(h => h.questionIndex === idx) || null;
-        const isAnswered = studentAns !== null;
         const isCorrect = studentAns ? studentAns.isCorrect : false;
 
         html += `
