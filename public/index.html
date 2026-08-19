@@ -308,23 +308,25 @@
       🙋‍♂️ Tôi là Học Sinh / Đoàn Sinh
     </button>
     <button onclick="selectRole('admin')" style="background: linear-gradient(180deg, #475569 0%, #334155 100%); width: 100%; margin-top: 12px; padding: 10px; font-size: 13px; box-shadow: 0 2px 0 #1e293b;">
-      ⚙️ Quản Trị Viên
+      ⚙️ Quản Trị Viên (Admin Quản Lý Mật Khẩu)
     </button>
   </div>
 
-  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV -->
+  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV (DẠNG FORM CHUẨN ĐỂ NHẤN ENTER & CLICK MƯỢT MÀ) -->
   <div id="auth-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 id="auth-title" style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
     <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Mỗi tài khoản sẽ có một Phòng Thi & Mã QR riêng</p>
 
-    <label style="font-size: 13.5px;"><strong>Tài khoản (Tên đăng nhập):</strong></label>
-    <input type="text" id="auth-username" placeholder="Ví dụ: huynh_truong_01">
+    <form onsubmit="handleAuthSubmit(event)">
+      <label style="font-size: 13.5px;"><strong>Tài khoản (Tên đăng nhập):</strong></label>
+      <input type="text" id="auth-username" placeholder="Ví dụ: huynh_truong_01" required>
 
-    <label style="font-size: 13.5px;"><strong>Mật khẩu:</strong></label>
-    <input type="password" id="auth-password" placeholder="••••••••">
+      <label style="font-size: 13.5px;"><strong>Mật khẩu:</strong></label>
+      <input type="password" id="auth-password" placeholder="••••••••" required>
 
-    <button id="auth-submit-btn" onclick="handleAuthSubmit()" style="width: 100%; padding: 13px; font-size: 15px; margin-top: 4px;">Đăng Nhập Ngay</button>
+      <button type="submit" id="auth-submit-btn" style="width: 100%; padding: 13px; font-size: 15px; margin-top: 4px;">Đăng Nhập Ngay</button>
+    </form>
 
     <div style="text-align: center; margin-top: 14px; font-size: 13px;">
       <span id="auth-toggle-text" style="color: var(--text-muted);">Chưa có tài khoản?</span>
@@ -734,6 +736,7 @@
       }
     }
 
+    /* ĐĂNG NHẬP / ĐĂNG KÝ VÀ ĐIỀU HƯỚNG CHUẨN XÁC */
     function toggleAuthMode() {
       isAuthRegisterMode = !isAuthRegisterMode;
       document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
@@ -742,7 +745,8 @@
       document.querySelector('#auth-screen a').innerText = isAuthRegisterMode ? 'Đăng Nhập' : 'Đăng Ký Mới';
     }
 
-    function handleAuthSubmit() {
+    function handleAuthSubmit(event) {
+      if (event) event.preventDefault();
       const username = document.getElementById('auth-username').value.trim();
       const pass = document.getElementById('auth-password').value.trim();
       if (!username || !pass) return alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
@@ -1169,6 +1173,58 @@
       }, 1000);
     });
 
+    function selectChoice(isCorrect, element) {
+      if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0 || isClientPaused) return;
+      isSelectedChoiceCorrect = isCorrect;
+      hasSelectedAnOption = true;
+      if (element.tagName === 'BUTTON') {
+        element.parentNode.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+        element.classList.add('selected');
+      }
+    }
+
+    function submitCurrentAnswer() {
+      if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0 || isClientPaused) return;
+
+      let answerType = 'mc';
+      let answerTextVal = '';
+
+      if (currentItemData && currentItemData.question.type === 'short_answer') {
+        answerType = 'short_answer';
+        const inputEl = document.getElementById('student-essay-input');
+        answerTextVal = inputEl ? inputEl.value.trim() : '';
+        const userText = answerTextVal.toLowerCase();
+        const rawCorrect = currentItemData.question.correct || '';
+        const acceptableAnswers = rawCorrect.split(/[,|]/).map(s => s.trim().toLowerCase()).filter(Boolean);
+
+        isSelectedChoiceCorrect = acceptableAnswers.some(ans => ans === userText);
+        hasSelectedAnOption = true;
+        if (inputEl) inputEl.disabled = true;
+      } else {
+        if (!hasSelectedAnOption) return alert('Em hãy chọn một đáp án trước khi bấm Nộp!');
+      }
+
+      hasSubmittedCurrentQuestion = true;
+      const submitBtn = document.getElementById('btn-submit');
+      if (submitBtn) submitBtn.style.display = 'none';
+
+      const waitingBox = document.getElementById('waiting-box');
+      if (waitingBox) {
+        waitingBox.style.display = 'block';
+        waitingBox.innerHTML = `✅ <b>ĐÃ NỘP THÀNH CÔNG</b> ở giây thứ <b>${currentRemainingSeconds}</b>!`;
+      }
+
+      socket.emit('submit_answer', { 
+        isCorrect: isSelectedChoiceCorrect, 
+        remainingTime: currentRemainingSeconds,
+        roomId: activeRoomId,
+        type: answerType,
+        answerText: answerTextVal,
+        questionTitle: currentItemData.question.title,
+        teacherAnswers: currentItemData.question.correct || ''
+      });
+    }
+
     socket.on('quiz_ended', ({ quizName, essaySubmissions, leaderboard }) => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
@@ -1236,6 +1292,22 @@
         document.getElementById('suspense-guide-text').innerText = 'Em đã hoàn thành bài thi! Cùng chờ đợi kết quả nào...';
       }
     });
+
+    function approveEssay(studentId, points, idx) {
+      socket.emit('override_essay', { roomId: activeRoomId, studentId: studentId, points: points });
+      const itemEl = document.getElementById(`review-item-${idx}`);
+      if (itemEl) {
+        itemEl.style.borderLeftColor = '#10b981'; itemEl.style.background = 'rgba(16, 185, 129, 0.15)';
+        itemEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 6px 0; width: 100%;">✅ Đã chấp nhận đúng (+${points} điểm)</div>`;
+      }
+    }
+
+    function dismissEssay(idx) {
+      const itemEl = document.getElementById(`review-item-${idx}`);
+      if (itemEl) { itemEl.style.opacity = '0'; setTimeout(() => { itemEl.style.display = 'none'; }, 300); }
+    }
+
+    function revealWinnerCeremony() { socket.emit('reveal_results', { roomId: activeRoomId }); }
 
     socket.on('results_revealed', ({ leaderboard, quizName }) => {
       document.getElementById('suspense-container').style.display = 'none';
