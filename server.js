@@ -43,22 +43,14 @@ function saveTeachersDB(db) {
 let teachersDB = loadTeachersDB();
 
 const MASCOTS = [
-  { icon: '🦁', title: 'Sư Tử Dũng Mãnh' },
-  { icon: '🐯', title: 'Hổ Con Nhanh Nhẹn' },
-  { icon: '🦊', title: 'Cáo Thông Thái' },
-  { icon: '🐼', title: 'Gấu Trúc Cute' },
-  { icon: '🦄', title: 'Kỳ Lân Phép Thuật' },
-  { icon: '🐬', title: 'Cá Heo Thân Thiện' },
-  { icon: '🦅', title: 'Đại Bàng Tinh Anh' },
-  { icon: '🐲', title: 'Rồng Lửa Uy Lực' },
-  { icon: '🐨', title: 'Koala Hiền Lành' },
-  { icon: '🦉', title: 'Cú Mèo Tri Thức' },
-  { icon: '🐺', title: 'Sói Đầu Đàn' },
-  { icon: '🦖', title: 'Khủng Long Bạo Chúa' },
-  { icon: '🚀', title: 'Phi Hành Gia' },
-  { icon: '⚡', title: 'Tia Chớp Thần Tốc' },
-  { icon: '🌟', title: 'Ngôi Sao May Mắn' },
-  { icon: '🦹', title: 'Siêu Anh Hùng' }
+  { icon: '🦁', title: 'Sư Tử Dũng Mãnh' }, { icon: '🐯', title: 'Hổ Con Nhanh Nhẹn' },
+  { icon: '🦊', title: 'Cáo Thông Thái' }, { icon: '🐼', title: 'Gấu Trúc Cute' },
+  { icon: '🦄', title: 'Kỳ Lân Phép Thuật' }, { icon: '🐬', title: 'Cá Heo Thân Thiện' },
+  { icon: '🦅', title: 'Đại Bàng Tinh Anh' }, { icon: '🐲', title: 'Rồng Lửa Uy Lực' },
+  { icon: '🐨', title: 'Koala Hiền Lành' }, { icon: '🦉', title: 'Cú Mèo Tri Thức' },
+  { icon: '🐺', title: 'Sói Đầu Đàn' }, { icon: '🦖', title: 'Khủng Long Bạo Chúa' },
+  { icon: '🚀', title: 'Phi Hành Gia' }, { icon: '⚡', title: 'Tia Chớp Thần Tốc' },
+  { icon: '🌟', title: 'Ngôi Sao May Mắn' }, { icon: '🦹', title: 'Siêu Anh Hùng' }
 ];
 
 const rooms = {};
@@ -66,17 +58,8 @@ const rooms = {};
 function getOrCreateRoom(roomId) {
   if (!rooms[roomId]) {
     rooms[roomId] = {
-      status: 'waiting',
-      quizName: '',
-      queue: [],
-      currentIndex: 0,
-      currentItem: null,
-      students: {},
-      essaySubmissions: [],
-      timerInterval: null,
-      phase: 'question',
-      phaseTimeLeft: 0,
-      isPaused: false
+      status: 'waiting', quizName: '', queue: [], currentIndex: 0, currentItem: null,
+      students: {}, timerInterval: null, phase: 'question', phaseTimeLeft: 0, isPaused: false
     };
   }
   return rooms[roomId];
@@ -124,7 +107,6 @@ function startRoomTimer(roomId) {
           room.status = 'ended';
           io.to(roomId).emit('quiz_ended', { 
             quizName: room.quizName,
-            essaySubmissions: room.essaySubmissions,
             leaderboard: Object.values(room.students),
             allQuestions: room.queue
           });
@@ -138,10 +120,8 @@ function startRoomTimer(roomId) {
           });
 
           io.to(roomId).emit('question_started', {
-            item: room.currentItem,
-            duration: room.phaseTimeLeft,
-            currentIndex: room.currentIndex,
-            totalQuestions: room.queue.length
+            item: room.currentItem, duration: room.phaseTimeLeft,
+            currentIndex: room.currentIndex, totalQuestions: room.queue.length
           });
         }
       }
@@ -159,7 +139,7 @@ io.on('connection', (socket) => {
     if (teachersDB[username]) return socket.emit('auth_response', { success: false, message: 'Tên tài khoản này đã tồn tại!' });
     teachersDB[username] = password;
     saveTeachersDB(teachersDB);
-    socket.emit('auth_response', { success: true, isRegister: true, message: 'Đăng ký thành công! Hãy đăng nhập.' });
+    socket.emit('auth_response', { success: true, isRegister: true, message: 'Đăng ký thành công!' });
     io.emit('admin_user_list_update', teachersDB);
   });
 
@@ -195,13 +175,11 @@ io.on('connection', (socket) => {
     }
   });
 
-  // --- XỬ LÝ HỌC SINH THAM GIA / KẾT NỐI LẠI KHÔNG BỊ TRÙNG BẢN SAO ---
   socket.on('join_room', ({ name, role, roomId, deviceToken }) => {
     if (!roomId) roomId = 'default_room';
     currentRoomId = roomId;
     socket.join(roomId);
     const room = getOrCreateRoom(roomId);
-
     const tokenToUse = deviceToken || clientDeviceToken;
 
     if (role === 'student') {
@@ -211,26 +189,15 @@ io.on('connection', (socket) => {
       }
 
       if (existingKey) {
-        // Nếu thiết bị này đã từng vào phòng, GIỮ NGUYÊN thông tin cũ, chỉ đổi sang socket ID mới
         room.students[socket.id] = room.students[existingKey];
         room.students[socket.id].id = socket.id;
-        if (existingKey !== socket.id) {
-          delete room.students[existingKey];
-        }
+        if (existingKey !== socket.id) delete room.students[existingKey];
       } else {
-        // Nếu chưa có, tạo mới học sinh
         const randomMascot = MASCOTS[Math.floor(Math.random() * MASCOTS.length)];
         room.students[socket.id] = {
-          id: socket.id, 
-          name: name || 'Đoàn sinh', 
-          mascot: randomMascot, 
-          deviceToken: tokenToUse,
-          score: 0, 
-          currentScore: 0,
-          answered: false, 
-          mcCorrect: 0, mcWrong: 0, mcUnanswered: 0, 
-          essayCorrect: 0, essayWrong: 0, essayUnanswered: 0,
-          answerHistory: []
+          id: socket.id, name: name || 'Đoàn sinh', mascot: randomMascot, deviceToken: tokenToUse,
+          score: 0, currentScore: 0, answered: false, mcCorrect: 0, mcWrong: 0, mcUnanswered: 0, 
+          essayCorrect: 0, essayWrong: 0, essayUnanswered: 0, answerHistory: []
         };
       }
 
@@ -265,7 +232,6 @@ io.on('connection', (socket) => {
     if (targetRoomId && rooms[targetRoomId]) {
       socket.to(targetRoomId).emit('kicked_by_teacher');
       rooms[targetRoomId].students = {};
-      rooms[targetRoomId].essaySubmissions = [];
       rooms[targetRoomId].status = 'waiting';
       if (rooms[targetRoomId].timerInterval) clearInterval(rooms[targetRoomId].timerInterval);
       io.to(targetRoomId).emit('update_students', []);
@@ -297,7 +263,6 @@ io.on('connection', (socket) => {
     room.quizName = quizName || 'Bài thi';
     room.queue = queue;
     room.currentIndex = 0;
-    room.essaySubmissions = [];
     
     Object.keys(room.students).forEach(id => {
       room.students[id].score = 0; room.students[id].currentScore = 0; room.students[id].answered = false;
@@ -312,10 +277,8 @@ io.on('connection', (socket) => {
     room.isPaused = false;
 
     io.to(roomId).emit('question_started', {
-      item: room.currentItem,
-      duration: room.phaseTimeLeft,
-      currentIndex: room.currentIndex,
-      totalQuestions: room.queue.length
+      item: room.currentItem, duration: room.phaseTimeLeft,
+      currentIndex: room.currentIndex, totalQuestions: room.queue.length
     });
 
     startRoomTimer(roomId);
@@ -326,7 +289,22 @@ io.on('connection', (socket) => {
     if (targetRoomId && rooms[targetRoomId] && rooms[targetRoomId].status === 'playing') {
       const room = rooms[targetRoomId];
       room.isPaused = !room.isPaused;
-      if (room.isPaused) io.to(targetRoomId).emit('quiz_paused');
+      
+      let essaySubmissionsForCurrent = [];
+      if (room.isPaused && room.currentItem && room.currentItem.question.type === 'short_answer') {
+        Object.keys(room.students).forEach(id => {
+          const st = room.students[id];
+          const hist = st.answerHistory.find(h => h.questionIndex === room.currentIndex);
+          if (hist) {
+            essaySubmissionsForCurrent.push({
+              studentId: st.id, studentName: st.name, mascot: st.mascot,
+              answerText: hist.userAnswer, potentialPoints: hist.points || 10
+            });
+          }
+        });
+      }
+
+      if (room.isPaused) io.to(targetRoomId).emit('quiz_paused', { essaySubmissionsForCurrent });
       else io.to(targetRoomId).emit('quiz_resumed');
     }
   });
@@ -351,34 +329,25 @@ io.on('connection', (socket) => {
             userAnswer: answerText || '(Trống)',
             selectedIndex: selectedIndex,
             teacherAnswers: teacherAnswers || '',
-            points: isCorrect ? secondsLeft : 0,
+            points: isCorrect ? secondsLeft : 10,
             isOverridden: false
           });
-
-          if (type === 'short_answer') {
-            room.essaySubmissions.push({
-              studentId: socket.id, studentName: student.name, mascot: student.mascot,
-              questionTitle: questionTitle, teacherAnswers: teacherAnswers || '',
-              answerText: answerText || '(Trống)', isCorrect: isCorrect, potentialPoints: secondsLeft,
-              qIndex: room.currentIndex
-            });
-          }
         }
       }
     }
   });
 
-  socket.on('override_essay', ({ roomId, studentId, points, qIndex }) => {
+  socket.on('override_essay_live', ({ roomId, studentId, points }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId]) {
       const room = rooms[targetRoomId];
       if (room.students[studentId]) {
-        const addedScore = parseInt(points) || 0;
+        const addedScore = parseInt(points) || 10;
         room.students[studentId].score += addedScore;
         room.students[studentId].essayCorrect = (room.students[studentId].essayCorrect || 0) + 1;
         room.students[studentId].essayWrong = Math.max(0, (room.students[studentId].essayWrong || 0) - 1);
         
-        const historyItem = room.students[studentId].answerHistory.find(h => h.questionIndex === qIndex);
+        const historyItem = room.students[studentId].answerHistory.find(h => h.questionIndex === room.currentIndex);
         if (historyItem) {
           historyItem.isCorrect = true;
           historyItem.isOverridden = true;
