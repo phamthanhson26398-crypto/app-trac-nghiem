@@ -49,7 +49,7 @@ function getOrCreateRoom(roomId) {
       currentIndex: 0,
       currentItem: null,
       students: {},
-      essaySubmissions: [], // Lưu trữ bài tự luận để GV chấm lại
+      essaySubmissions: [],
       timerInterval: null,
       phase: 'question',
       phaseTimeLeft: 0,
@@ -71,7 +71,7 @@ function startRoomTimer(roomId) {
     if (room.phaseTimeLeft <= 0) {
       if (room.phase === 'question') {
         room.phase = 'transition';
-        room.phaseTimeLeft = 10; 
+        room.phaseTimeLeft = 10; // 10 giây nghỉ giữa câu
         io.to(roomId).emit('question_time_up');
 
         Object.keys(room.students).forEach(id => {
@@ -107,7 +107,7 @@ function startRoomTimer(roomId) {
         } else {
           room.phase = 'question';
           room.currentItem = room.queue[room.currentIndex];
-          room.phaseTimeLeft = parseInt(room.currentItem.question.duration) || 10;
+          room.phaseTimeLeft = parseInt(room.currentItem.question.duration) || 15;
           
           Object.keys(room.students).forEach(id => {
             room.students[id].answered = false;
@@ -235,7 +235,7 @@ io.on('connection', (socket) => {
     room.quizName = quizName || 'Bài thi';
     room.queue = queue;
     room.currentIndex = 0;
-    room.essaySubmissions = []; // Reset kho bài tự luận nộp lên
+    room.essaySubmissions = [];
     
     Object.keys(room.students).forEach(id => {
       room.students[id].score = 0; room.students[id].currentScore = 0; room.students[id].answered = false;
@@ -245,7 +245,7 @@ io.on('connection', (socket) => {
 
     room.currentItem = room.queue[0];
     room.phase = 'question';
-    room.phaseTimeLeft = parseInt(room.currentItem.question.duration) || 10;
+    room.phaseTimeLeft = parseInt(room.currentItem.question.duration) || 15;
     room.isPaused = false;
 
     io.to(roomId).emit('question_started', {
@@ -268,7 +268,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Thu nhận đáp án và lưu trữ bài tự luận sai để GV duyệt
   socket.on('submit_answer', ({ isCorrect, remainingTime, roomId, type, answerText, questionTitle, teacherAnswers }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId] && rooms[targetRoomId].status === 'playing') {
@@ -282,14 +281,9 @@ io.on('connection', (socket) => {
 
           if (type === 'short_answer') {
             room.essaySubmissions.push({
-              studentId: socket.id, 
-              studentName: student.name, 
-              mascot: student.mascot,
-              questionTitle: questionTitle, 
-              teacherAnswers: teacherAnswers || '',
-              answerText: answerText || '(Trống)', 
-              isCorrect: isCorrect, 
-              potentialPoints: secondsLeft
+              studentId: socket.id, studentName: student.name, mascot: student.mascot,
+              questionTitle: questionTitle, teacherAnswers: teacherAnswers || '',
+              answerText: answerText || '(Trống)', isCorrect: isCorrect, potentialPoints: secondsLeft
             });
           }
         }
