@@ -492,9 +492,9 @@
       
       <div id="teacher-student-like-screen" style="text-align: left; background: rgba(0,0,0,0.3); padding: 14px; border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.1);"></div>
 
-      <!-- KHUNG CHẤM TỰ LUẬN TRỰC TIẾP GIỮA GIỜ (THÊM MỚI THEO Ý THẦY/CÔ) -->
+      <!-- KHUNG CHẤM TỰ LUẬN TRỰC TIẾP GIỮA GIỜ (XEM ĐƯỢC KHI HẾT GIỜ HOẶC TẠM DỪNG) -->
       <div id="teacher-live-essay-review" style="display: none; margin-top: 14px; background: rgba(0,0,0,0.55); border: 1.5px solid #f59e0b; border-radius: 14px; padding: 12px; text-align: left;">
-        <h4 style="color: #ffd166; margin: 0 0 4px 0; font-size: 14.5px;">✍️ Chấm Tự Luận Câu Này (Trực tiếp lúc nghỉ):</h4>
+        <h4 style="color: #ffd166; margin: 0 0 4px 0; font-size: 14.5px;">✍️ Xem & Chấm Tự Luận Câu Này:</h4>
         <div id="teacher-live-essay-list" style="max-height: 250px; overflow-y: auto; margin-top: 8px;"></div>
       </div>
     </div>
@@ -1494,6 +1494,7 @@
         }
       }
 
+      // 🕒 GIỮ NGUYÊN HOÀN TOÀN GIAO DIỆN CHỜ CHUYỂN CÂU (10 GIÂY NGHỈ) GỐC CỦA THẦY/CÔ
       let restSeconds = 10;
       if (myRole === 'teacher') {
         document.getElementById('teacher-live-status-title').innerText = `⏳ Nghỉ giữa câu: ${restSeconds} giây`;
@@ -1618,7 +1619,7 @@
       if (myRole === 'teacher') {
         document.getElementById('teacher-reveal-action').style.display = 'block';
         document.getElementById('student-waiting-reveal').style.display = 'none';
-        document.getElementById('suspense-guide-text').innerText = 'Bài thi đã kết thúc! Toàn bộ tự luận đã được chấm trực tiếp. Bấm nút bên dưới để trao giải!';
+        document.getElementById('suspense-guide-text').innerText = 'Bài thi đã kết thúc! Bấm nút bên dưới để trao giải!';
       } else {
         document.getElementById('teacher-reveal-action').style.display = 'none';
         document.getElementById('student-waiting-reveal').style.display = 'block';
