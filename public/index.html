@@ -367,13 +367,12 @@
     </button>
   </div>
 
-  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV (BỔ SUNG THÔNG BÁO TẠI CHỖ & FORM SUBMIT) -->
+  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV -->
   <div id="auth-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 id="auth-title" style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
     <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Mỗi tài khoản sẽ có một Phòng Thi & Mã QR riêng</p>
 
-    <!-- Hộp thông báo phản hồi ngay trên màn hình -->
     <div id="auth-status-box" style="display: none; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 800; text-align: center; margin-bottom: 12px;"></div>
 
     <form onsubmit="handleAuthSubmit(event)">
@@ -445,7 +444,7 @@
       <div id="quiz-list-container" style="margin-top: 8px;"></div>
     </div>
 
-    <!-- KHUNG SOẠN ĐỀ (Thời gian theo Phần) -->
+    <!-- KHUNG SOẠN ĐỀ -->
     <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 14px; border-radius: 16px; margin-bottom: 14px; background: rgba(0,0,0,0.4);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 15px;">📝 Soạn Đề Thi</h3>
@@ -644,9 +643,6 @@
   </div>
 
   <script>
-    /* ==========================================================
-       1. KHỞI TẠO BIẾN TOÀN CỤC & SOCKET
-       ========================================================== */
     const socket = io({ transports: ['websocket', 'polling'] });
     let myRole = '';
     let currentStudentName = '';
@@ -674,9 +670,6 @@
 
     const FUNNY_TEXTS = ['Ahihi Đồ Ngốc! 😜', 'Né nè! ✨', 'Em dễ vỡ nhẹ tay thui nà! 🎈', 'Bắt em đi! 🚀', 'Còn cái nịt! 🌟', 'Xời easy! 💨', 'yêu nhó! 🐾'];
 
-    /* ==========================================================
-       2. HÀM ĐIỀU HƯỚNG & XỬ LÝ ĐĂNG NHẬP / ĐĂNG KÝ
-       ========================================================== */
     function showAuthNotice(msg, isSuccess = false) {
       const box = document.getElementById('auth-status-box');
       if (!box) return;
@@ -775,9 +768,6 @@
       location.reload();
     }
 
-    /* ==========================================================
-       3. QUẢN TRỊ ADMIN
-       ========================================================== */
     socket.on('admin_user_list_update', (users) => {
       const tbody = document.getElementById('admin-user-table-body');
       if (!tbody) return;
@@ -814,9 +804,6 @@
       }
     }
 
-    /* ==========================================================
-       4. BỘ ĐẾM & TIỆN ÍCH
-       ========================================================== */
     function dodgeInteractiveMascot(el) {
       if (myRole !== 'student') return;
       const randX = Math.floor((Math.random() - 0.5) * 110);
@@ -878,6 +865,7 @@
       new QRCode(qrContainer, { text: roomUrl, width: 150, height: 150, colorDark : "#000000", colorLight : "#ffffff" });
     }
 
+    // --- TỰ ĐỘNG KHÔI PHỤC THÔNG TIN HỌC SINH KHI REFRESH / THOÁT TAB ---
     window.addEventListener('DOMContentLoaded', () => {
       const savedTeacher = sessionStorage.getItem('tntt_current_teacher');
       if (savedTeacher) {
@@ -901,8 +889,24 @@
 
       const urlParams = new URLSearchParams(window.location.search);
       const roomParam = urlParams.get('room');
-      if (roomParam) document.getElementById('student-room-input').value = roomParam;
-      if (urlParams.get('role') === 'student') selectRole('student');
+      
+      // Kiểm tra xem học sinh đã lưu tên và phòng trước đó chưa
+      const savedRoom = localStorage.getItem('tntt_saved_room');
+      const savedName = localStorage.getItem('tntt_saved_name');
+
+      if (roomParam) {
+        document.getElementById('student-room-input').value = roomParam;
+      } else if (savedRoom) {
+        document.getElementById('student-room-input').value = savedRoom;
+      }
+
+      if (savedName) {
+        document.getElementById('student-name').value = savedName;
+      }
+
+      if (urlParams.get('role') === 'student' || savedRoom) {
+        selectRole('student');
+      }
     });
 
     socket.on('kicked_by_teacher', () => {
@@ -934,9 +938,6 @@
       }
     }
 
-    /* ==========================================================
-       5. QUẢN LÝ ĐỀ THI & LỊCH SỬ
-       ========================================================== */
     function getTeacherQuizStorageKey() { return `all_quizzes_user_${currentTeacherUser}`; }
     function getTeacherHistoryStorageKey() { return `quiz_history_user_${currentTeacherUser}`; }
 
@@ -1218,14 +1219,20 @@
       }
     }
 
-    /* ==========================================================
-       6. ĐIỀU KHIỂN BÀI THI & HỌC SINH THAM GIA
-       ========================================================== */
+    // --- LƯU LẠI TÊN & PHÒNG VÀO BỘ NHỚ KHI HỌC SINH THAM GIA ---
     function joinQuiz() {
       const roomInput = document.getElementById('student-room-input').value.trim();
       const name = document.getElementById('student-name').value.trim();
       if (!roomInput || !name) return alert('Nhập đủ mã phòng và tên!');
-      activeRoomId = roomInput; currentStudentName = name; myRole = 'student';
+      
+      activeRoomId = roomInput; 
+      currentStudentName = name; 
+      myRole = 'student';
+
+      // Lưu tự động vào trình duyệt đề phòng lỡ thoát tab
+      localStorage.setItem('tntt_saved_room', activeRoomId);
+      localStorage.setItem('tntt_saved_name', currentStudentName);
+
       document.getElementById('student-screen').style.display = 'none';
       document.getElementById('lobby-screen').style.display = 'block';
       document.getElementById('lobby-my-name').innerText = name;
@@ -1292,9 +1299,6 @@
       }
     });
 
-    /* ==========================================================
-       7. MÀN HÌNH THEO DÕI LIVE & LÀM BÀI
-       ========================================================== */
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
@@ -1344,8 +1348,8 @@
       } else if (q.type === 'short_answer') {
         if (myRole !== 'teacher') {
         html += `
-          <label style="font-weight: 800; color: #6ee7b7; font-size: 13.5px;">✍️ ${myRole === 'teacher' ? 'Màn hình theo dõi câu tự luận:' : 'Nhập câu trả lời của em:'}</label>
-          <input type="text" ${myRole === 'teacher' ? 'placeholder="(Đang làm bài...)" disabled' : 'id="student-essay-input" placeholder="Gõ câu trả lời..."'} class="essay-input-box" autocomplete="off">
+          <label style="font-weight: 800; color: #6ee7b7; font-size: 13.5px;">✍️ Nhập câu trả lời của em:</label>
+          <input type="text" id="student-essay-input" placeholder="Gõ câu trả lời..." class="essay-input-box" autocomplete="off">
         `;
         }
       }
@@ -1515,9 +1519,6 @@
       });
     }
 
-    /* ==========================================================
-       8. KẾT THÚC BÀI THI & DUYỆT TỰ LUẬN
-       ========================================================== */
     socket.on('quiz_ended', ({ quizName, essaySubmissions, leaderboard, allQuestions }) => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
@@ -1603,9 +1604,6 @@
 
     function revealWinnerCeremony() { socket.emit('reveal_results', { roomId: activeRoomId }); }
 
-    /* ==========================================================
-       9. CÔNG BỐ KẾT QUẢ & HIỂN THỊ CHI TIẾT BÀI LÀM
-       ========================================================== */
     socket.on('results_revealed', ({ leaderboard, quizName, allQuestions }) => {
       document.getElementById('suspense-container').style.display = 'none';
       if (allQuestions) allQuizQuestionsList = allQuestions;
