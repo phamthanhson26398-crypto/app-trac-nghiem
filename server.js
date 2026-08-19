@@ -49,7 +49,7 @@ function getOrCreateRoom(roomId) {
       currentIndex: 0,
       currentItem: null,
       students: {},
-      essaySubmissions: [],
+      essaySubmissions: [], // Lưu trữ bài tự luận để GV chấm lại
       timerInterval: null,
       phase: 'question',
       phaseTimeLeft: 0,
@@ -70,7 +70,6 @@ function startRoomTimer(roomId) {
 
     if (room.phaseTimeLeft <= 0) {
       if (room.phase === 'question') {
-        // HẾT GIỜ LÀM BÀI -> CHUYỂN SANG PHASE CHỜ 10 GIÂY
         room.phase = 'transition';
         room.phaseTimeLeft = 10; 
         io.to(roomId).emit('question_time_up');
@@ -96,7 +95,6 @@ function startRoomTimer(roomId) {
         });
 
       } else if (room.phase === 'transition') {
-        // HẾT 10 GIÂY CHỜ -> SANG CÂU MỚI HOẶC KẾT THÚC
         room.currentIndex++;
         if (room.currentIndex >= room.queue.length) {
           clearInterval(room.timerInterval);
@@ -237,7 +235,7 @@ io.on('connection', (socket) => {
     room.quizName = quizName || 'Bài thi';
     room.queue = queue;
     room.currentIndex = 0;
-    room.essaySubmissions = [];
+    room.essaySubmissions = []; // Reset kho bài tự luận nộp lên
     
     Object.keys(room.students).forEach(id => {
       room.students[id].score = 0; room.students[id].currentScore = 0; room.students[id].answered = false;
@@ -270,6 +268,7 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Thu nhận đáp án và lưu trữ bài tự luận sai để GV duyệt
   socket.on('submit_answer', ({ isCorrect, remainingTime, roomId, type, answerText, questionTitle, teacherAnswers }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId] && rooms[targetRoomId].status === 'playing') {
@@ -283,9 +282,14 @@ io.on('connection', (socket) => {
 
           if (type === 'short_answer') {
             room.essaySubmissions.push({
-              studentId: socket.id, studentName: student.name, mascot: student.mascot,
-              questionTitle: questionTitle, teacherAnswers: teacherAnswers || '',
-              answerText: answerText || '(Trống)', isCorrect: isCorrect, potentialPoints: secondsLeft
+              studentId: socket.id, 
+              studentName: student.name, 
+              mascot: student.mascot,
+              questionTitle: questionTitle, 
+              teacherAnswers: teacherAnswers || '',
+              answerText: answerText || '(Trống)', 
+              isCorrect: isCorrect, 
+              potentialPoints: secondsLeft
             });
           }
         }
