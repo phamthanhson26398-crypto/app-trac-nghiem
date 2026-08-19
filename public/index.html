@@ -308,7 +308,7 @@
       🙋‍♂️ Tôi là Học Sinh / Đoàn Sinh
     </button>
     <button onclick="selectRole('admin')" style="background: linear-gradient(180deg, #475569 0%, #334155 100%); width: 100%; margin-top: 12px; padding: 10px; font-size: 13px; box-shadow: 0 2px 0 #1e293b;">
-      ⚙️ Quản Trị Viên
+      ⚙️ Quản Trị Viên (Admin Quản Lý Mật Khẩu)
     </button>
   </div>
 
@@ -568,7 +568,7 @@
     <div id="student-result-view" style="display: none; text-align: center; margin-top: 12px;">
       <div style="background: rgba(0, 0, 0, 0.4); border-radius: 18px; padding: 14px; margin: 12px 0; border: 1px solid rgba(255, 255, 255, 0.15);">
         <p style="margin: 0; font-size: 14px; color: #fff;">Đoàn sinh: <strong id="my-student-name" style="color: #ffd166;">--</strong></p>
-        <h2 style="font-size: 30px; color: #6ee7b7; margin: 4px 0 0 0; font-weight: 900;"><span id="my-final-score">0</span> <small style="font-size: 18px; color: #fff;">điểm</small></h2>
+        <h2 style="font-size: 30px; color: #6ee7b7; margin: 4px 0 0 0; font-weight: 900;"><span id="my-final-score">0</span> <small style="font-size: 15px; color: #fff;">điểm</small></h2>
       </div>
 
       <div class="stat-grid">
@@ -734,7 +734,6 @@
       }
     }
 
-    /* ĐĂNG NHẬP / ĐĂNG KÝ VÀ ĐIỀU HƯỚNG CHUẨN XÁC */
     function toggleAuthMode() {
       isAuthRegisterMode = !isAuthRegisterMode;
       document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
