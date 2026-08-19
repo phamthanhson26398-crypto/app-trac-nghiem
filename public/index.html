@@ -27,8 +27,9 @@
     
     body { 
       font-family: 'Nunito', sans-serif; 
-      padding: 14px 10px; 
-      max-width: 680px; 
+      padding: 10px 14px; 
+      max-width: 100% !important; /* Mở rộng tràn viền màn hình */
+      width: 100% !important;
       margin: auto; 
       background-color: var(--bg);
       background-image: radial-gradient(circle at 50% 10%, rgba(16, 185, 129, 0.25) 0%, transparent 60%), url('/bg.png');
@@ -41,18 +42,19 @@
       overflow-x: hidden;
     }
 
-    /* ĐIỀU CHỈNH GIAO DIỆN GIÁO LÝ VIÊN TẬN DỤNG HẾT KHỔ MÀN HÌNH MÁY TÍNH */
+    /* MÀN HÌNH GIÁO LÝ VIÊN TRÀN VIỀN TỐI ĐA TRÊN MÁY TÍNH */
     #teacher-screen {
-      max-width: 1280px !important;
-      width: 95% !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      border-radius: 16px;
     }
     .teacher-dashboard-layout {
       display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 16px;
+      grid-template-columns: 400px 1fr;
+      gap: 20px;
       align-items: start;
     }
-    @media (max-width: 900px) {
+    @media (max-width: 1000px) {
       .teacher-dashboard-layout {
         grid-template-columns: 1fr;
       }
@@ -66,8 +68,8 @@
       background: var(--glass-bg); 
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      padding: 20px 16px; 
-      border-radius: 22px; 
+      padding: 20px 20px; 
+      border-radius: 20px; 
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2); 
       margin-bottom: 16px; 
       border: 1px solid var(--glass-border);
@@ -75,12 +77,12 @@
     }
 
     .header-banner {
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 800;
       color: #ffd166;
       text-transform: uppercase;
       letter-spacing: 1.4px;
-      padding: 6px 12px;
+      padding: 6px 14px;
       margin: -4px auto 14px auto;
       text-align: center;
       background: rgba(255, 209, 102, 0.12);
@@ -260,16 +262,16 @@
     }
 
     .lobby-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 12px 8px; margin-top: 12px; max-height: 220px; overflow-y: auto; padding: 8px 4px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 12px 8px; margin-top: 12px; max-height: 320px; overflow-y: auto; padding: 8px 4px;
     }
     .lobby-student-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; user-select: none; }
     .lobby-student-avatar {
-      width: 48px; height: 48px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.06) 100%);
-      border: 2px solid #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;
+      width: 52px; height: 52px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.06) 100%);
+      border: 2px solid #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.35), 0 0 10px rgba(16, 185, 129, 0.35); cursor: pointer;
     }
     .lobby-student-name {
-      font-size: 10.5px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65px; text-align: center; background: rgba(0, 0, 0, 0.6); padding: 2px 5px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.15);
+      font-size: 11px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px; text-align: center; background: rgba(0, 0, 0, 0.6); padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.15);
     }
     .btn-kick-student {
       position: absolute; top: -3px; right: 4px; background: #ef4444 !important; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: 900; border: 1.5px solid #ffffff !important; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 20;
@@ -297,14 +299,14 @@
     #qrcode { background: white; padding: 8px; border-radius: 14px; display: inline-block; box-shadow: 0 6px 16px rgba(0,0,0,0.4); }
     #qrcode img { margin: auto; }
 
-    /* CSS CHO MODAL ZOOM FULL MÀN HÌNH QR CODE */
+    /* MODAL ZOOM QR CODE FULL MÀN HÌNH */
     .qr-zoom-modal {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(12px); z-index: 99999;
       display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
     }
     .qr-zoom-box {
-      background: white; padding: 24px; border-radius: 28px; box-shadow: 0 0 50px rgba(16, 185, 129, 0.6);
+      background: white; padding: 30px; border-radius: 28px; box-shadow: 0 0 50px rgba(16, 185, 129, 0.6);
       text-align: center; max-width: 90vw; max-height: 90vh;
     }
 
@@ -371,11 +373,11 @@
   <!-- MODAL ZOOM QR CODE FULL MÀN HÌNH -->
   <div id="qr-zoom-modal" class="qr-zoom-modal" onclick="closeQRZoom()">
     <div class="qr-zoom-box" onclick="event.stopPropagation()">
-      <h3 style="color: #065f46; margin: 0 0 8px 0; font-size: 20px; font-weight: 900;">📲 QUÉT MÃ QR VÀO PHÒNG THI</h3>
-      <p style="color: #475569; margin: 0 0 16px 0; font-size: 15px;">Mã phòng: <b id="zoom-room-code" style="color: #059669;">--</b></p>
-      <div id="qrcode-zoom-display" style="background: white; padding: 12px; border-radius: 20px; display: inline-block;"></div>
+      <h3 style="color: #065f46; margin: 0 0 8px 0; font-size: 22px; font-weight: 900;">📲 QUÉT MÃ QR VÀO PHÒNG THI</h3>
+      <p style="color: #475569; margin: 0 0 16px 0; font-size: 16px;">Mã phòng: <b id="zoom-room-code" style="color: #059669;">--</b></p>
+      <div id="qrcode-zoom-display" style="background: white; padding: 16px; border-radius: 20px; display: inline-block;"></div>
       <br><br>
-      <button onclick="closeQRZoom()" style="background: #ef4444; width: 100%; padding: 12px; font-size: 16px; box-shadow: 0 3px 0 #991b1b;">✕ Đóng Lại</button>
+      <button onclick="closeQRZoom()" style="background: #ef4444; width: 100%; padding: 14px; font-size: 16px; box-shadow: 0 3px 0 #991b1b;">✕ Đóng Lại</button>
     </div>
   </div>
 
@@ -449,7 +451,7 @@
     </div>
   </div>
 
-  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV (ĐÃ TỐI ƯU TRÊN MÁY TÍNH - DÀN TRẢI KHỔ LỚN) -->
+  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV (TRÀN VIỀN MÀN HÌNH MÁY TÍNH) -->
   <div id="teacher-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -490,7 +492,7 @@
             <h3 style="margin: 0; font-size: 16px; font-weight: 800;">📁 Kho Bài Thi</h3>
             <button onclick="createNewQuizSection()" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); font-size: 13px; padding: 8px 14px; box-shadow: 0 2px 0 #047857;">➕ Soạn Bài Mới</button>
           </div>
-          <div id="quiz-list-container" style="margin-top: 10px; max-height: 200px; overflow-y: auto;"></div>
+          <div id="quiz-list-container" style="margin-top: 10px; max-height: 220px; overflow-y: auto;"></div>
         </div>
 
         <!-- KHUNG SOẠN ĐỀ -->
@@ -926,7 +928,7 @@
       const roomUrl = `${hostUrl}?role=student&room=${encodeURIComponent(roomId)}`;
       
       new QRCode(qrContainer, { text: roomUrl, width: 140, height: 140, colorDark : "#000000", colorLight : "#ffffff" });
-      new QRCode(qrZoomContainer, { text: roomUrl, width: 300, height: 300, colorDark : "#000000", colorLight : "#ffffff" });
+      new QRCode(qrZoomContainer, { text: roomUrl, width: 320, height: 320, colorDark : "#000000", colorLight : "#ffffff" });
       document.getElementById("zoom-room-code").innerText = roomId;
     }
 
@@ -1400,7 +1402,6 @@
         const btn = document.getElementById('btn-toggle-pause');
         if (btn) { btn.innerHTML = '▶️ Tiếp Tục'; btn.style.background = '#f59e0b'; }
 
-        // Khi bấm tạm dừng, nếu là câu tự luận, hiển thị danh sách đáp án để chấm điểm
         if (currentItemData && currentItemData.question.type === 'short_answer') {
           const liveEssayBox = document.getElementById('teacher-live-essay-review');
           const liveEssayList = document.getElementById('teacher-live-essay-list');
@@ -1410,18 +1411,18 @@
               liveEssayList.innerHTML = essaySubmissionsForCurrent.map(s => `
                 <div class="student-review-row" id="live-review-item-${s.studentId}">
                   <div style="flex: 1;">
-                    <div style="font-size: 12px; color: #cbd5e1;">👤 Thí sinh: <b style="color: #fff;">${s.studentName}</b> ${s.mascot ? s.mascot.icon : ''}</div>
-                    <div style="font-size: 13.5px; color: #ffd166; font-weight: bold; margin-top: 3px;">Đã điền: "${s.answerText}"</div>
+                    <div style="font-size: 13px; color: #cbd5e1;">👤 Thí sinh: <b style="color: #fff;">${s.studentName}</b> ${s.mascot ? s.mascot.icon : ''}</div>
+                    <div style="font-size: 14.5px; color: #ffd166; font-weight: bold; margin-top: 4px;">Đã điền: "${s.answerText}"</div>
                   </div>
-                  <div style="display: flex; gap: 6px;">
-                    <button onclick="approveLiveEssay('${s.studentId}', ${s.potentialPoints || 10})" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); padding: 5px 9px; font-size: 11px; white-space: nowrap;">✅ Chấp nhận</button>
-                    <button onclick="dismissLiveEssay(this)" style="background: #64748b; padding: 5px 9px; font-size: 11px; white-space: nowrap;">❌ Bỏ qua</button>
+                  <div style="display: flex; gap: 8px;">
+                    <button onclick="approveLiveEssay('${s.studentId}', ${s.potentialPoints || 10})" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); padding: 7px 12px; font-size: 12px; white-space: nowrap;">✅ Chấp nhận</button>
+                    <button onclick="dismissLiveEssay(this)" style="background: #64748b; padding: 7px 12px; font-size: 12px; white-space: nowrap;">❌ Bỏ qua</button>
                   </div>
                 </div>
               `).join('');
             } else {
               liveEssayBox.style.display = 'block';
-              liveEssayList.innerHTML = '<div style="color:var(--text-muted); font-size:13px; text-align:center;">Chưa có học sinh nào nộp câu trả lời.</div>';
+              liveEssayList.innerHTML = '<div style="color:var(--text-muted); font-size:13.5px; text-align:center;">Chưa có học sinh nào nộp câu trả lời.</div>';
             }
           }
         }
@@ -1472,7 +1473,7 @@
       }
 
       const q = item.question;
-      let html = `<h3 style="margin-top:0; font-size:17.5px; font-weight:800; color:#fff;">${q.title}</h3>`;
+      let html = `<h3 style="margin-top:0; font-size:18.5px; font-weight:800; color:#fff;">${q.title}</h3>`;
 
       if (q.type === 'multiple') {
         const optClasses = ['opt-btn-a', 'opt-btn-b', 'opt-btn-c', 'opt-btn-d'];
@@ -1607,7 +1608,7 @@
       const rowEl = document.getElementById(`live-review-item-${studentId}`);
       if (rowEl) {
         rowEl.style.borderLeftColor = '#10b981'; rowEl.style.background = 'rgba(16, 185, 129, 0.15)';
-        rowEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 5px 0; width: 100%;">✅ Đã duyệt đúng (+${points} điểm)</div>`;
+        rowEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 6px 0; width: 100%;">✅ Đã duyệt đúng (+${points} điểm)</div>`;
       }
     }
 
