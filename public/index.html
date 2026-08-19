@@ -144,7 +144,6 @@
       margin-bottom: 10px; 
     }
 
-    /* ĐÁP ÁN */
     .opt-btn { 
       text-align: left; 
       margin-top: 10px; 
@@ -174,7 +173,7 @@
     }
     @keyframes neonBlinkGreen {
       0% { box-shadow: 0 0 4px #10b981; transform: scale(1); }
-      100% { box-shadow: 0 0 26px #10b981, 0 0 40px rgba(16, 185, 129, 0.8); transform: scale(1.025); }
+      100% { box-shadow: 0 0 20px #10b981, 0 0 40px rgba(16, 185, 129, 0.8); transform: scale(1.025); }
     }
 
     .opt-btn.reveal-wrong {
@@ -295,6 +294,10 @@
     .question-review-card { background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 209, 102, 0.3); border-radius: 16px; padding: 14px; margin-bottom: 16px; }
     .teacher-ref-answer { background: rgba(16, 185, 129, 0.12); border: 1px dashed #10b981; color: #6ee7b7; padding: 8px 12px; border-radius: 10px; font-size: 12.5px; margin-top: 10px; line-height: 1.4; }
     .student-review-row { background: rgba(0, 0, 0, 0.35); border-left: 3.5px solid #ef4444; border-radius: 10px; padding: 10px 12px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    
+    .teacher-question-view { background: rgba(0,0,0,0.3); border-radius: 14px; padding: 14px; margin-top: 14px; border: 1.5px solid rgba(255,255,255,0.1); text-align: left; }
+    .teacher-q-opt { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; margin-bottom: 8px; color: #fff; font-size: 14px; }
+    .teacher-q-opt.correct { background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #6ee7b7; font-weight: 800; }
   </style>
 </head>
 <body>
@@ -318,7 +321,7 @@
       🙋‍♂️ Tôi là Học Sinh / Đoàn Sinh
     </button>
     <button onclick="selectRole('admin')" style="background: linear-gradient(180deg, #475569 0%, #334155 100%); width: 100%; margin-top: 12px; padding: 10px; font-size: 13px; box-shadow: 0 2px 0 #1e293b;">
-      ⚙️ Quản Trị Viên (Admin Quản Lý Mật Khẩu)
+      ⚙️ Quản Trị Viên
     </button>
   </div>
 
@@ -742,6 +745,415 @@
       }
     }
 
+    /* ĐĂNG NHẬP / ĐĂNG KÝ GLV TRỰC TIẾP */
+    function toggleAuthMode() {
+      isAuthRegisterMode = !isAuthRegisterMode;
+      document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
+      document.getElementById('auth-submit-btn').innerText = isAuthRegisterMode ? 'Tạo Tài Khoản Mới' : 'Đăng Nhập Ngay';
+      document.getElementById('auth-toggle-text').innerText = isAuthRegisterMode ? 'Đã có tài khoản?' : 'Chưa có tài khoản?';
+      document.querySelector('#auth-screen a').innerText = isAuthRegisterMode ? 'Đăng Nhập' : 'Đăng Ký Mới';
+    }
+
+    function handleAuthSubmit() {
+      const username = document.getElementById('auth-username').value.trim();
+      const pass = document.getElementById('auth-password').value.trim();
+      if (!username || !pass) return alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
+
+      if (isAuthRegisterMode) {
+        socket.emit('teacher_register', { username, password: pass });
+      } else {
+        socket.emit('teacher_login', { username, password: pass });
+      }
+    }
+
+    socket.on('auth_response', ({ success, message, isRegister, username }) => {
+      if (!success) return alert(message);
+      if (isRegister) {
+        alert(message);
+        toggleAuthMode();
+      } else {
+        currentTeacherUser = username; activeRoomId = username;
+        sessionStorage.setItem('tntt_current_teacher', username);
+        document.getElementById('logged-user-name').innerText = username;
+        document.getElementById('teacher-room-id-badge').innerText = activeRoomId;
+        document.getElementById('teacher-room-code-txt').innerText = activeRoomId;
+
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('teacher-screen').style.display = 'block';
+
+        generateRoomQRCode(activeRoomId);
+        loadSavedQuizzes();
+        socket.emit('clear_room_students', { roomId: activeRoomId });
+        socket.emit('join_room', { role: 'teacher', roomId: activeRoomId });
+      }
+    });
+
+    function logoutTeacher() {
+      if (activeRoomId) socket.emit('clear_room_students', { roomId: activeRoomId });
+      sessionStorage.removeItem('tntt_current_teacher');
+      currentTeacherUser = ''; activeRoomId = '';
+      location.reload();
+    }
+
+    function backToRoleScreen() {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('admin-screen').style.display = 'none';
+      document.getElementById('role-screen').style.display = 'block';
+    }
+
+    function getTeacherQuizStorageKey() { return `all_quizzes_user_${currentTeacherUser}`; }
+    function getTeacherHistoryStorageKey() { return `quiz_history_user_${currentTeacherUser}`; }
+
+    function loadSavedQuizzes() {
+      const saved = localStorage.getItem(getTeacherQuizStorageKey());
+      const currentQuizzes = saved ? JSON.parse(saved) : {};
+      const listContainer = document.getElementById('quiz-list-container');
+      const historySelect = document.getElementById('history-quiz-select');
+      const activeSelect = document.getElementById('active-quiz-select');
+
+      listContainer.innerHTML = '';
+      historySelect.innerHTML = '<option value="">-- Chọn bài kiểm tra để xem điểm --</option>';
+      activeSelect.innerHTML = '';
+
+      const keys = Object.keys(currentQuizzes);
+      if (keys.length === 0) {
+        listContainer.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-size: 13px; margin: 4px 0;">Chưa có bài thi nào được lưu.</p>';
+        activeSelect.innerHTML = '<option value="">(Chưa có bài)</option>';
+        return;
+      }
+
+      keys.forEach(name => {
+        const item = document.createElement('div');
+        item.className = 'quiz-item';
+        item.innerHTML = `
+          <div><strong style="font-size: 14px; color: #ffd166;">📌 ${name}</strong></div>
+          <div class="quiz-item-actions">
+            <button class="btn-edit" onclick="editQuiz('${name}')">✏️ Sửa</button>
+            <button class="btn-delete" onclick="deleteQuiz('${name}')">🗑️ Xóa</button>
+          </div>
+        `;
+        listContainer.appendChild(item);
+        historySelect.innerHTML += `<option value="${name}">${name}</option>`;
+        activeSelect.innerHTML += `<option value="${name}">${name}</option>`;
+      });
+    }
+
+    function createNewQuizSection() {
+      editingQuizKey = null;
+      document.getElementById('current-quiz-title').innerText = '📝 Soạn Bài Kiểm Tra Mới';
+      document.getElementById('quiz-name-input').value = '';
+      document.getElementById('parts-list').innerHTML = '';
+      partCount = 0;
+      addPartInput();
+      document.getElementById('editor-section').style.display = 'block';
+    }
+
+    function editQuiz(name) {
+      const saved = localStorage.getItem(getTeacherQuizStorageKey());
+      const currentQuizzes = saved ? JSON.parse(saved) : {};
+      if (!currentQuizzes[name]) return;
+      editingQuizKey = name;
+      document.getElementById('current-quiz-title').innerText = `📝 Chỉnh Sửa: ${name}`;
+      document.getElementById('quiz-name-input').value = name;
+      
+      const container = document.getElementById('parts-list');
+      container.innerHTML = '';
+      partCount = 0;
+      currentQuizzes[name].forEach(part => addPartInput(part));
+      document.getElementById('editor-section').style.display = 'block';
+    }
+
+    function closeEditor() { document.getElementById('editor-section').style.display = 'none'; }
+
+    function saveCurrentQuiz() {
+      const newName = document.getElementById('quiz-name-input').value.trim();
+      if (!newName) return alert('Vui lòng nhập tên bài kiểm tra!');
+      const parts = getStructureFromScreen();
+      if (parts.length === 0) return alert('Bài thi phải có ít nhất 1 Phần và 1 câu hỏi hoàn chỉnh!');
+
+      const saved = localStorage.getItem(getTeacherQuizStorageKey());
+      const currentQuizzes = saved ? JSON.parse(saved) : {};
+      if (editingQuizKey && editingQuizKey !== newName) delete currentQuizzes[editingQuizKey];
+
+      currentQuizzes[newName] = parts;
+      localStorage.setItem(getTeacherQuizStorageKey(), JSON.stringify(currentQuizzes));
+      alert(`Đã lưu thành công bài thi "${newName}"!`);
+      closeEditor(); loadSavedQuizzes();
+    }
+
+    function deleteQuiz(name) {
+      if (confirm(`Bạn có chắc muốn xóa bài "${name}" không?`)) {
+        const saved = localStorage.getItem(getTeacherQuizStorageKey());
+        const currentQuizzes = saved ? JSON.parse(saved) : {};
+        delete currentQuizzes[name];
+        localStorage.setItem(getTeacherQuizStorageKey(), JSON.stringify(currentQuizzes));
+        loadSavedQuizzes(); renderHistoryUI();
+      }
+    }
+
+    function addPartInput(data = null) {
+      partCount++;
+      const container = document.getElementById('parts-list');
+      const pDiv = document.createElement('div');
+      pDiv.className = 'part-block';
+
+      const partTitle = data ? data.title : `PHẦN ${partCount}`;
+      const partDuration = data && data.questions && data.questions.length > 0 ? data.questions[0].duration : 15;
+
+      pDiv.innerHTML = `
+        <button class="btn-delete" style="float:right;" onclick="this.parentElement.remove()">❌ Xóa Phần</button>
+        <label style="font-size: 13px;"><strong>Tên Phần:</strong></label>
+        <input type="text" class="part-title" value="${partTitle}">
+        
+        <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; padding: 10px; border-radius: 12px; margin: 8px 0;">
+          <label style="color: #6ee7b7; font-size: 13px;">⏱️ <b>Thời gian thi chung cho cả Phần này (Giây):</b></label>
+          <input type="number" class="part-duration" value="${partDuration}" min="5" style="margin-top: 4px; margin-bottom: 0;">
+        </div>
+
+        <div class="q-container" style="margin-top: 10px;"></div>
+        <button onclick="addQuestionToPart(this.previousElementSibling)" style="background: linear-gradient(180deg, #64748b 0%, #475569 100%); font-size: 12.5px; padding: 7px 11px;">➕ Thêm Câu Hỏi</button>
+      `;
+      container.appendChild(pDiv);
+
+      const qContainer = pDiv.querySelector('.q-container');
+      if (data && data.questions) data.questions.forEach(q => addQuestionToPart(qContainer, q));
+      else addQuestionToPart(qContainer);
+    }
+
+    function addQuestionToPart(container, data = null) {
+      const qDiv = document.createElement('div');
+      qDiv.className = 'q-block';
+
+      const type = data ? data.type : 'multiple';
+      const title = data ? data.title : '';
+
+      qDiv.innerHTML = `
+        <button class="btn-delete" style="float:right;" onclick="this.parentElement.remove()">❌ Xóa</button>
+        <div style="margin-bottom: 8px;">
+          <label style="font-size: 12.5px;"><strong>Dạng câu hỏi:</strong></label>
+          <select class="q-type" onchange="renderQuestionTypeUI(this)">
+            <option value="multiple" ${type === 'multiple' ? 'selected' : ''}>Trắc nghiệm A/B/C/D</option>
+            <option value="tf" ${type === 'tf' ? 'selected' : ''}>Đúng / Sai</option>
+            <option value="short_answer" ${type === 'short_answer' ? 'selected' : ''}>📝 Tự luận (Điền đáp án ngắn)</option>
+          </select>
+        </div>
+        <label style="font-size: 12.5px;">Nội dung câu hỏi:</label>
+        <input type="text" class="q-title" value="${title}" placeholder="Nhập câu hỏi...">
+        <div class="q-options-area"></div>
+      `;
+
+      container.appendChild(qDiv);
+      renderQuestionTypeUI(qDiv.querySelector('.q-type'), data);
+    }
+
+    function renderQuestionTypeUI(selectEl, data = null) {
+      const qDiv = selectEl.closest('.q-block');
+      const optionsArea = qDiv.querySelector('.q-options-area');
+      const type = selectEl.value;
+
+      const opt0 = data && data.options ? data.options[0] || '' : '';
+      const opt1 = data && data.options ? data.options[1] || '' : '';
+      const opt2 = data && data.options ? data.options[2] || '' : '';
+      const opt3 = data && data.options ? data.options[3] || '' : '';
+      const correct = data ? data.correct : '';
+
+      if (type === 'multiple') {
+        optionsArea.innerHTML = `
+          <input type="text" class="q-opt0" value="${opt0}" placeholder="Đáp án A (Đỏ)">
+          <input type="text" class="q-opt1" value="${opt1}" placeholder="Đáp án B (Xanh dương)">
+          <input type="text" class="q-opt2" value="${opt2}" placeholder="Đáp án C (Vàng cam)">
+          <input type="text" class="q-opt3" value="${opt3}" placeholder="Đáp án D (Xanh ngọc)">
+          <label style="font-size: 12.5px;">Đáp án đúng:</label>
+          <select class="q-correct">
+            <option value="0" ${correct == 0 ? 'selected' : ''}>A</option>
+            <option value="1" ${correct == 1 ? 'selected' : ''}>B</option>
+            <option value="2" ${correct == 2 ? 'selected' : ''}>C</option>
+            <option value="3" ${correct == 3 ? 'selected' : ''}>D</option>
+          </select>
+        `;
+      } else if (type === 'tf') {
+        optionsArea.innerHTML = `
+          <label style="font-size: 12.5px;">Đáp án đúng:</label>
+          <select class="q-correct">
+            <option value="Đúng" ${correct === 'Đúng' ? 'selected' : ''}>Đúng</option>
+            <option value="Sai" ${correct === 'Sai' ? 'selected' : ''}>Sai</option>
+          </select>
+        `;
+      } else if (type === 'short_answer') {
+        optionsArea.innerHTML = `
+          <label style="color: #6ee7b7; font-size: 12.5px;"><strong>💡 Các đáp án đúng (Cách nhau bằng dấu | hoặc dấu phẩy):</strong></label>
+          <input type="text" class="q-essay-correct" value="${correct || ''}" placeholder="Ví dụ: Bê-lem | Belem">
+        `;
+      }
+    }
+
+    function getStructureFromScreen() {
+      const partBlocks = document.querySelectorAll('.part-block');
+      const partsData = [];
+
+      partBlocks.forEach((pBlock) => {
+        const pTitle = pBlock.querySelector('.part-title').value;
+        const partDuration = parseInt(pBlock.querySelector('.part-duration').value) || 15;
+        const qBlocks = pBlock.querySelectorAll('.q-block');
+        const questions = [];
+
+        qBlocks.forEach((qBlock) => {
+          const type = qBlock.querySelector('.q-type').value;
+          const title = qBlock.querySelector('.q-title').value;
+          const duration = partDuration;
+          
+          if (type === 'multiple') {
+            const opt0 = qBlock.querySelector('.q-opt0').value;
+            const opt1 = qBlock.querySelector('.q-opt1').value;
+            const opt2 = qBlock.querySelector('.q-opt2').value;
+            const opt3 = qBlock.querySelector('.q-opt3').value;
+            const correct = qBlock.querySelector('.q-correct').value;
+            if (title && opt0 && opt1) questions.push({ type, title, duration, options: [opt0, opt1, opt2, opt3], correct });
+          } else if (type === 'tf') {
+            const correct = qBlock.querySelector('.q-correct').value;
+            if (title) questions.push({ type, title, duration, options: ['Đúng', 'Sai'], correct });
+          } else if (type === 'short_answer') {
+            const correct = qBlock.querySelector('.q-essay-correct').value;
+            if (title && correct) questions.push({ type, title, duration, options: [], correct });
+          }
+        });
+
+        if (pTitle && questions.length > 0) partsData.push({ title: pTitle, questions });
+      });
+      return partsData;
+    }
+
+    function renderHistoryUI() {
+      const select = document.getElementById('history-quiz-select');
+      const quizName = select.value;
+      const displayArea = document.getElementById('history-display-area');
+      if (!quizName) { displayArea.innerHTML = ''; return; }
+      const historyData = JSON.parse(localStorage.getItem(getTeacherHistoryStorageKey()) || '{}');
+      const records = historyData[quizName] || [];
+      if (records.length === 0) { displayArea.innerHTML = `<p style="color: var(--text-muted);">Chưa có lịch sử.</p>`; return; }
+
+      let html = `<button onclick="clearQuizHistory('${quizName}')" style="background: var(--danger); font-size: 11px; padding: 4px 8px; margin-bottom: 8px;">Xóa lịch sử</button>`;
+      records.forEach(rec => {
+        const rankedResults = calculateRanks(rec.results.sort((a,b) => b.score - a.score));
+        html += `
+          <div class="history-card">
+            <strong>Lần ${rec.attempt}</strong> - <small>${rec.time}</small>
+            <table>
+              <thead><tr><th>Giải</th><th>Thí Sinh</th><th style="text-align:center;">Trắc Nghiệm</th><th style="text-align:center;">Tự Luận</th><th style="text-align:right;">Điểm</th></tr></thead>
+              <tbody>
+                ${rankedResults.map(s => `
+                  <tr>
+                    <td>${getRankBadgeFromRank(s.rank)}</td>
+                    <td><b>${s.name}</b></td>
+                    <td style="text-align:center;"><small>✅${s.mcCorrect||0} | ❌${s.mcWrong||0}</small></td>
+                    <td style="text-align:center;"><small>✅${s.essayCorrect||0} | ❌${s.essayWrong||0}</small></td>
+                    <td style="text-align:right;"><strong style="color:#6ee7b7;">${s.score}</strong> đ</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      });
+      displayArea.innerHTML = html;
+    }
+
+    function clearQuizHistory(quizName) {
+      if (confirm('Xóa lịch sử bài này?')) {
+        const historyData = JSON.parse(localStorage.getItem(getTeacherHistoryStorageKey()) || '{}');
+        delete historyData[quizName];
+        localStorage.setItem(getTeacherHistoryStorageKey(), JSON.stringify(historyData));
+        renderHistoryUI();
+      }
+    }
+
+    function selectRole(role) {
+      myRole = role;
+      document.getElementById('role-screen').style.display = 'none';
+      if (role === 'teacher') document.getElementById('auth-screen').style.display = 'block';
+      else if (role === 'student') document.getElementById('student-screen').style.display = 'block';
+      else if (role === 'admin') {
+        const adminPass = prompt('Mật khẩu Admin:');
+        if (adminPass === 'tnttthaiha') {
+          document.getElementById('admin-screen').style.display = 'block';
+          socket.emit('admin_get_users');
+        } else {
+          alert('Sai mật khẩu!'); document.getElementById('role-screen').style.display = 'block';
+        }
+      }
+    }
+
+    function joinQuiz() {
+      const roomInput = document.getElementById('student-room-input').value.trim();
+      const name = document.getElementById('student-name').value.trim();
+      if (!roomInput || !name) return alert('Nhập đủ mã phòng và tên!');
+      activeRoomId = roomInput; currentStudentName = name; myRole = 'student';
+      document.getElementById('student-screen').style.display = 'none';
+      document.getElementById('lobby-screen').style.display = 'block';
+      document.getElementById('lobby-my-name').innerText = name;
+      document.getElementById('lobby-my-room').innerText = activeRoomId;
+      socket.emit('join_room', { name, role: 'student', roomId: activeRoomId });
+    }
+
+    socket.on('my_mascot_assigned', (mascot) => {
+      myAssignedMascot = mascot;
+      document.getElementById('my-mascot-icon').innerText = mascot.icon;
+      document.getElementById('my-mascot-title').innerText = `Linh vật: ${mascot.title}`;
+    });
+
+    function startQuiz() {
+      const activeSelect = document.getElementById('active-quiz-select');
+      const selectedQuizName = activeSelect.value;
+      const saved = localStorage.getItem(getTeacherQuizStorageKey());
+      const currentQuizzes = saved ? JSON.parse(saved) : {};
+      if (!selectedQuizName || !currentQuizzes[selectedQuizName]) return alert('Chọn bài thi!');
+
+      const btn = document.getElementById('start-btn');
+      btn.disabled = true; btn.innerText = '⏳ BÀI THI ĐANG DIỄN RA...';
+      socket.emit('start_quiz', { parts: currentQuizzes[selectedQuizName], quizName: selectedQuizName, roomId: activeRoomId });
+    }
+
+    function togglePauseQuiz() { socket.emit('toggle_pause', { roomId: activeRoomId }); }
+
+    socket.on('update_students', (students) => {
+      if (myRole === 'teacher') {
+        document.getElementById('count').innerText = students.length;
+        document.getElementById('teacher-student-grid').innerHTML = students.map(s => `
+          <div class="lobby-student-chip">
+            <button class="btn-kick-student" onclick="kickStudent('${s.id}', '${s.name}')">✕</button>
+            <div class="lobby-student-avatar">${s.mascot ? s.mascot.icon : '🦁'}</div>
+            <span class="lobby-student-name">${s.name}</span>
+          </div>
+        `).join('');
+      } else if (myRole === 'student') {
+        document.getElementById('lobby-count').innerText = students.length;
+        document.getElementById('lobby-students-container').innerHTML = students.map(s => `
+          <div class="lobby-student-chip">
+            <div class="lobby-student-avatar" onclick="dodgeInteractiveMascot(this)">${s.mascot ? s.mascot.icon : '🦁'}</div>
+            <span class="lobby-student-name">${s.name}</span>
+          </div>
+        `).join('');
+      }
+    });
+
+    socket.on('quiz_paused', () => {
+      isClientPaused = true;
+      if (myRole === 'student') document.getElementById('pause-overlay').style.display = 'flex';
+      if (myRole === 'teacher') {
+        const btn = document.getElementById('btn-toggle-pause');
+        if (btn) { btn.innerHTML = '▶️ Tiếp Tục'; btn.style.background = '#f59e0b'; }
+      }
+    });
+
+    socket.on('quiz_resumed', () => {
+      isClientPaused = false;
+      if (myRole === 'student') document.getElementById('pause-overlay').style.display = 'none';
+      if (myRole === 'teacher') {
+        const btn = document.getElementById('btn-toggle-pause');
+        if (btn) { btn.innerHTML = '⏸ Tạm Dừng'; btn.style.background = '#6366f1'; }
+      }
+    });
+
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
@@ -847,7 +1259,6 @@
           });
         }
       } else {
-        // Màn hình GV: Sáng đáp án đúng (hoặc hiển thị rõ đáp án tự luận)
         const teacherOptButtons = document.querySelectorAll('#teacher-student-like-screen .opt-btn');
         teacherOptButtons.forEach(b => {
           const isCorrect = b.getAttribute('data-is-correct') === 'true';
@@ -855,7 +1266,6 @@
           else { b.style.opacity = '0.35'; }
         });
 
-        // Nếu là câu tự luận, hiển thị rõ đáp án chuẩn ngay trên màn hình GV khi hết giờ
         if (currentItemData && currentItemData.question.type === 'short_answer') {
           const screenBox = document.getElementById('teacher-student-like-screen');
           if (screenBox && !document.getElementById('teacher-essay-answer-banner')) {
