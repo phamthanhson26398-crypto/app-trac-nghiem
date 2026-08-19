@@ -278,6 +278,9 @@
     .champion-name { font-size: 23px; font-weight: 900; color: #ffffff; text-shadow: 0 0 12px rgba(255, 209, 102, 0.8), 0 2px 4px rgba(0,0,0,0.8); margin: 3px 0; }
     .champion-score { font-size: 17px; font-weight: 800; color: #6ee7b7; text-shadow: 0 0 10px rgba(110, 231, 183, 0.6); }
 
+    .dimmed-leaderboard { opacity: 0.25; filter: blur(1.5px); transition: all 0.5s ease; pointer-events: none; }
+    .dimmed-leaderboard.active { opacity: 1; filter: blur(0px); pointer-events: auto; }
+
     .teacher-review-panel { background: rgba(0,0,0,0.55); border: 1.5px solid #f59e0b; border-radius: 18px; padding: 16px; margin-top: 14px; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
     .question-review-card { background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 209, 102, 0.3); border-radius: 16px; padding: 14px; margin-bottom: 16px; }
     .teacher-ref-answer { background: rgba(16, 185, 129, 0.12); border: 1px dashed #10b981; color: #6ee7b7; padding: 8px 12px; border-radius: 10px; font-size: 12.5px; margin-top: 10px; line-height: 1.4; }
@@ -305,11 +308,11 @@
       🙋‍♂️ Tôi là Học Sinh / Đoàn Sinh
     </button>
     <button onclick="selectRole('admin')" style="background: linear-gradient(180deg, #475569 0%, #334155 100%); width: 100%; margin-top: 12px; padding: 10px; font-size: 13px; box-shadow: 0 2px 0 #1e293b;">
-      ⚙️ Quản Trị Viên
+      ⚙️ Quản Trị Viên (Admin Quản Lý Mật Khẩu)
     </button>
   </div>
 
-  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV (GIỮ NGUYÊN 100% CODE CŨ ỔN ĐỊNH) -->
+  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV (GIỮ NGUYÊN 100% GỐC) -->
   <div id="auth-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 id="auth-title" style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
@@ -382,7 +385,7 @@
       <div id="quiz-list-container" style="margin-top: 8px;"></div>
     </div>
 
-    <!-- KHUNG SOẠN ĐỀ (Cài đặt giây theo Phần) -->
+    <!-- KHUNG SOẠN ĐỀ (Thời gian theo Phần) -->
     <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 14px; border-radius: 16px; margin-bottom: 14px; background: rgba(0,0,0,0.4);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 15px;">📝 Soạn Đề Thi</h3>
@@ -729,7 +732,7 @@
       }
     }
 
-    /* ĐĂNG NHẬP / ĐĂNG KÝ (GIỮ NGUYÊN 100%) */
+    /* ĐĂNG NHẬP / ĐĂNG KÝ (GIỮ NGUYÊN 100% GỐC) */
     function toggleAuthMode() {
       isAuthRegisterMode = !isAuthRegisterMode;
       document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
