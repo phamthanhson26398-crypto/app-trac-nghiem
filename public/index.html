@@ -337,7 +337,7 @@
       🙋‍♂️ Tôi là Học Sinh / Đoàn Sinh
     </button>
     <button onclick="selectRole('admin')" style="background: linear-gradient(180deg, #475569 0%, #334155 100%); width: 100%; margin-top: 12px; padding: 10px; font-size: 13px; box-shadow: 0 2px 0 #1e293b;">
-      ⚙️ Quản Trị Viên (Admin Quản Lý Mật Khẩu)
+      ⚙️ Quản Trị Viên
     </button>
   </div>
 
@@ -604,10 +604,12 @@
         </div>
       </div>
 
+      <!-- Nút xem lại câu trả lời -->
       <button onclick="toggleStudentReviewModal()" style="background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%); width: 100%; padding: 13px; font-size: 15px; box-shadow: 0 3px 0 #1e40af; margin-top: 6px;">
         📖 Xem Lại Câu Trả Lời & Đáp Án
       </button>
 
+      <!-- Khung hiển thị chi tiết bài làm của học sinh -->
       <div id="student-answers-review-container" style="display: none; margin-top: 14px;"></div>
     </div>
   </div>
@@ -798,6 +800,43 @@
         socket.emit('join_room', { role: 'teacher', roomId: activeRoomId });
       }
     });
+
+    /* QUẢN TRỊ ADMIN */
+    socket.on('admin_user_list_update', (users) => {
+      const tbody = document.getElementById('admin-user-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      const userList = Object.keys(users);
+      if (userList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Chưa có tài khoản nào.</td></tr>';
+        return;
+      }
+      userList.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><b>${u}</b></td>
+          <td style="color:#ffd166;">${users[u]}</td>
+          <td style="text-align:right;">
+            <button class="btn-edit" onclick="adminResetPass('${u}')">Đổi MK</button>
+            <button class="btn-delete" onclick="adminDeleteUser('${u}')">Xóa</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+
+    function adminResetPass(username) {
+      const newPass = prompt(`Nhập mật khẩu mới cho ${username}:`);
+      if (newPass && newPass.trim()) {
+        socket.emit('admin_reset_pass', { username, newPass: newPass.trim() });
+      }
+    }
+
+    function adminDeleteUser(username) {
+      if (confirm(`Bạn có chắc muốn xóa tài khoản ${username}?`)) {
+        socket.emit('admin_delete_user', { username });
+      }
+    }
 
     function logoutTeacher() {
       if (activeRoomId) socket.emit('clear_room_students', { roomId: activeRoomId });
@@ -1442,7 +1481,7 @@
 
     function revealWinnerCeremony() { socket.emit('reveal_results', { roomId: activeRoomId }); }
 
-    /* 5. HIỂN THỊ KẾT QUẢ & BẢNG ĐIỂM CHI TIẾT TỰ ĐỘNG BẬT SÁNG */
+    /* 5. HIỂN THỊ KẾT QUẢ & BẢNG ĐIỂM CHI TIẾT */
     socket.on('results_revealed', ({ leaderboard, quizName, allQuestions }) => {
       document.getElementById('suspense-container').style.display = 'none';
       if (allQuestions) allQuizQuestionsList = allQuestions;
