@@ -309,11 +309,14 @@
     </button>
   </div>
 
-  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV (GIỮ NGUYÊN 100%) -->
+  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV -->
   <div id="auth-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 id="auth-title" style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
     <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Mỗi tài khoản sẽ có một Phòng Thi & Mã QR riêng</p>
+
+    <!-- Hộp thông báo phản hồi tại chỗ -->
+    <div id="auth-alert-box" style="display: none; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 800; text-align: center; margin-bottom: 12px;"></div>
 
     <label style="font-size: 13.5px;"><strong>Tài khoản (Tên đăng nhập):</strong></label>
     <input type="text" id="auth-username" placeholder="Ví dụ: huynh_truong_01">
@@ -321,7 +324,7 @@
     <label style="font-size: 13.5px;"><strong>Mật khẩu:</strong></label>
     <input type="password" id="auth-password" placeholder="••••••••">
 
-    <button id="auth-submit-btn" onclick="handleAuthSubmit()" style="width: 100%; padding: 13px; font-size: 15px; margin-top: 4px;">Đăng Nhập Ngay</button>
+    <button id="auth-submit-btn" type="button" style="width: 100%; padding: 13px; font-size: 15px; margin-top: 4px;">Đăng Nhập Ngay</button>
 
     <div style="text-align: center; margin-top: 14px; font-size: 13px;">
       <span id="auth-toggle-text" style="color: var(--text-muted);">Chưa có tài khoản?</span>
@@ -382,7 +385,7 @@
       <div id="quiz-list-container" style="margin-top: 8px;"></div>
     </div>
 
-    <!-- KHUNG SOẠN ĐỀ (Thời gian theo Phần) -->
+    <!-- KHUNG SOẠN ĐỀ (Cài đặt giây theo Phần) -->
     <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 14px; border-radius: 16px; margin-bottom: 14px; background: rgba(0,0,0,0.4);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 15px;">📝 Soạn Đề Thi</h3>
@@ -599,6 +602,16 @@
 
     const FUNNY_TEXTS = ['Ú òa! 😜', 'Né nè! ✨', 'Boing! 🎈', 'Bắt hụt rồi! 🚀', 'Hehe! 🌟', 'Vèo! 💨', 'Bí mật! 🐾'];
 
+    function showAuthAlert(msg, isSuccess = false) {
+      const box = document.getElementById('auth-alert-box');
+      if (!box) return;
+      box.style.display = 'block';
+      box.style.background = isSuccess ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)';
+      box.style.color = isSuccess ? '#6ee7b7' : '#fca5a5';
+      box.style.border = isSuccess ? '1.5px solid #10b981' : '1.5px solid #ef4444';
+      box.innerText = msg;
+    }
+
     function dodgeInteractiveMascot(el) {
       if (myRole !== 'student') return;
       const randX = Math.floor((Math.random() - 0.5) * 110);
@@ -661,6 +674,12 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      // Gắn sự kiện click bằng JavaScript trực tiếp để đảm bảo không bị xung đột
+      const authBtn = document.getElementById('auth-submit-btn');
+      if (authBtn) {
+        authBtn.addEventListener('click', handleAuthSubmit);
+      }
+
       const savedTeacher = sessionStorage.getItem('tntt_current_teacher');
       if (savedTeacher) {
         currentTeacherUser = savedTeacher;
@@ -716,9 +735,10 @@
       }
     }
 
-    /* ĐĂNG NHẬP / ĐĂNG KÝ GLV (GIỮ NGUYÊN 100% GỐC) */
+    /* ĐĂNG NHẬP / ĐĂNG KÝ GLV */
     function toggleAuthMode() {
       isAuthRegisterMode = !isAuthRegisterMode;
+      document.getElementById('auth-alert-box').style.display = 'none';
       document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
       document.getElementById('auth-submit-btn').innerText = isAuthRegisterMode ? 'Tạo Tài Khoản Mới' : 'Đăng Nhập Ngay';
       document.getElementById('auth-toggle-text').innerText = isAuthRegisterMode ? 'Đã có tài khoản?' : 'Chưa có tài khoản?';
@@ -728,7 +748,13 @@
     function handleAuthSubmit() {
       const username = document.getElementById('auth-username').value.trim();
       const pass = document.getElementById('auth-password').value.trim();
-      if (!username || !pass) return alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
+      if (!username || !pass) {
+        showAuthAlert('⚠️ Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
+        return;
+      }
+
+      const btn = document.getElementById('auth-submit-btn');
+      btn.innerText = '⏳ Đang gửi yêu cầu...';
 
       if (isAuthRegisterMode) {
         socket.emit('teacher_register', { username, password: pass });
@@ -738,9 +764,16 @@
     }
 
     socket.on('auth_response', ({ success, message, isRegister, username }) => {
-      if (!success) return alert(message);
+      const btn = document.getElementById('auth-submit-btn');
+      if (btn) btn.innerText = isAuthRegisterMode ? 'Tạo Tài Khoản Mới' : 'Đăng Nhập Ngay';
+
+      if (!success) {
+        showAuthAlert(message || '❌ Đăng nhập thất bại. Nếu server vừa khởi động lại, vui lòng bấm Đăng Ký Mới!');
+        return;
+      }
+      
       if (isRegister) {
-        alert(message);
+        showAuthAlert(message || 'Đăng ký thành công! Hãy đăng nhập.', true);
         toggleAuthMode();
       } else {
         currentTeacherUser = username; activeRoomId = username;
@@ -1010,7 +1043,7 @@
       return partsData;
     }
 
-    /* 3. MÀN HÌNH THEO DÕI CỦA GIÁO VIÊN */
+    /* 3. MÀN HÌNH THEO DÕI LIVE CỦA GLV */
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
@@ -1124,7 +1157,6 @@
           else { b.style.opacity = '0.35'; }
         });
 
-        // HẾT GIỜ: Tự động hiện đáp án chuẩn ở dưới cho Giáo viên
         if (currentItemData && currentItemData.question.type === 'short_answer') {
           const screenBox = document.getElementById('teacher-student-like-screen');
           if (screenBox && !document.getElementById('teacher-essay-answer-banner')) {
@@ -1307,7 +1339,7 @@
 
     function revealWinnerCeremony() { socket.emit('reveal_results', { roomId: activeRoomId }); }
 
-    /* 5. HIỂN THỊ KẾT QUẢ & BẢNG ĐIỂM CHI TIẾT TỰ ĐỘNG BẬT SÁNG */
+    /* 5. BẢNG XẾP HẠNG & HIỂN THỊ KẾT QUẢ */
     socket.on('results_revealed', ({ leaderboard, quizName }) => {
       document.getElementById('suspense-container').style.display = 'none';
 
