@@ -298,7 +298,7 @@ io.on('connection', (socket) => {
           if (hist) {
             essaySubmissionsForCurrent.push({
               studentId: st.id, studentName: st.name, mascot: st.mascot,
-              answerText: hist.userAnswer, potentialPoints: hist.points || 10
+              answerText: hist.userAnswer, potentialPoints: hist.points
             });
           }
         });
@@ -329,7 +329,7 @@ io.on('connection', (socket) => {
             userAnswer: answerText || '(Trống)',
             selectedIndex: selectedIndex,
             teacherAnswers: teacherAnswers || '',
-            points: isCorrect ? secondsLeft : 10,
+            points: secondsLeft,
             isOverridden: false
           });
         }
@@ -338,26 +338,26 @@ io.on('connection', (socket) => {
   });
 
   socket.on('override_essay_live', ({ roomId, studentId, points }) => {
-      const targetRoomId = roomId || currentRoomId;
-      if (targetRoomId && rooms[targetRoomId]) {
-        const room = rooms[targetRoomId];
-        if (room.students[studentId]) {
-          // Lấy đúng số điểm (giây) mà học sinh đó đã giành được lúc nộp bài
-          const historyItem = room.students[studentId].answerHistory.find(h => h.questionIndex === room.currentIndex);
-          const addedScore = historyItem ? historyItem.points : 0; 
+    const targetRoomId = roomId || currentRoomId;
+    if (targetRoomId && rooms[targetRoomId]) {
+      const room = rooms[targetRoomId];
+      if (room.students[studentId]) {
+        // Tìm lại đúng dữ liệu lịch sử của câu hỏi đó
+        const historyItem = room.students[studentId].answerHistory.find(h => h.questionIndex === room.currentIndex);
         
-          room.students[studentId].score += addedScore;
+        if (historyItem && !historyItem.isOverridden) {
+          const earnedPoints = parseInt(points);
+          room.students[studentId].score += earnedPoints;
           room.students[studentId].essayCorrect = (room.students[studentId].essayCorrect || 0) + 1;
           room.students[studentId].essayWrong = Math.max(0, (room.students[studentId].essayWrong || 0) - 1);
-        
-          if (historyItem) {
-            historyItem.isCorrect = true;
-            historyItem.isOverridden = true;
-            // Điểm đã được lưu trong historyItem.points lúc submit
-          }
+          
+          historyItem.isCorrect = true;
+          historyItem.isOverridden = true;
+          historyItem.points = earnedPoints;
         }
       }
-    });
+    }
+  });
 
   socket.on('reveal_results', ({ roomId }) => {
     const targetRoomId = roomId || currentRoomId;
