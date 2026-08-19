@@ -20,7 +20,6 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 const DB_FILE = path.join(__dirname, 'teachers.json');
 
-// --- HÀM ĐỌC VÀ GHI TÀI KHOẢN VĨNH VIỄN VÀO FILE teachers.json ---
 function loadTeachersDB() {
   try {
     if (fs.existsSync(DB_FILE)) {
@@ -152,16 +151,14 @@ function startRoomTimer(roomId) {
 
 io.on('connection', (socket) => {
   let currentRoomId = null;
+  const clientDeviceToken = socket.handshake.query.deviceToken;
 
   socket.on('teacher_register', ({ username, password }) => {
     if (!username || !password) return socket.emit('auth_response', { success: false, message: 'Vui lòng điền đủ thông tin!' });
-    
     teachersDB = loadTeachersDB();
     if (teachersDB[username]) return socket.emit('auth_response', { success: false, message: 'Tên tài khoản này đã tồn tại!' });
-    
     teachersDB[username] = password;
     saveTeachersDB(teachersDB);
-
     socket.emit('auth_response', { success: true, isRegister: true, message: 'Đăng ký thành công! Hãy đăng nhập.' });
     io.emit('admin_user_list_update', teachersDB);
   });
@@ -198,20 +195,46 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('join_room', ({ name, role, roomId }) => {
+  // --- XỬ LÝ HỌC SINH THAM GIA / KẾT NỐI LẠI KHÔNG BỊ TRÙNG BẢN SAO ---
+  socket.on('join_room', ({ name, role, roomId, deviceToken }) => {
     if (!roomId) roomId = 'default_room';
     currentRoomId = roomId;
     socket.join(roomId);
     const room = getOrCreateRoom(roomId);
 
+    const tokenToUse = deviceToken || clientDeviceToken;
+
     if (role === 'student') {
-      const randomMascot = MASCOTS[Math.floor(Math.random() * MASCOTS.length)];
-      room.students[socket.id] = {
-        id: socket.id, name: name || 'Đoàn sinh', mascot: randomMascot, score: 0, currentScore: 0,
-        answered: false, mcCorrect: 0, mcWrong: 0, mcUnanswered: 0, essayCorrect: 0, essayWrong: 0, essayUnanswered: 0,
-        answerHistory: []
-      };
-      socket.emit('my_mascot_assigned', randomMascot);
+      let existingKey = null;
+      if (tokenToUse) {
+        existingKey = Object.keys(room.students).find(id => room.students[id].deviceToken === tokenToUse);
+      }
+
+      if (existingKey) {
+        // Nếu thiết bị này đã từng vào phòng, GIỮ NGUYÊN thông tin cũ, chỉ đổi sang socket ID mới
+        room.students[socket.id] = room.students[existingKey];
+        room.students[socket.id].id = socket.id;
+        if (existingKey !== socket.id) {
+          delete room.students[existingKey];
+        }
+      } else {
+        // Nếu chưa có, tạo mới học sinh
+        const randomMascot = MASCOTS[Math.floor(Math.random() * MASCOTS.length)];
+        room.students[socket.id] = {
+          id: socket.id, 
+          name: name || 'Đoàn sinh', 
+          mascot: randomMascot, 
+          deviceToken: tokenToUse,
+          score: 0, 
+          currentScore: 0,
+          answered: false, 
+          mcCorrect: 0, mcWrong: 0, mcUnanswered: 0, 
+          essayCorrect: 0, essayWrong: 0, essayUnanswered: 0,
+          answerHistory: []
+        };
+      }
+
+      socket.emit('my_mascot_assigned', room.students[socket.id].mascot);
       io.to(roomId).emit('update_students', Object.values(room.students));
 
       if (room.status === 'playing' && room.currentItem) {
