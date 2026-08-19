@@ -1426,7 +1426,7 @@
                     <div style="font-size: 14.5px; color: #ffd166; font-weight: bold; margin-top: 4px;">Đã điền: "${s.answerText}"</div>
                   </div>
                   <div style="display: flex; gap: 8px;">
-                    <button onclick="approveLiveEssay('${s.studentId}', ${s.potentialPoints || 10})" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); padding: 7px 12px; font-size: 12px; white-space: nowrap;">✅ Chấp nhận</button>
+                    <button onclick="approveLiveEssay('${s.studentId}', ${s.potentialPoints})" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); padding: 7px 12px; font-size: 12px; white-space: nowrap;">✅ Chấp nhận (+${s.potentialPoints}đ)</button>
                     <button onclick="dismissLiveEssay(this)" style="background: #64748b; padding: 7px 12px; font-size: 12px; white-space: nowrap;">❌ Bỏ qua</button>
                   </div>
                 </div>
