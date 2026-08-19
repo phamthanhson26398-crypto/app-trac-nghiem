@@ -70,7 +70,6 @@ function startRoomTimer(roomId) {
 
     if (room.phaseTimeLeft <= 0) {
       if (room.phase === 'question') {
-        // HẾT GIỜ LÀM BÀI -> NGHỈ 10 GIÂY
         room.phase = 'transition';
         room.phaseTimeLeft = 10; 
         io.to(roomId).emit('question_time_up');
@@ -96,7 +95,6 @@ function startRoomTimer(roomId) {
         });
 
       } else if (room.phase === 'transition') {
-        // HẾT 10 GIÂY -> SANG CÂU MỚI HOẶC KẾT THÚC
         room.currentIndex++;
         if (room.currentIndex >= room.queue.length) {
           clearInterval(room.timerInterval);
@@ -284,7 +282,7 @@ io.on('connection', (socket) => {
           const secondsLeft = Math.max(1, parseInt(remainingTime) || 0);
           student.currentScore = isCorrect ? secondsLeft : 0;
 
-          const submissionRecord = {
+          student.answerHistory.push({
             questionIndex: room.currentIndex,
             partTitle: room.currentItem.partTitle,
             questionTitle: questionTitle,
@@ -295,9 +293,7 @@ io.on('connection', (socket) => {
             teacherAnswers: teacherAnswers || '',
             points: isCorrect ? secondsLeft : 0,
             isOverridden: false
-          };
-
-          student.answerHistory.push(submissionRecord);
+          });
 
           if (type === 'short_answer') {
             room.essaySubmissions.push({
@@ -322,8 +318,7 @@ io.on('connection', (socket) => {
         room.students[studentId].essayCorrect = (room.students[studentId].essayCorrect || 0) + 1;
         room.students[studentId].essayWrong = Math.max(0, (room.students[studentId].essayWrong || 0) - 1);
         
-        // Cập nhật trạng thái duyệt tích xanh vào lịch sử của học sinh
-        const historyItem = room.students[studentId].answerHistory.find(h => h.questionIndex === qIndex || h.questionTitle);
+        const historyItem = room.students[studentId].answerHistory.find(h => h.questionIndex === qIndex);
         if (historyItem) {
           historyItem.isCorrect = true;
           historyItem.isOverridden = true;
