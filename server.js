@@ -145,7 +145,9 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('admin_get_users', () => { socket.emit('admin_user_list_update', teachersDB); });
+  socket.on('admin_get_users', () => { 
+    socket.emit('admin_user_list_update', teachersDB); 
+  });
 
   socket.on('admin_reset_pass', ({ username, newPass }) => {
     if (teachersDB[username]) {
