@@ -623,10 +623,9 @@
   </div>
 
   <script>
-    // --- TẠO HOẶC LẤY ĐỊNH DANH DUY NHẤT CHO THIẾT BỊ NÀY (DÙNG ĐỂ KHÔNG TẠO BẢN SAO KHI F5) ---
     let myDeviceToken = localStorage.getItem('tntt_device_token');
     if (!myDeviceToken) {
-      myDeviceToken = 'dev_' + Math.random().toString(36.substring(2)) + Date.now().toString(36);
+      myDeviceToken = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
       localStorage.setItem('tntt_device_token', myDeviceToken);
     }
 
@@ -856,7 +855,6 @@
       new QRCode(qrContainer, { text: roomUrl, width: 150, height: 150, colorDark : "#000000", colorLight : "#ffffff" });
     }
 
-    // --- KHÔI PHỤC TRẠNG THÁI CỐ ĐỊNH KHI HỌC SINH TẢI LẠI TRANG (F5) ---
     window.addEventListener('DOMContentLoaded', () => {
       const savedTeacher = sessionStorage.getItem('tntt_current_teacher');
       if (savedTeacher) {
@@ -896,7 +894,7 @@
       if (savedName) {
         const nameInputEl = document.getElementById('student-name');
         nameInputEl.value = savedName;
-        nameInputEl.readOnly = true; // Khóa cứng tên, chỉ đặt 1 lần duy nhất!
+        nameInputEl.readOnly = true; 
         nameInputEl.style.opacity = '0.8';
       }
 
@@ -913,7 +911,6 @@
           document.getElementById('lobby-my-name').innerText = savedName;
           document.getElementById('lobby-my-room').innerText = activeRoomId;
           
-          // Gửi kèm deviceToken để server nhận diện đúng thí sinh A cũ không tạo bản sao
           socket.emit('join_room', { name: savedName, role: 'student', roomId: activeRoomId, deviceToken: myDeviceToken });
         }
       }
