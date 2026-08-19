@@ -309,13 +309,14 @@
     </button>
   </div>
 
-  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV (GIỮ NGUYÊN GIAO DIỆN) -->
+  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV -->
   <div id="auth-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 id="auth-title" style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
     <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Mỗi tài khoản sẽ có một Phòng Thi & Mã QR riêng</p>
 
-    <div id="auth-msg-box" style="display: none; padding: 8px 12px; border-radius: 10px; margin-bottom: 12px; font-size: 13px; font-weight: bold; text-align: center;"></div>
+    <!-- Khung thông báo lỗi trực tiếp trên màn hình, không bao giờ bị trình duyệt chặn -->
+    <div id="auth-status-msg" style="display: none; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 800; text-align: center; margin-bottom: 10px;"></div>
 
     <label style="font-size: 13.5px;"><strong>Tài khoản (Tên đăng nhập):</strong></label>
     <input type="text" id="auth-username" placeholder="Ví dụ: huynh_truong_01">
@@ -384,7 +385,7 @@
       <div id="quiz-list-container" style="margin-top: 8px;"></div>
     </div>
 
-    <!-- KHUNG SOẠN ĐỀ (Thời gian chung theo Phần) -->
+    <!-- KHUNG SOẠN ĐỀ (Cài đặt thời gian chung theo từng Phần) -->
     <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 14px; border-radius: 16px; margin-bottom: 14px; background: rgba(0,0,0,0.4);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 15px;">📝 Soạn Đề Thi</h3>
@@ -533,7 +534,7 @@
       <div id="champion-score" class="champion-score">🔥 0 Điểm</div>
     </div>
 
-    <!-- BẢNG ĐIỂM CỦA GIÁO LÝ VIÊN (TỰ ĐỘNG HIỆN RÕ RÀNG NGAY DƯỚI NHÀ VÔ ĐỊCH) -->
+    <!-- BẢNG ĐIỂM CỦA GIÁO LÝ VIÊN (TỰ ĐỘNG HIỂN THỊ RÕ RÀNG NGAY DƯỚI) -->
     <div id="teacher-result-view" style="display: none; margin-top: 14px;">
       <div style="background: rgba(0,0,0,0.35); border-radius: 16px; padding: 14px; border: 1px solid rgba(255,255,255,0.15);">
         <h3 style="margin: 0 0 10px 0; color: #ffd166; font-size: 16px; text-align: center; font-weight: 900;">📊 BẢNG XẾP HẠNG TOÀN BỘ THÍ SINH</h3>
@@ -600,6 +601,16 @@
     let isClientPaused = false;
 
     const FUNNY_TEXTS = ['Ú òa! 😜', 'Né nè! ✨', 'Boing! 🎈', 'Bắt hụt rồi! 🚀', 'Hehe! 🌟', 'Vèo! 💨', 'Bí mật! 🐾'];
+
+    function showAuthMsg(msg, isSuccess = false) {
+      const box = document.getElementById('auth-status-msg');
+      if (!box) return;
+      box.style.display = 'block';
+      box.style.background = isSuccess ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)';
+      box.style.color = isSuccess ? '#6ee7b7' : '#fca5a5';
+      box.style.border = isSuccess ? '1.5px solid #10b981' : '1.5px solid #ef4444';
+      box.innerText = msg;
+    }
 
     function dodgeInteractiveMascot(el) {
       if (myRole !== 'student') return;
@@ -718,9 +729,10 @@
       }
     }
 
-    /* ĐĂNG NHẬP / ĐĂNG KÝ GLV (GIỮ NGUYÊN 100% GỐC) */
+    /* ĐĂNG NHẬP / ĐĂNG KÝ GLV */
     function toggleAuthMode() {
       isAuthRegisterMode = !isAuthRegisterMode;
+      document.getElementById('auth-status-msg').style.display = 'none';
       document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
       document.getElementById('auth-submit-btn').innerText = isAuthRegisterMode ? 'Tạo Tài Khoản Mới' : 'Đăng Nhập Ngay';
       document.getElementById('auth-toggle-text').innerText = isAuthRegisterMode ? 'Đã có tài khoản?' : 'Chưa có tài khoản?';
@@ -730,7 +742,18 @@
     function handleAuthSubmit() {
       const username = document.getElementById('auth-username').value.trim();
       const pass = document.getElementById('auth-password').value.trim();
-      if (!username || !pass) return alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
+      if (!username || !pass) {
+        showAuthMsg('⚠️ Vui lòng nhập đầy đủ tên tài khoản và mật khẩu!');
+        return;
+      }
+
+      if (!socket.connected) {
+        showAuthMsg('⏳ Đang kết nối đến máy chủ, vui lòng thử lại sau 3 giây...');
+        return;
+      }
+
+      const btn = document.getElementById('auth-submit-btn');
+      btn.innerText = '⏳ Đang xử lý...';
 
       if (isAuthRegisterMode) {
         socket.emit('teacher_register', { username, password: pass });
@@ -740,9 +763,16 @@
     }
 
     socket.on('auth_response', ({ success, message, isRegister, username }) => {
-      if (!success) return alert(message);
+      const btn = document.getElementById('auth-submit-btn');
+      if (btn) btn.innerText = isAuthRegisterMode ? 'Tạo Tài Khoản Mới' : 'Đăng Nhập Ngay';
+
+      if (!success) {
+        showAuthMsg(message || '❌ Đăng nhập thất bại. Nếu server vừa khởi động lại, vui lòng bấm Đăng Ký Mới!');
+        return;
+      }
+      
       if (isRegister) {
-        alert(message);
+        showAuthMsg(message || 'Đăng ký thành công! Hãy đăng nhập.', true);
         toggleAuthMode();
       } else {
         currentTeacherUser = username; activeRoomId = username;
@@ -1083,7 +1113,7 @@
       }, 1000);
     });
 
-    /* 2 & 3. NGHỈ CHUYỂN CÂU 10S & HIỆN ĐÁP ÁN TỰ LUẬN KHI HẾT GIỜ */
+    /* 2 & 3. THỜI GIAN NGHỈ 10S & HIỆN ĐÁP ÁN TỰ LUẬN KHI HẾT GIỜ */
     socket.on('question_time_up', () => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (myRole === 'student') document.getElementById('timer').innerText = '0';
@@ -1308,7 +1338,7 @@
 
     function revealWinnerCeremony() { socket.emit('reveal_results', { roomId: activeRoomId }); }
 
-    /* HIỂN THỊ KẾT QUẢ & BẢNG ĐIỂM CHI TIẾT TỰ ĐỘNG BẬT SÁNG */
+    /* 5. BẢNG XẾP HẠNG & HIỂN THỊ KẾT QUẢ */
     socket.on('results_revealed', ({ leaderboard, quizName }) => {
       document.getElementById('suspense-container').style.display = 'none';
 
