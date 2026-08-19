@@ -623,7 +623,18 @@
   </div>
 
   <script>
-    const socket = io({ transports: ['websocket', 'polling'] });
+    // --- TẠO HOẶC LẤY ĐỊNH DANH DUY NHẤT CHO THIẾT BỊ NÀY (DÙNG ĐỂ KHÔNG TẠO BẢN SAO KHI F5) ---
+    let myDeviceToken = localStorage.getItem('tntt_device_token');
+    if (!myDeviceToken) {
+      myDeviceToken = 'dev_' + Math.random().toString(36.substring(2)) + Date.now().toString(36);
+      localStorage.setItem('tntt_device_token', myDeviceToken);
+    }
+
+    const socket = io({ 
+      transports: ['websocket', 'polling'],
+      query: { deviceToken: myDeviceToken } 
+    });
+
     let myRole = '';
     let currentStudentName = '';
     let currentTeacherUser = '';
@@ -730,7 +741,7 @@
         generateRoomQRCode(activeRoomId);
         loadSavedQuizzes();
         socket.emit('clear_room_students', { roomId: activeRoomId });
-        socket.emit('join_room', { role: 'teacher', roomId: activeRoomId });
+        socket.emit('join_room', { role: 'teacher', roomId: activeRoomId, deviceToken: myDeviceToken });
       }
     });
 
@@ -845,7 +856,7 @@
       new QRCode(qrContainer, { text: roomUrl, width: 150, height: 150, colorDark : "#000000", colorLight : "#ffffff" });
     }
 
-    // --- TỰ ĐỘNG KHÓA PHÒNG & KHÔI PHỤC KHI HỌC SINH TẢI LẠI TRANG (F5) ---
+    // --- KHÔI PHỤC TRẠNG THÁI CỐ ĐỊNH KHI HỌC SINH TẢI LẠI TRANG (F5) ---
     window.addEventListener('DOMContentLoaded', () => {
       const savedTeacher = sessionStorage.getItem('tntt_current_teacher');
       if (savedTeacher) {
@@ -863,7 +874,7 @@
         generateRoomQRCode(activeRoomId);
         loadSavedQuizzes();
         socket.emit('clear_room_students', { roomId: activeRoomId });
-        socket.emit('join_room', { role: 'teacher', roomId: activeRoomId });
+        socket.emit('join_room', { role: 'teacher', roomId: activeRoomId, deviceToken: myDeviceToken });
         return;
       }
 
@@ -873,29 +884,26 @@
       const savedRoom = localStorage.getItem('tntt_saved_room');
       const savedName = localStorage.getItem('tntt_saved_name');
 
-      // Ưu tiên mã phòng trên QR Code, nếu không có lấy phòng cũ đã lưu
       const targetRoom = roomParam || savedRoom;
 
       if (targetRoom) {
         const roomInputEl = document.getElementById('student-room-input');
         roomInputEl.value = targetRoom;
-        roomInputEl.readOnly = true; // Khóa cứng không cho đổi phòng khác
+        roomInputEl.readOnly = true; 
         roomInputEl.style.opacity = '0.8';
       }
 
       if (savedName) {
         const nameInputEl = document.getElementById('student-name');
         nameInputEl.value = savedName;
-        nameInputEl.readOnly = true; // Khóa cứng tên đã đặt, chỉ 1 lần duy nhất!
+        nameInputEl.readOnly = true; // Khóa cứng tên, chỉ đặt 1 lần duy nhất!
         nameInputEl.style.opacity = '0.8';
       }
 
-      // Nếu đã từng tham gia hoặc quét QR, tự động đưa thẳng vào phòng chờ / game luôn
       if (urlParams.get('role') === 'student' || roomParam || savedRoom) {
         document.getElementById('role-screen').style.display = 'none';
         document.getElementById('student-screen').style.display = 'block';
         
-        // Nếu đã có đủ tên và phòng đã lưu, tự động kết nối ngầm luôn không cần bấm lại
         if (targetRoom && savedName) {
           activeRoomId = targetRoom;
           currentStudentName = savedName;
@@ -904,16 +912,17 @@
           document.getElementById('lobby-screen').style.display = 'block';
           document.getElementById('lobby-my-name').innerText = savedName;
           document.getElementById('lobby-my-room').innerText = activeRoomId;
-          socket.emit('join_room', { name: savedName, role: 'student', roomId: activeRoomId });
+          
+          // Gửi kèm deviceToken để server nhận diện đúng thí sinh A cũ không tạo bản sao
+          socket.emit('join_room', { name: savedName, role: 'student', roomId: activeRoomId, deviceToken: myDeviceToken });
         }
       }
     });
 
     socket.on('kicked_by_teacher', () => {
-      // Khi chủ phòng bấm ❌ kích ra, xóa toàn bộ bộ nhớ lưu trữ để học sinh được phép đặt tên mới / vào phòng mới
       localStorage.removeItem('tntt_saved_room');
       localStorage.removeItem('tntt_saved_name');
-      alert('Bạn đã bị chủ phòng mời ra ngoài! Bạn có thể quét lại mã QR để đổi tên hoặc vào lại.');
+      alert('Bạn đã bị chủ phòng mời ra ngoài!');
       location.href = window.location.origin + '?role=student';
     });
 
@@ -1222,7 +1231,6 @@
       }
     }
 
-    // --- LƯU CỐ ĐỊNH TÊN VÀ PHÒNG THI (CHỈ ĐẶT 1 LẦN DUY NHẤT) ---
     function joinQuiz() {
       const roomInput = document.getElementById('student-room-input').value.trim();
       const name = document.getElementById('student-name').value.trim();
@@ -1239,7 +1247,7 @@
       document.getElementById('lobby-screen').style.display = 'block';
       document.getElementById('lobby-my-name').innerText = name;
       document.getElementById('lobby-my-room').innerText = activeRoomId;
-      socket.emit('join_room', { name, role: 'student', roomId: activeRoomId });
+      socket.emit('join_room', { name, role: 'student', roomId: activeRoomId, deviceToken: myDeviceToken });
     }
 
     socket.on('my_mascot_assigned', (mascot) => {
