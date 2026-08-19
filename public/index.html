@@ -27,7 +27,7 @@
     
     body { 
       font-family: 'Nunito', sans-serif; 
-      padding: 10px 14px; 
+      padding: 14px 10px; 
       max-width: 100% !important; 
       width: 100% !important;
       margin: auto; 
@@ -42,15 +42,17 @@
       overflow-x: hidden;
     }
 
-    /* BỐ CỤC 3 CỘT TRÀN VIỀN CHO MÀN HÌNH MÁY TÍNH GIÁO LÝ VIÊN */
+    /* ĐIỀU CHỈNH GIAO DIỆN GIÁO LÝ VIÊN KHOẢNG 80% KHỔ NGANG MÀN HÌNH MÁY TÍNH */
     #teacher-screen {
-      max-width: 100% !important;
-      width: 100% !important;
-      border-radius: 16px;
+      max-width: 1400px !important;
+      width: 80% !important;
+      margin: auto !important;
+      border-radius: 20px;
     }
+    
     .teacher-dashboard-layout {
       display: grid;
-      grid-template-columns: 280px 1fr 380px; /* Trái (QR nhỏ): 280px | Giữa (Học sinh): Linh hoạt | Phải (Kho đề): 380px (~1/3) */
+      grid-template-columns: 260px 1fr 380px; /* Cột 1: QR nhỏ | Cột 2: Học sinh | Cột 3: Kho đề & Cài đặt (~1/3) */
       gap: 16px;
       align-items: start;
     }
@@ -58,6 +60,14 @@
       .teacher-dashboard-layout {
         grid-template-columns: 1fr;
       }
+    }
+
+    /* TĂNG ĐỘ RỘNG CHO KHUNG SOẠN ĐỀ */
+    #editor-section {
+      width: 100% !important;
+      max-width: none !important;
+      background: rgba(0,0,0,0.65) !important;
+      border: 2px solid #10b981 !important;
     }
 
     ::-webkit-scrollbar { width: 5px; }
@@ -262,7 +272,7 @@
     }
 
     .lobby-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 12px 8px; margin-top: 12px; max-height: 400px; overflow-y: auto; padding: 8px 4px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 12px 8px; margin-top: 12px; max-height: 420px; overflow-y: auto; padding: 8px 4px;
     }
     .lobby-student-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; user-select: none; }
     .lobby-student-avatar {
@@ -297,7 +307,7 @@
 
     #qrcode-box { background: rgba(255, 255, 255, 0.06); border: 2px dashed rgba(16, 185, 129, 0.5); padding: 14px; border-radius: 18px; text-align: center; position: relative; }
     #qrcode { background: white; padding: 6px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
-    #qrcode img { margin: auto; width: 120px !important; height: 120px !important; }
+    #qrcode img { margin: auto; width: 110px !important; height: 110px !important; }
 
     /* MODAL ZOOM QR CODE FULL MÀN HÌNH */
     .qr-zoom-modal {
@@ -451,7 +461,7 @@
     </div>
   </div>
 
-  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV (BỐ CỤC 3 CỘT TRÀN VIỀN) -->
+  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV (BỐ CỤC 3 CỘT - 80% KHỔ NGANG) -->
   <div id="teacher-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -463,22 +473,22 @@
       <button onclick="logoutTeacher()" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-size: 13px; padding: 6px 14px; box-shadow: none; border: 1px solid rgba(239, 68, 68, 0.4);">Đăng Xuất</button>
     </div>
 
-    <!-- BỐ CỤC 3 CỘT TRÊN MÁY TÍNH -->
+    <!-- BỐ CỤC 3 CỘT -->
     <div class="teacher-dashboard-layout">
-      <!-- CỘT 1 (BÊN TRÁI): MÃ QR CÙNG NÚT PHÓNG TO -->
+      <!-- CỘT 1: MÃ QR BÉ (CÓ NÚT PHÓNG TO) -->
       <div>
         <div id="qrcode-box">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <h3 style="margin: 0; color: #6ee7b7; font-size: 14px; font-weight: 900;">📲 QUÉT MÃ QR</h3>
-            <button onclick="openQRZoom()" style="background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%); padding: 4px 8px; font-size: 11px; box-shadow: 0 2px 0 #312e81;" title="Phóng to mã QR">🔍 Phóng To</button>
+            <h3 style="margin: 0; color: #6ee7b7; font-size: 13.5px; font-weight: 900;">📲 QUÉT MÃ QR</h3>
+            <button onclick="openQRZoom()" style="background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%); padding: 3px 8px; font-size: 11px; box-shadow: 0 2px 0 #312e81;" title="Phóng to mã QR">🔍 Phóng To</button>
           </div>
           <p style="margin: 2px 0 8px 0; font-size: 12px; color: var(--text-muted);">Mã: <strong id="teacher-room-code-txt" style="color: #ffd166; font-size: 13px;">--</strong></p>
           <div id="qrcode"></div>
         </div>
       </div>
 
-      <!-- CỘT 2 (Ở GIỮA): HIỂN THỊ DANH SÁCH HỌC SINH TRONG PHÒNG -->
-      <div style="background: rgba(0, 0, 0, 0.28); border: 1.5px dashed rgba(255, 255, 255, 0.15); padding: 14px; border-radius: 18px; min-height: 230px;">
+      <!-- CỘT 2: SỐ NGƯỜI TRONG PHÒNG (Ở GIỮA) -->
+      <div style="background: rgba(0, 0, 0, 0.28); border: 1.5px dashed rgba(255, 255, 255, 0.15); padding: 14px; border-radius: 18px; min-height: 220px;">
         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1);">
           <span style="font-weight: 800; font-size: 14px; color: #6ee7b7;">🐾 SỐ NGƯỜI TRONG PHÒNG (<span id="count">0</span>)</span>
           <span style="font-size: 11px; color: var(--text-muted);">(Bấm ❌ để mời ra)</span>
@@ -486,7 +496,7 @@
         <div id="teacher-student-grid" class="lobby-grid"></div>
       </div>
 
-      <!-- CỘT 3 (BÊN PHẢI): KHO BÀI THI, SOẠN ĐỀ, LỊCH SỬ VÀ NÚT PHÁT ĐỀ (~1/3 KHỔ NGANG) -->
+      <!-- CỘT 3: KHO BÀI THI, SOẠN ĐỀ, BẢNG ĐIỂM CHIẾM 1/3 KHỔ NGANG BÊN PHẢI -->
       <div>
         <div class="quiz-manager">
           <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -496,14 +506,14 @@
           <div id="quiz-list-container" style="margin-top: 8px; max-height: 180px; overflow-y: auto;"></div>
         </div>
 
-        <!-- KHUNG SOẠN ĐỀ -->
-        <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 14px; border-radius: 16px; margin-bottom: 14px; background: rgba(0,0,0,0.5);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 15px;">📝 Soạn Đề Thi</h3>
+        <!-- KHUNG SOẠN ĐỀ RỘNG RÃI -->
+        <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 16px; border-radius: 18px; margin-bottom: 14px; background: rgba(0,0,0,0.6);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 16px;">📝 Soạn Đề Thi</h3>
             <button onclick="closeEditor()" style="background: rgba(255,255,255,0.1); color: #cbd5e1; font-size: 11px; padding: 4px 8px; box-shadow: none;">❌ Đóng</button>
           </div>
 
-          <label style="font-size: 13px;"><strong>Tên Bài Kiểm Tra:</strong></label>
+          <label style="font-size: 13.5px;"><strong>Tên Bài Kiểm Tra:</strong></label>
           <input type="text" id="quiz-name-input" placeholder="Ví dụ: Đố vui Kinh Thánh - Tuần 1">
 
           <div id="parts-list"></div>
@@ -928,7 +938,7 @@
       let hostUrl = window.location.origin;
       const roomUrl = `${hostUrl}?role=student&room=${encodeURIComponent(roomId)}`;
       
-      new QRCode(qrContainer, { text: roomUrl, width: 120, height: 120, colorDark : "#000000", colorLight : "#ffffff" });
+      new QRCode(qrContainer, { text: roomUrl, width: 110, height: 110, colorDark : "#000000", colorLight : "#ffffff" });
       new QRCode(qrZoomContainer, { text: roomUrl, width: 320, height: 320, colorDark : "#000000", colorLight : "#ffffff" });
       document.getElementById("zoom-room-code").innerText = roomId;
     }
