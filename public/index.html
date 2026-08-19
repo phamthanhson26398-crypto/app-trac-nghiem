@@ -196,18 +196,9 @@
     }
 
     .pause-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(8px);
-      z-index: 9999;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #ffd166;
-      text-align: center;
-      padding: 20px;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 9999;
+      display: none; flex-direction: column; align-items: center; justify-content: center; color: #ffd166; text-align: center; padding: 20px;
     }
     .pause-icon { font-size: 70px; margin-bottom: 10px; }
 
@@ -318,11 +309,13 @@
     </button>
   </div>
 
-  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV (GIỮ NGUYÊN 100%) -->
+  <!-- 2. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ GLV (GIỮ NGUYÊN GIAO DIỆN) -->
   <div id="auth-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 id="auth-title" style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
     <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Mỗi tài khoản sẽ có một Phòng Thi & Mã QR riêng</p>
+
+    <div id="auth-msg-box" style="display: none; padding: 8px 12px; border-radius: 10px; margin-bottom: 12px; font-size: 13px; font-weight: bold; text-align: center;"></div>
 
     <label style="font-size: 13.5px;"><strong>Tài khoản (Tên đăng nhập):</strong></label>
     <input type="text" id="auth-username" placeholder="Ví dụ: huynh_truong_01">
@@ -391,7 +384,7 @@
       <div id="quiz-list-container" style="margin-top: 8px;"></div>
     </div>
 
-    <!-- KHUNG SOẠN ĐỀ -->
+    <!-- KHUNG SOẠN ĐỀ (Thời gian chung theo Phần) -->
     <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 14px; border-radius: 16px; margin-bottom: 14px; background: rgba(0,0,0,0.4);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 15px;">📝 Soạn Đề Thi</h3>
@@ -540,10 +533,10 @@
       <div id="champion-score" class="champion-score">🔥 0 Điểm</div>
     </div>
 
-    <!-- BẢNG ĐIỂM CỦA GIÁO LÝ VIÊN (TỰ ĐỘNG HIỆN RÕ RÀNG KHÔNG BỊ ẨN/MỜ) -->
-    <div id="teacher-result-view" style="display: none; margin-top: 12px;">
-      <div style="background: rgba(0,0,0,0.3); border-radius: 16px; padding: 12px; border: 1px solid rgba(255,255,255,0.12);">
-        <h3 style="margin: 0 0 10px 0; color: #ffd166; font-size: 16px; text-align: center;">📊 BẢNG XẾP HẠNG THÍ SINH</h3>
+    <!-- BẢNG ĐIỂM CỦA GIÁO LÝ VIÊN (TỰ ĐỘNG HIỆN RÕ RÀNG NGAY DƯỚI NHÀ VÔ ĐỊCH) -->
+    <div id="teacher-result-view" style="display: none; margin-top: 14px;">
+      <div style="background: rgba(0,0,0,0.35); border-radius: 16px; padding: 14px; border: 1px solid rgba(255,255,255,0.15);">
+        <h3 style="margin: 0 0 10px 0; color: #ffd166; font-size: 16px; text-align: center; font-weight: 900;">📊 BẢNG XẾP HẠNG TOÀN BỘ THÍ SINH</h3>
         <table>
           <thead>
             <tr>
@@ -725,7 +718,7 @@
       }
     }
 
-    /* ĐĂNG NHẬP / ĐĂNG KÝ GLV (GIỮ NGUYÊN 100%) */
+    /* ĐĂNG NHẬP / ĐĂNG KÝ GLV (GIỮ NGUYÊN 100% GỐC) */
     function toggleAuthMode() {
       isAuthRegisterMode = !isAuthRegisterMode;
       document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
@@ -886,6 +879,7 @@
       }
     }
 
+    /* 1. CÀI ĐẶT THỜI GIAN THEO PHẦN */
     function addPartInput(data = null) {
       partCount++;
       const container = document.getElementById('parts-list');
@@ -1018,6 +1012,7 @@
       return partsData;
     }
 
+    /* 3. MÀN HÌNH THEO DÕI LIVE CỦA GLV */
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
@@ -1088,6 +1083,7 @@
       }, 1000);
     });
 
+    /* 2 & 3. NGHỈ CHUYỂN CÂU 10S & HIỆN ĐÁP ÁN TỰ LUẬN KHI HẾT GIỜ */
     socket.on('question_time_up', () => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (myRole === 'student') document.getElementById('timer').innerText = '0';
@@ -1312,7 +1308,7 @@
 
     function revealWinnerCeremony() { socket.emit('reveal_results', { roomId: activeRoomId }); }
 
-    /* HIỂN THỊ KẾT QUẢ & BẢNG ĐIỂM CHI TIẾT */
+    /* HIỂN THỊ KẾT QUẢ & BẢNG ĐIỂM CHI TIẾT TỰ ĐỘNG BẬT SÁNG */
     socket.on('results_revealed', ({ leaderboard, quizName }) => {
       document.getElementById('suspense-container').style.display = 'none';
 
