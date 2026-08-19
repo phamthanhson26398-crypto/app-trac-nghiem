@@ -70,7 +70,7 @@ function startRoomTimer(roomId) {
 
     if (room.phaseTimeLeft <= 0) {
       if (room.phase === 'question') {
-        // HẾT GIỜ LÀM BÀI -> CHUYỂN SANG PHASE CHỜ 10 GIÂY
+        // HẾT GIỜ LÀM BÀI -> NGHỈ 10 GIÂY
         room.phase = 'transition';
         room.phaseTimeLeft = 10; 
         io.to(roomId).emit('question_time_up');
@@ -96,7 +96,7 @@ function startRoomTimer(roomId) {
         });
 
       } else if (room.phase === 'transition') {
-        // HẾT 10 GIÂY CHỜ -> SANG CÂU MỚI HOẶC KẾT THÚC
+        // HẾT 10 GIÂY -> SANG CÂU TIẾP THEO HOẶC KẾT THÚC
         room.currentIndex++;
         if (room.currentIndex >= room.queue.length) {
           clearInterval(room.timerInterval);
@@ -109,7 +109,7 @@ function startRoomTimer(roomId) {
         } else {
           room.phase = 'question';
           room.currentItem = room.queue[room.currentIndex];
-          room.phaseTimeLeft = parseInt(room.currentItem.question.duration) || 10;
+          room.phaseTimeLeft = parseInt(room.currentItem.question.duration) || 15;
           
           Object.keys(room.students).forEach(id => {
             room.students[id].answered = false;
@@ -247,7 +247,7 @@ io.on('connection', (socket) => {
 
     room.currentItem = room.queue[0];
     room.phase = 'question';
-    room.phaseTimeLeft = parseInt(room.currentItem.question.duration) || 10;
+    room.phaseTimeLeft = parseInt(room.currentItem.question.duration) || 15;
     room.isPaused = false;
 
     io.to(roomId).emit('question_started', {
