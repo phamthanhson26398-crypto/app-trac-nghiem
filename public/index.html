@@ -491,7 +491,7 @@
       
       <div id="teacher-student-like-screen" style="text-align: left; background: rgba(0,0,0,0.3); padding: 14px; border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.1);"></div>
 
-      <!-- KHUNG XEM ĐÁP ÁN CỦA HỌC SINH ĐỂ CHẤM LẠI KHI TẠM DỪNG / HẾT GIỜ -->
+      <!-- KHUNG CHẤM TỰ LUẬN TRỰC TIẾP KHI BẤM TẠM DỪNG -->
       <div id="teacher-live-essay-review" style="display: none; margin-top: 14px; background: rgba(0,0,0,0.55); border: 1.5px solid #f59e0b; border-radius: 14px; padding: 12px; text-align: left;">
         <h4 style="color: #ffd166; margin: 0 0 4px 0; font-size: 14.5px;">✍️ Kiểm Tra & Chấm Điểm Tự Luận (Lúc Tạm Dừng):</h4>
         <div id="teacher-live-essay-list" style="max-height: 250px; overflow-y: auto; margin-top: 8px;"></div>
@@ -1339,7 +1339,7 @@
         const btn = document.getElementById('btn-toggle-pause');
         if (btn) { btn.innerHTML = '▶️ Tiếp Tục'; btn.style.background = '#f59e0b'; }
 
-        // Khi bấm tạm dừng, nếu là câu tự luận, hiện danh sách đáp án của học sinh để chấm điểm lại
+        // Khi bấm tạm dừng, nếu là câu tự luận, hiện danh sách đáp án học sinh để chấm lại điểm
         if (currentItemData && currentItemData.question.type === 'short_answer') {
           const liveEssayBox = document.getElementById('teacher-live-essay-review');
           const liveEssayList = document.getElementById('teacher-live-essay-list');
