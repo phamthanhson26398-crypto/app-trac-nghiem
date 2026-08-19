@@ -1342,10 +1342,12 @@
         html += `<button class="opt-btn opt-btn-d" data-is-correct="${isTrueCorrect}" type="button" ${myRole === 'student' ? `onclick="selectChoice(${isTrueCorrect}, this, 'Đúng')"` : 'style="pointer-events:none;"'}>🟢 Đúng</button>
                  <button class="opt-btn opt-btn-a" data-is-correct="${isFalseCorrect}" type="button" ${myRole === 'student' ? `onclick="selectChoice(${isFalseCorrect}, this, 'Sai')"` : 'style="pointer-events:none;"'}>🔴 Sai</button>`;
       } else if (q.type === 'short_answer') {
+        if (myRole !== 'teacher') {
         html += `
           <label style="font-weight: 800; color: #6ee7b7; font-size: 13.5px;">✍️ ${myRole === 'teacher' ? 'Màn hình theo dõi câu tự luận:' : 'Nhập câu trả lời của em:'}</label>
           <input type="text" ${myRole === 'teacher' ? 'placeholder="(Đang làm bài...)" disabled' : 'id="student-essay-input" placeholder="Gõ câu trả lời..."'} class="essay-input-box" autocomplete="off">
         `;
+        }
       }
 
       if (myRole === 'student') {
