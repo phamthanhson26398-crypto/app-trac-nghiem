@@ -28,7 +28,7 @@
     body { 
       font-family: 'Nunito', sans-serif; 
       padding: 14px 10px; 
-      max-width: 720px; 
+      max-width: 680px; 
       margin: auto; 
       background-color: var(--bg);
       background-image: radial-gradient(circle at 50% 10%, rgba(16, 185, 129, 0.25) 0%, transparent 60%), url('/bg.png');
@@ -144,7 +144,6 @@
       margin-bottom: 10px; 
     }
 
-    /* ĐÁP ÁN TRẮC NGHIỆM */
     .opt-btn { 
       text-align: left; 
       margin-top: 10px; 
@@ -163,7 +162,7 @@
       border: 2px solid transparent !important;
     }
     .opt-btn-a { background: linear-gradient(135deg, #e63946 0%, #d62828 100%) !important; box-shadow: 0 3px 0 #9d0208, 0 4px 10px rgba(230, 57, 70, 0.3) !important; }
-    .opt-btn-b { background: linear-gradient(135deg, #3a86ff 0%, #0077b6 100%) !important; box-shadow: 0 4px 0 #023e8a, 0 4px 10px rgba(58, 134, 255, 0.3) !important; }
+    .opt-btn-b { background: linear-gradient(135deg, #3a86ff 0%, #0077b6 100%) !important; box-shadow: 0 3px 0 #023e8a, 0 4px 10px rgba(58, 134, 255, 0.3) !important; }
     .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 3px 0 #d62828, 0 4px 10px rgba(251, 133, 0, 0.3) !important; }
     .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 4px 0 #047857, 0 4px 10px rgba(6, 214, 160, 0.3) !important; }
 
@@ -204,10 +203,6 @@
       color: #ffd166;
       margin-top: 8px;
     }
-    .essay-input-box:focus {
-      border-color: #10b981;
-      box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
-    }
 
     .btn-submit-answer {
       background: linear-gradient(180deg, #10b981 0%, #047857 100%) !important;
@@ -237,6 +232,27 @@
       50% { opacity: 0.8; text-shadow: 0 0 2px rgba(253, 224, 71, 0.1); }
     }
 
+    /* HIỆU ỨNG MÀN HÌNH TẠM DỪNG (PAUSE) CHO HỌC SINH */
+    .pause-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #ffd166;
+      text-align: center;
+      padding: 20px;
+    }
+    .pause-icon {
+      font-size: 70px;
+      margin-bottom: 10px;
+      animation: pulseGlow 1.5s infinite alternate;
+    }
+
     .my-mascot-card {
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(16, 185, 129, 0.3) 100%);
       border: 1.5px solid rgba(255, 255, 255, 0.2);
@@ -249,7 +265,6 @@
       backdrop-filter: blur(10px);
       position: relative;
     }
-    
     .my-mascot-icon {
       font-size: 54px;
       filter: drop-shadow(0 8px 16px rgba(0,0,0,0.45));
@@ -258,7 +273,6 @@
       user-select: none;
       transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-
     .mascot-bubble {
       position: absolute;
       background: #ffd166;
@@ -287,85 +301,32 @@
       max-height: 220px;
       overflow-y: auto;
       padding: 8px 4px;
-      position: relative;
     }
-
     .lobby-student-chip {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      position: relative;
-      user-select: none;
+      display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; user-select: none;
     }
-
     .lobby-student-avatar {
-      width: 48px;
-      height: 48px;
+      width: 48px; height: 48px;
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.06) 100%);
-      border: 2px solid #10b981;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
+      border: 2px solid #10b981; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 24px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.35), 0 0 10px rgba(16, 185, 129, 0.35);
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      cursor: pointer; transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-
     .lobby-student-name {
-      font-size: 10.5px;
-      font-weight: 800;
-      color: #ffffff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 65px;
-      text-align: center;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 2px 5px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+      font-size: 10.5px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; max-width: 65px; text-align: center; background: rgba(0, 0, 0, 0.6);
+      padding: 2px 5px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.15);
     }
-
     .btn-kick-student {
-      position: absolute;
-      top: -3px;
-      right: 4px;
-      background: #ef4444 !important;
-      color: white;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      font-size: 10px;
-      font-weight: 900;
-      border: 1.5px solid #ffffff !important;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.4) !important;
-      padding: 0 !important;
+      position: absolute; top: -3px; right: 4px; background: #ef4444 !important; color: white;
+      border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: 900;
+      border: 1.5px solid #ffffff !important; cursor: pointer; display: flex; align-items: center; justify-content: center;
       z-index: 20;
     }
 
-    .stat-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin: 14px 0;
-    }
-    .stat-box {
-      padding: 12px 8px;
-      border-radius: 15px;
-      text-align: center;
-      font-weight: 700;
-      font-size: 13px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-    }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+    .stat-box { padding: 12px 8px; border-radius: 15px; text-align: center; font-weight: 700; font-size: 13px; box-shadow: 0 3px 8px rgba(0,0,0,0.2); }
     .stat-box-mc { background: rgba(59, 130, 246, 0.18); color: #93c5fd; border: 1.5px solid rgba(59, 130, 246, 0.4); }
     .stat-box-essay { background: rgba(245, 158, 11, 0.18); color: #fde047; border: 1.5px solid rgba(245, 158, 11, 0.4); }
     .stat-detail-txt { font-size: 13px; font-weight: 800; margin-top: 6px; color: #fff; }
@@ -382,182 +343,53 @@
     th, td { border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 6px; text-align: left; font-size: 12.5px; }
     th { background: rgba(255, 255, 255, 0.08); font-weight: 800; color: #ffd166; }
 
-    #qrcode-box { 
-      background: rgba(255, 255, 255, 0.06); 
-      border: 2px dashed rgba(16, 185, 129, 0.5); 
-      padding: 16px; 
-      border-radius: 18px; 
-      text-align: center; 
-      margin: 12px 0; 
-    }
-    #qrcode {
-      background: white;
-      padding: 8px;
-      border-radius: 14px;
-      display: inline-block;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
-    }
+    #qrcode-box { background: rgba(255, 255, 255, 0.06); border: 2px dashed rgba(16, 185, 129, 0.5); padding: 16px; border-radius: 18px; text-align: center; margin: 12px 0; }
+    #qrcode { background: white; padding: 8px; border-radius: 14px; display: inline-block; box-shadow: 0 6px 16px rgba(0,0,0,0.4); }
     #qrcode img { margin: auto; }
 
-    .suspense-box {
-      text-align: center;
-      padding: 20px 12px;
-      animation: pulseGlow 1.8s infinite alternate;
-    }
-    .suspense-icon {
-      font-size: 60px;
-      display: inline-block;
-      filter: drop-shadow(0 0 16px rgba(255, 209, 102, 0.8));
-    }
+    .suspense-box { text-align: center; padding: 20px 12px; animation: pulseGlow 1.8s infinite alternate; }
+    .suspense-icon { font-size: 60px; display: inline-block; filter: drop-shadow(0 0 16px rgba(255, 209, 102, 0.8)); }
 
     .btn-reveal-ceremony {
-      background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%) !important;
-      color: #fff !important;
-      font-size: 16px !important;
-      font-weight: 900 !important;
-      padding: 15px 18px !important;
-      border-radius: 18px !important;
-      width: 100% !important;
-      margin-top: 15px !important;
-      box-shadow: 0 5px 0 #92400e, 0 8px 24px rgba(245, 158, 11, 0.6) !important;
+      background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%) !important; color: #fff !important;
+      font-size: 16px !important; font-weight: 900 !important; padding: 15px 18px !important; border-radius: 18px !important;
+      width: 100% !important; margin-top: 15px !important; box-shadow: 0 5px 0 #92400e, 0 8px 24px rgba(245, 158, 11, 0.6) !important;
       border: 1.5px solid #fef08a !important;
     }
 
-    .champion-podium {
-      text-align: center;
-      padding: 18px 10px 10px 10px;
-      animation: championZoomIn 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-      position: relative;
-    }
-    @keyframes championZoomIn {
-      0% { transform: scale(0.2); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
+    .champion-podium { text-align: center; padding: 18px 10px 10px 10px; animation: championZoomIn 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; position: relative; }
+    @keyframes championZoomIn { 0% { transform: scale(0.2); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    .champions-row {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
+    .champions-row { display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
+    .champion-avatar-wrap { position: relative; display: inline-block; text-align: center; }
+    .champion-crown { position: absolute; top: -28px; left: 50%; transform: translateX(-50%) rotate(-8deg); font-size: 36px; filter: drop-shadow(0 0 12px #ffd166); z-index: 10; }
+    .champion-mascot-circle { width: 92px; height: 92px; background: radial-gradient(circle, #ffeaa7 0%, #fdcb6e 60%, #e17055 100%); border: 3px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 48px; box-shadow: 0 0 30px rgba(255, 209, 102, 0.85), inset 0 0 12px rgba(255,255,255,0.8); }
+    .champion-title-badge { background: linear-gradient(90deg, #f59e0b, #ffd166, #f59e0b); color: #000; font-weight: 900; font-size: 13px; padding: 5px 16px; border-radius: 24px; display: inline-block; letter-spacing: 1.2px; text-transform: uppercase; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.5); margin-bottom: 10px; }
+    .champion-name { font-size: 23px; font-weight: 900; color: #ffffff; text-shadow: 0 0 12px rgba(255, 209, 102, 0.8), 0 2px 4px rgba(0,0,0,0.8); margin: 3px 0; }
+    .champion-score { font-size: 17px; font-weight: 800; color: #6ee7b7; text-shadow: 0 0 10px rgba(110, 231, 183, 0.6); }
 
-    .champion-avatar-wrap {
-      position: relative;
-      display: inline-block;
-      text-align: center;
-    }
-
-    .champion-crown {
-      position: absolute;
-      top: -28px;
-      left: 50%;
-      transform: translateX(-50%) rotate(-8deg);
-      font-size: 36px;
-      filter: drop-shadow(0 0 12px #ffd166);
-      z-index: 10;
-    }
-
-    .champion-mascot-circle {
-      width: 92px;
-      height: 92px;
-      background: radial-gradient(circle, #ffeaa7 0%, #fdcb6e 60%, #e17055 100%);
-      border: 3px solid #fff;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
-      box-shadow: 0 0 30px rgba(255, 209, 102, 0.85), inset 0 0 12px rgba(255,255,255,0.8);
-    }
-
-    .champion-title-badge {
-      background: linear-gradient(90deg, #f59e0b, #ffd166, #f59e0b);
-      color: #000;
-      font-weight: 900;
-      font-size: 13px;
-      padding: 5px 16px;
-      border-radius: 24px;
-      display: inline-block;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.5);
-      margin-bottom: 10px;
-    }
-
-    .champion-name {
-      font-size: 23px;
-      font-weight: 900;
-      color: #ffffff;
-      text-shadow: 0 0 12px rgba(255, 209, 102, 0.8), 0 2px 4px rgba(0,0,0,0.8);
-      margin: 3px 0;
-    }
-
-    .champion-score {
-      font-size: 17px;
-      font-weight: 800;
-      color: #6ee7b7;
-      text-shadow: 0 0 10px rgba(110, 231, 183, 0.6);
-    }
-
-    .dimmed-leaderboard {
-      opacity: 0.25;
-      filter: blur(1.5px);
-      transition: all 0.5s ease;
-      pointer-events: none;
-    }
-    .dimmed-leaderboard.active {
-      opacity: 1;
-      filter: blur(0px);
-      pointer-events: auto;
-    }
+    .dimmed-leaderboard { opacity: 0.25; filter: blur(1.5px); transition: all 0.5s ease; pointer-events: none; }
+    .dimmed-leaderboard.active { opacity: 1; filter: blur(0px); pointer-events: auto; }
 
     /* KHUNG DUYỆT TỰ LUẬN */
-    .teacher-review-panel {
-      background: rgba(0,0,0,0.55);
-      border: 1.5px solid #f59e0b;
-      border-radius: 18px;
-      padding: 16px;
-      margin-top: 14px;
-      text-align: left;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    }
-
-    .question-review-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1.5px solid rgba(255, 209, 102, 0.3);
-      border-radius: 16px;
-      padding: 14px;
-      margin-bottom: 16px;
-    }
-
-    .teacher-ref-answer {
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px dashed #10b981;
-      color: #6ee7b7;
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-size: 12.5px;
-      margin-top: 10px;
-      line-height: 1.4;
-    }
-
-    .student-review-row {
-      background: rgba(0, 0, 0, 0.35);
-      border-left: 3.5px solid #ef4444;
-      border-radius: 10px;
-      padding: 10px 12px;
-      margin-top: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      transition: all 0.3s ease;
-    }
+    .teacher-review-panel { background: rgba(0,0,0,0.55); border: 1.5px solid #f59e0b; border-radius: 18px; padding: 16px; margin-top: 14px; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+    .question-review-card { background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 209, 102, 0.3); border-radius: 16px; padding: 14px; margin-bottom: 16px; }
+    .teacher-ref-answer { background: rgba(16, 185, 129, 0.12); border: 1px dashed #10b981; color: #6ee7b7; padding: 8px 12px; border-radius: 10px; font-size: 12.5px; margin-top: 10px; line-height: 1.4; }
+    .student-review-row { background: rgba(0, 0, 0, 0.35); border-left: 3.5px solid #ef4444; border-radius: 10px; padding: 10px 12px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; transition: all 0.3s ease; }
+    
+    .teacher-question-view { background: rgba(0,0,0,0.3); border-radius: 14px; padding: 14px; margin-top: 14px; border: 1.5px solid rgba(255,255,255,0.1); text-align: left; }
+    .teacher-q-opt { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; margin-bottom: 8px; color: #fff; font-size: 14px; }
+    .teacher-q-opt.correct { background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #6ee7b7; font-weight: 800; }
   </style>
 </head>
 <body>
+
+  <!-- HIỆU ỨNG TẠM DỪNG CHO HỌC SINH -->
+  <div id="pause-overlay" class="pause-overlay">
+    <div class="pause-icon">⏸</div>
+    <h2 style="font-weight: 900; margin-top: 10px; font-size: 24px;">BÀI THI ĐANG TẠM DỪNG</h2>
+    <p style="color: #cbd5e1; font-size: 14.5px;">Thầy/Cô đang giải thích, các em hãy chú ý lắng nghe nhé!</p>
+  </div>
 
   <!-- 1. MÀN HÌNH CHỌN VAI TRÒ -->
   <div id="role-screen" class="card">
@@ -607,7 +439,6 @@
       </div>
       <button onclick="backToRoleScreen()" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-size: 12px; padding: 5px 10px; box-shadow: none; border: 1px solid rgba(239, 68, 68, 0.4);">Đăng Xuất</button>
     </div>
-
     <div class="sub-panel">
       <h3 style="margin: 0 0 8px 0; font-size: 14.5px;">📋 Danh Sách Toàn Bộ GLV Đã Đăng Ký</h3>
       <table>
@@ -641,16 +472,16 @@
       <div id="qrcode"></div>
     </div>
 
-    <!-- KHO BÀI THI TỔNG HỢP -->
+    <!-- KHUNG SOẠN ĐỀ -->
     <div class="quiz-manager">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin: 0; font-size: 15px; font-weight: 800;">📁 Kho Bài Thi (Trắc nghiệm + Tự luận)</h3>
+        <h3 style="margin: 0; font-size: 15px; font-weight: 800;">📁 Kho Bài Thi</h3>
         <button onclick="createNewQuizSection()" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); font-size: 12.5px; padding: 7px 12px; box-shadow: 0 2px 0 #047857;">➕ Soạn Bài Mới</button>
       </div>
       <div id="quiz-list-container" style="margin-top: 8px;"></div>
     </div>
 
-    <!-- KHUNG SOẠN ĐỀ -->
+    <!-- KHUNG TẠO / SỬA -->
     <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 14px; border-radius: 16px; margin-bottom: 14px; background: rgba(0,0,0,0.4);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 15px;">📝 Soạn Đề Thi</h3>
@@ -669,9 +500,7 @@
     <!-- LỊCH SỬ THI -->
     <div class="quiz-manager">
       <h3 style="margin: 0 0 8px 0; font-size: 15px; font-weight: 800;">📊 Bảng Điểm & Lịch Sử Thi</h3>
-      <select id="history-quiz-select" onchange="renderHistoryUI()">
-        <option value="">-- Chọn bài kiểm tra để xem điểm --</option>
-      </select>
+      <select id="history-quiz-select" onchange="renderHistoryUI()"><option value="">-- Chọn bài kiểm tra để xem điểm --</option></select>
       <div id="history-display-area" style="margin-top: 8px;"></div>
     </div>
 
@@ -693,10 +522,15 @@
       </button>
     </div>
 
-    <div id="teacher-live-box" style="display: none; margin-top: 16px; background: rgba(16, 185, 129, 0.15); padding: 14px; border-radius: 16px; border: 1.5px solid #10b981; text-align: center;">
-      <h3 style="margin: 0; color: #6ee7b7; font-size: 15px;">📡 BÀI THI ĐANG DIỄN RA</h3>
+    <!-- MÀN HÌNH THEO DÕI LIVE CỦA GLV -->
+    <div id="teacher-live-box" style="display: none; margin-top: 16px; background: rgba(16, 185, 129, 0.1); padding: 16px; border-radius: 16px; border: 1.5px solid #10b981; text-align: center;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="margin: 0; color: #6ee7b7; font-size: 14.5px;">📡 BÀI THI ĐANG DIỄN RA</h3>
+        <button id="btn-toggle-pause" onclick="togglePauseQuiz()" style="padding: 7px 14px; font-size: 12.5px; background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%); box-shadow: 0 3px 0 #312e81;">⏸ Tạm Dừng</button>
+      </div>
       <h4 id="teacher-current-q" style="margin: 6px 0; font-size: 14px; color: #fff;">--</h4>
-      <h1 style="color: #ffd166; font-size: 36px; margin: 0; text-shadow: 0 0 12px rgba(255, 209, 102, 0.5);">⏰ <span id="teacher-timer">--</span>s</h1>
+      <h1 style="color: #ffd166; font-size: 40px; margin: 4px 0; text-shadow: 0 0 12px rgba(255, 209, 102, 0.5);">⏰ <span id="teacher-timer">--</span>s</h1>
+      <div id="teacher-question-content" class="teacher-question-view"></div>
     </div>
   </div>
 
@@ -741,7 +575,7 @@
     </div>
   </div>
 
-  <!-- 7. MÀN HÌNH LÀM BÀI -->
+  <!-- 7. MÀN HÌNH LÀM BÀI CỦA HỌC SINH -->
   <div id="quiz-screen" class="card" style="display: none;">
     <div class="header-banner" style="font-size: 11px; padding: 3px 10px; margin-bottom: 8px;">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -754,15 +588,13 @@
     </div>
     
     <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
-    
     <div id="questions-container"></div>
   </div>
 
-  <!-- 8. MÀN HÌNH KẾT QUẢ & DUYỆT TỰ LUẬN (CÓ ĐÁP ÁN SO SÁNH CỦA GV) -->
+  <!-- 8. MÀN HÌNH KẾT QUẢ & DUYỆT TỰ LUẬN -->
   <div id="result-screen" class="card" style="display: none;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
-    <!-- KHUNG HỒI HỘP & GIÁO VIÊN DUYỆT ĐÁP ÁN -->
     <div id="suspense-container" class="suspense-box">
       <div class="suspense-icon">🥁</div>
       <h2 style="color: #ffd166; font-size: 20px; font-weight: 900; margin: 8px 0 4px 0;">🎉 BÀI THI ĐÃ KẾT THÚC!</h2>
@@ -770,11 +602,10 @@
         Tất cả các thí sinh đã hoàn thành xuất sắc bài thi!
       </p>
 
-      <!-- BẢNG DUYỆT TỰ LUẬN: CÓ ĐÁP ÁN CHUẨN CỦA GV ĐẶT PHÍA DƯỚI ĐỂ SO SÁNH -->
       <div id="teacher-review-panel" class="teacher-review-panel" style="display: none;">
-        <h3 style="color: #ffd166; margin: 0 0 4px 0; font-size: 16px;">👩‍🏫 Duyệt Đáp Án Tự Luận (Theo Từng Câu Hỏi)</h3>
-        <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.4;">
-          Thầy/Cô đọc câu trả lời của từng em dưới mỗi câu hỏi, đối chiếu với <b>🎯 Đáp án chuẩn của GV</b> phía cuối câu. Bấm <b>"✅ Chấp nhận"</b> để cộng bù điểm theo giây, hoặc <b>"❌ Bỏ qua"</b> nếu không hợp lệ.
+        <h3 style="color: #ffd166; margin: 0 0 4px 0; font-size: 16px;">👩‍🏫 Duyệt Đáp Án Tự Luận</h3>
+        <p style="font-size: 12.5px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.4;">
+          Đối chiếu trả lời của HS với <b>🎯 Đáp án chuẩn của GV</b>. Bấm <b>"✅ Chấp nhận"</b> để cộng bù điểm hoặc <b>"❌ Bỏ qua"</b> nếu sai.
         </p>
         <div id="review-list-container" style="max-height: 480px; overflow-y: auto; padding-right: 4px;"></div>
       </div>
@@ -790,17 +621,16 @@
       </div>
     </div>
 
-    <!-- KHUNG TÔN VINH VÔ ĐỊCH NỔI BẬT -->
+    <!-- KHUNG TÔN VINH VÔ ĐỊCH -->
     <div id="champion-stage" class="champion-podium" style="display: none;">
       <div id="champion-badge-title" class="champion-title-badge">👑 NHÀ VÔ ĐỊCH 👑</div>
       <br>
       <div id="champions-container-row" class="champions-row"></div>
-      
-      <div id="champion-name" class="champion-name">Maria Nguyễn Thị A</div>
-      <div id="champion-score" class="champion-score">🔥 120 Điểm</div>
+      <div id="champion-name" class="champion-name">--</div>
+      <div id="champion-score" class="champion-score">🔥 0 Điểm</div>
     </div>
 
-    <!-- BẢNG ĐIỂM CỦA GIÁO LÝ VIÊN: PHÂN TÁCH 2 CỘT TRẮC NGHIỆM & TỰ LUẬN -->
+    <!-- BẢNG ĐIỂM CỦA GIÁO LÝ VIÊN -->
     <div id="teacher-result-view" style="display: none; margin-top: 12px;">
       <div style="text-align: center; margin-bottom: 10px;">
         <button onclick="toggleLeaderboardView()" style="background: rgba(255,255,255,0.15); font-size: 12.5px; padding: 6px 14px; box-shadow: none; border: 1px solid rgba(255,255,255,0.25);">
@@ -860,6 +690,7 @@
     let partCount = 0;
     let editingQuizKey = null;
     let localTimerInterval = null;
+    let restTransitionInterval = null;
     let currentRemainingSeconds = 0;
     let isAuthRegisterMode = false;
     let isLeaderboardShown = false;
@@ -869,6 +700,7 @@
     let isSelectedChoiceCorrect = false;
     let hasSelectedAnOption = false;
     let hasSubmittedCurrentQuestion = false;
+    let isClientPaused = false; // Trạng thái đóng băng màn hình học sinh
 
     const FUNNY_TEXTS = ['Ú òa! 😜', 'Né nè! ✨', 'Boing! 🎈', 'Bắt hụt rồi! 🚀', 'Hehe! 🌟', 'Vèo! 💨', 'Bí mật! 🐾'];
 
@@ -905,7 +737,6 @@
       const duration = 5 * 1000;
       const animationEnd = Date.now() + duration;
       const defaults = { startVelocity: 32, spread: 360, ticks: 70, zIndex: 999 };
-
       function randomInRange(min, max) { return Math.random() * (max - min) + min; }
 
       const interval = setInterval(function() {
@@ -920,19 +751,14 @@
     function toggleLeaderboardView() {
       isLeaderboardShown = !isLeaderboardShown;
       const tableWrap = document.getElementById('leaderboard-table-wrap');
-      if (isLeaderboardShown) {
-        tableWrap.classList.add('active');
-      } else {
-        tableWrap.classList.remove('active');
-      }
+      if (isLeaderboardShown) tableWrap.classList.add('active');
+      else tableWrap.classList.remove('active');
     }
 
     function calculateRanks(sortedList) {
       let currentRank = 1;
       return sortedList.map((item, index) => {
-        if (index > 0 && item.score < sortedList[index - 1].score) {
-          currentRank = index + 1;
-        }
+        if (index > 0 && item.score < sortedList[index - 1].score) currentRank = index + 1;
         return { ...item, rank: currentRank };
       });
     }
@@ -949,14 +775,7 @@
       qrContainer.innerHTML = "";
       let hostUrl = window.location.origin;
       const roomUrl = `${hostUrl}?role=student&room=${encodeURIComponent(roomId)}`;
-
-      new QRCode(qrContainer, {
-        text: roomUrl,
-        width: 150,
-        height: 150,
-        colorDark : "#000000",
-        colorLight : "#ffffff"
-      });
+      new QRCode(qrContainer, { text: roomUrl, width: 150, height: 150, colorDark : "#000000", colorLight : "#ffffff" });
     }
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -975,7 +794,6 @@
 
         generateRoomQRCode(activeRoomId);
         loadSavedQuizzes();
-        
         socket.emit('clear_room_students', { roomId: activeRoomId });
         socket.emit('join_room', { role: 'teacher', roomId: activeRoomId });
         return;
@@ -983,12 +801,8 @@
 
       const urlParams = new URLSearchParams(window.location.search);
       const roomParam = urlParams.get('room');
-      if (roomParam) {
-        document.getElementById('student-room-input').value = roomParam;
-      }
-      if (urlParams.get('role') === 'student') {
-        selectRole('student');
-      }
+      if (roomParam) document.getElementById('student-room-input').value = roomParam;
+      if (urlParams.get('role') === 'student') selectRole('student');
     });
 
     socket.on('kicked_by_teacher', () => {
@@ -1072,30 +886,20 @@
     function handleAuthSubmit() {
       const username = document.getElementById('auth-username').value.trim();
       const pass = document.getElementById('auth-password').value.trim();
-
       if (!username || !pass) return alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
 
-      if (isAuthRegisterMode) {
-        socket.emit('teacher_register', { username, password: pass });
-      } else {
-        socket.emit('teacher_login', { username, password: pass });
-      }
+      if (isAuthRegisterMode) socket.emit('teacher_register', { username, password: pass });
+      else socket.emit('teacher_login', { username, password: pass });
     }
 
     socket.on('auth_response', ({ success, message, isRegister, username }) => {
-      if (!success) {
-        alert(message);
-        return;
-      }
-
+      if (!success) return alert(message);
       if (isRegister) {
         alert(message);
         toggleAuthMode();
       } else {
-        currentTeacherUser = username;
-        activeRoomId = username;
+        currentTeacherUser = username; activeRoomId = username;
         sessionStorage.setItem('tntt_current_teacher', username);
-
         document.getElementById('logged-user-name').innerText = username;
         document.getElementById('teacher-room-id-badge').innerText = activeRoomId;
         document.getElementById('teacher-room-code-txt').innerText = activeRoomId;
@@ -1105,19 +909,15 @@
 
         generateRoomQRCode(activeRoomId);
         loadSavedQuizzes();
-
         socket.emit('clear_room_students', { roomId: activeRoomId });
         socket.emit('join_room', { role: 'teacher', roomId: activeRoomId });
       }
     });
 
     function logoutTeacher() {
-      if (activeRoomId) {
-        socket.emit('clear_room_students', { roomId: activeRoomId });
-      }
+      if (activeRoomId) socket.emit('clear_room_students', { roomId: activeRoomId });
       sessionStorage.removeItem('tntt_current_teacher');
-      currentTeacherUser = '';
-      activeRoomId = '';
+      currentTeacherUser = ''; activeRoomId = '';
       location.reload();
     }
 
@@ -1127,18 +927,12 @@
       document.getElementById('role-screen').style.display = 'block';
     }
 
-    function getTeacherQuizStorageKey() {
-      return `all_quizzes_user_${currentTeacherUser}`;
-    }
-
-    function getTeacherHistoryStorageKey() {
-      return `quiz_history_user_${currentTeacherUser}`;
-    }
+    function getTeacherQuizStorageKey() { return `all_quizzes_user_${currentTeacherUser}`; }
+    function getTeacherHistoryStorageKey() { return `quiz_history_user_${currentTeacherUser}`; }
 
     function loadSavedQuizzes() {
       const saved = localStorage.getItem(getTeacherQuizStorageKey());
       const currentQuizzes = saved ? JSON.parse(saved) : {};
-
       const listContainer = document.getElementById('quiz-list-container');
       const historySelect = document.getElementById('history-quiz-select');
       const activeSelect = document.getElementById('active-quiz-select');
@@ -1165,7 +959,6 @@
           </div>
         `;
         listContainer.appendChild(item);
-
         historySelect.innerHTML += `<option value="${name}">${name}</option>`;
         activeSelect.innerHTML += `<option value="${name}">${name}</option>`;
       });
@@ -1198,9 +991,7 @@
       document.getElementById('editor-section').style.display = 'block';
     }
 
-    function closeEditor() {
-      document.getElementById('editor-section').style.display = 'none';
-    }
+    function closeEditor() { document.getElementById('editor-section').style.display = 'none'; }
 
     function saveCurrentQuiz() {
       const newName = document.getElementById('quiz-name-input').value.trim();
@@ -1212,16 +1003,13 @@
       const saved = localStorage.getItem(getTeacherQuizStorageKey());
       const currentQuizzes = saved ? JSON.parse(saved) : {};
 
-      if (editingQuizKey && editingQuizKey !== newName) {
-        delete currentQuizzes[editingQuizKey];
-      }
+      if (editingQuizKey && editingQuizKey !== newName) delete currentQuizzes[editingQuizKey];
 
       currentQuizzes[newName] = parts;
       localStorage.setItem(getTeacherQuizStorageKey(), JSON.stringify(currentQuizzes));
       alert(`Đã lưu thành công bài thi "${newName}"!`);
 
-      closeEditor();
-      loadSavedQuizzes();
+      closeEditor(); loadSavedQuizzes();
     }
 
     function deleteQuiz(name) {
@@ -1235,8 +1023,7 @@
         delete historyData[name];
         localStorage.setItem(getTeacherHistoryStorageKey(), JSON.stringify(historyData));
 
-        loadSavedQuizzes();
-        renderHistoryUI();
+        loadSavedQuizzes(); renderHistoryUI();
       }
     }
 
@@ -1245,7 +1032,6 @@
       const container = document.getElementById('parts-list');
       const pDiv = document.createElement('div');
       pDiv.className = 'part-block';
-
       const partTitle = data ? data.title : `PHẦN ${partCount}`;
 
       pDiv.innerHTML = `
@@ -1258,17 +1044,13 @@
       container.appendChild(pDiv);
 
       const qContainer = pDiv.querySelector('.q-container');
-      if (data && data.questions) {
-        data.questions.forEach(q => addQuestionToPart(qContainer, q));
-      } else {
-        addQuestionToPart(qContainer);
-      }
+      if (data && data.questions) data.questions.forEach(q => addQuestionToPart(qContainer, q));
+      else addQuestionToPart(qContainer);
     }
 
     function addQuestionToPart(container, data = null) {
       const qDiv = document.createElement('div');
       qDiv.className = 'q-block';
-
       const type = data ? data.type : 'multiple';
       const title = data ? data.title : '';
       const duration = data ? data.duration : 10;
@@ -1289,12 +1071,10 @@
             <input type="number" class="q-duration" value="${duration}">
           </div>
         </div>
-        
         <label style="font-size: 12.5px;">Nội dung câu hỏi:</label>
         <input type="text" class="q-title" value="${title}" placeholder="Nhập câu hỏi...">
         <div class="q-options-area"></div>
       `;
-
       container.appendChild(qDiv);
       renderQuestionTypeUI(qDiv.querySelector('.q-type'), data);
     }
@@ -1303,7 +1083,6 @@
       const qDiv = selectEl.closest('.q-block');
       const optionsArea = qDiv.querySelector('.q-options-area');
       const type = selectEl.value;
-
       const opt0 = data && data.options ? data.options[0] || '' : '';
       const opt1 = data && data.options ? data.options[1] || '' : '';
       const opt2 = data && data.options ? data.options[2] || '' : '';
@@ -1371,11 +1150,8 @@
           }
         });
 
-        if (pTitle && questions.length > 0) {
-          partsData.push({ title: pTitle, questions });
-        }
+        if (pTitle && questions.length > 0) partsData.push({ title: pTitle, questions });
       });
-
       return partsData;
     }
 
@@ -1384,23 +1160,16 @@
       const quizName = select.value;
       const displayArea = document.getElementById('history-display-area');
 
-      if (!quizName) {
-        displayArea.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Vui lòng chọn bài kiểm tra ở trên.</p>';
-        return;
-      }
+      if (!quizName) { displayArea.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Vui lòng chọn bài kiểm tra ở trên.</p>'; return; }
 
       const historyData = JSON.parse(localStorage.getItem(getTeacherHistoryStorageKey()) || '{}');
       const records = historyData[quizName] || [];
 
-      if (records.length === 0) {
-        displayArea.innerHTML = `<p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Chưa có lượt thi nào cho bài "${quizName}".</p>`;
-        return;
-      }
+      if (records.length === 0) { displayArea.innerHTML = `<p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Chưa có lượt thi nào cho bài "${quizName}".</p>`; return; }
 
       let html = `<button onclick="clearQuizHistory('${quizName}')" style="background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); font-size: 11.5px; padding: 5px 10px; margin-bottom: 8px; box-shadow: 0 2px 0 #991b1b;">🗑️ Xóa Lịch Sử Bài Này</button>`;
       records.forEach(rec => {
         const rankedResults = calculateRanks(rec.results.sort((a,b) => b.score - a.score));
-
         html += `
           <div class="history-card">
             <strong style="color: #ffd166; font-size: 13.5px;">📌 Lần thi thứ ${rec.attempt}</strong> - <small style="color: var(--text-muted); font-size: 11.5px;">(${rec.time})</small>
@@ -1429,7 +1198,6 @@
           </div>
         `;
       });
-
       displayArea.innerHTML = html;
     }
 
@@ -1437,12 +1205,7 @@
       if (!quizName || !currentTeacherUser) return;
       const historyData = JSON.parse(localStorage.getItem(getTeacherHistoryStorageKey()) || '{}');
       if (!historyData[quizName]) historyData[quizName] = [];
-
-      historyData[quizName].push({
-        attempt: historyData[quizName].length + 1,
-        time: new Date().toLocaleString('vi-VN'),
-        results: leaderboard
-      });
+      historyData[quizName].push({ attempt: historyData[quizName].length + 1, time: new Date().toLocaleString('vi-VN'), results: leaderboard });
       localStorage.setItem(getTeacherHistoryStorageKey(), JSON.stringify(historyData));
     }
 
@@ -1502,26 +1265,21 @@
     function startQuiz() {
       const activeSelect = document.getElementById('active-quiz-select');
       const selectedQuizName = activeSelect.value;
-
       const saved = localStorage.getItem(getTeacherQuizStorageKey());
       const currentQuizzes = saved ? JSON.parse(saved) : {};
 
-      if (!selectedQuizName || !currentQuizzes[selectedQuizName]) {
-        return alert('Vui lòng tạo hoặc chọn một bài kiểm tra để phát!');
-      }
+      if (!selectedQuizName || !currentQuizzes[selectedQuizName]) return alert('Vui lòng chọn bài kiểm tra!');
 
       const btn = document.getElementById('start-btn');
-      btn.disabled = true;
-      btn.innerText = '⏳ BÀI THI ĐANG DIỄN RA...';
-      btn.style.background = '#475569';
-      btn.style.boxShadow = 'none';
+      btn.disabled = true; btn.innerText = '⏳ BÀI THI ĐANG DIỄN RA...';
+      btn.style.background = '#475569'; btn.style.boxShadow = 'none';
 
       const parts = currentQuizzes[selectedQuizName];
-      socket.emit('start_quiz', { 
-        parts, 
-        quizName: selectedQuizName, 
-        roomId: activeRoomId
-      });
+      socket.emit('start_quiz', { parts, quizName: selectedQuizName, roomId: activeRoomId });
+    }
+
+    function togglePauseQuiz() {
+      socket.emit('toggle_pause', { roomId: activeRoomId });
     }
 
     socket.on('update_students', (students) => {
@@ -1549,11 +1307,38 @@
       }
     });
 
-    socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
-      if (localTimerInterval) {
-        clearInterval(localTimerInterval);
-        localTimerInterval = null;
+    // NHẬN TÍN HIỆU TẠM DỪNG TỪ SERVER
+    socket.on('quiz_paused', () => {
+      isClientPaused = true;
+      if (myRole === 'student') {
+        document.getElementById('pause-overlay').style.display = 'flex';
+      } else if (myRole === 'teacher') {
+        const btn = document.getElementById('btn-toggle-pause');
+        if (btn) {
+          btn.innerHTML = '▶️ Tiếp Tục Bài Thi';
+          btn.style.background = 'linear-gradient(180deg, #f59e0b 0%, #d97706 100%)';
+          btn.style.boxShadow = '0 3px 0 #b45309';
+        }
       }
+    });
+
+    socket.on('quiz_resumed', () => {
+      isClientPaused = false;
+      if (myRole === 'student') {
+        document.getElementById('pause-overlay').style.display = 'none';
+      } else if (myRole === 'teacher') {
+        const btn = document.getElementById('btn-toggle-pause');
+        if (btn) {
+          btn.innerHTML = '⏸ Tạm Dừng';
+          btn.style.background = 'linear-gradient(180deg, #6366f1 0%, #4338ca 100%)';
+          btn.style.boxShadow = '0 3px 0 #312e81';
+        }
+      }
+    });
+
+    socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
+      if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
+      if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
 
       currentRemainingSeconds = duration;
       currentItemData = item;
@@ -1568,13 +1353,32 @@
       document.getElementById('student-result-view').style.display = 'none';
       document.getElementById('teacher-review-panel').style.display = 'none';
 
+      const q = item.question;
+
       if (myRole === 'teacher') {
         const liveBox = document.getElementById('teacher-live-box');
         if (liveBox) {
           liveBox.style.display = 'block';
-          const typeBadge = item.question.type === 'short_answer' ? '📝 [TỰ LUẬN]' : '🎯 [TRẮC NGHIỆM]';
+          const typeBadge = q.type === 'short_answer' ? '📝 [TỰ LUẬN]' : '🎯 [TRẮC NGHIỆM]';
           document.getElementById('teacher-current-q').innerText = `${typeBadge} ${item.partTitle} - Câu ${item.questionIndex} (Tổng: ${currentIndex + 1}/${totalQuestions})`;
           document.getElementById('teacher-timer').innerText = currentRemainingSeconds;
+
+          // Xây dựng nội dung câu hỏi cho Giáo Viên xem live
+          let qHtml = `<h3 style="margin-top: 0; font-size: 16.5px; color: #fff; line-height: 1.4;">${q.title}</h3>`;
+          if (q.type === 'multiple') {
+            const optPrefix = ['A', 'B', 'C', 'D'];
+            q.options.forEach((opt, optIdx) => {
+              const isCorrect = (optIdx == q.correct);
+              qHtml += `<div class="teacher-q-opt ${isCorrect ? 'correct' : ''}"><b>${optPrefix[optIdx]}:</b> ${opt} ${isCorrect ? '✅' : ''}</div>`;
+            });
+          } else if (q.type === 'tf') {
+            const isTrueCorrect = (q.correct === 'Đúng');
+            qHtml += `<div class="teacher-q-opt ${isTrueCorrect ? 'correct' : ''}">Đúng ${isTrueCorrect ? '✅' : ''}</div>`;
+            qHtml += `<div class="teacher-q-opt ${!isTrueCorrect ? 'correct' : ''}">Sai ${!isTrueCorrect ? '✅' : ''}</div>`;
+          } else if (q.type === 'short_answer') {
+            qHtml += `<div class="teacher-ref-answer"><b>🎯 Đáp án chuẩn của GV:</b> ${q.correct}</div>`;
+          }
+          document.getElementById('teacher-question-content').innerHTML = qHtml;
         }
       } else {
         document.getElementById('role-screen').style.display = 'none';
@@ -1587,14 +1391,12 @@
         document.getElementById('timer').innerText = currentRemainingSeconds;
 
         const container = document.getElementById('questions-container');
-        const q = item.question;
         
         let html = `<h3 style="margin-top: 0; font-size: 17.5px; line-height: 1.4; font-weight: 800; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.4);">${q.title}</h3>`;
 
         if (q.type === 'multiple') {
           const optClasses = ['opt-btn-a', 'opt-btn-b', 'opt-btn-c', 'opt-btn-d'];
           const optPrefix = ['🔴 A', '🔵 B', '🟠 C', '🟢 D'];
-
           q.options.forEach((opt, optIdx) => {
             const isCorrect = (optIdx == q.correct);
             const btnClass = optClasses[optIdx] || 'opt-btn-a';
@@ -1620,103 +1422,92 @@
         container.innerHTML = html;
       }
 
-      let timeUpFired = false;
+      // Bộ đếm hình ảnh ở Client (Chỉ có tác dụng hiển thị)
       localTimerInterval = setInterval(() => {
+        if (isClientPaused) return; // Nếu bị tạm dừng -> Đóng băng đồng hồ
         currentRemainingSeconds--;
-
-        const timerEl = document.getElementById('timer');
-        if (timerEl) timerEl.innerText = Math.max(0, currentRemainingSeconds);
-
-        const teacherTimerEl = document.getElementById('teacher-timer');
-        if (teacherTimerEl) teacherTimerEl.innerText = Math.max(0, currentRemainingSeconds);
-
-        if (currentRemainingSeconds <= 0) {
-          clearInterval(localTimerInterval);
-          localTimerInterval = null;
-
-          const submitBtn = document.getElementById('btn-submit');
-          if (submitBtn) submitBtn.style.display = 'none';
-
-          if (currentItemData && currentItemData.question.type === 'short_answer') {
-            if (!hasSubmittedCurrentQuestion) {
-              submitCurrentAnswer();
-            }
-            const essayInput = document.getElementById('student-essay-input');
-            if (essayInput) essayInput.disabled = true;
-
-            const revealBox = document.getElementById('essay-reveal-box');
-            if (revealBox) {
-              revealBox.style.display = 'block';
-              const correctList = currentItemData.question.correct.split(/[,|]/).map(s => s.trim()).filter(Boolean);
-              if (isSelectedChoiceCorrect) {
-                revealBox.style.background = 'rgba(16, 185, 129, 0.25)';
-                revealBox.style.color = '#6ee7b7';
-                revealBox.style.border = '1.5px solid #10b981';
-                revealBox.innerHTML = `🎉 <b>CHÍNH XÁC!</b><br><small style="color:#ffd166;">Đáp án: ${correctList.join(', ')}</small>`;
-              } else {
-                revealBox.style.background = 'rgba(239, 68, 68, 0.25)';
-                revealBox.style.color = '#fca5a5';
-                revealBox.style.border = '1.5px solid #ef4444';
-                revealBox.innerHTML = `❌ <b>CHƯA CHÍNH XÁC!</b><br><small style="color:#ffd166;">Đáp án đúng: ${correctList.join(', ')}</small>`;
-              }
-            }
-          } else {
-            const optButtons = document.querySelectorAll('.opt-btn');
-            optButtons.forEach(b => {
-              b.style.pointerEvents = 'none';
-              const isCorrect = b.getAttribute('data-is-correct') === 'true';
-
-              if (isCorrect) {
-                b.classList.remove('selected');
-                b.classList.add('reveal-correct');
-                if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅ (ĐÚNG)';
-              } else {
-                if (b.classList.contains('selected')) {
-                  b.classList.remove('selected');
-                  b.classList.add('reveal-wrong');
-                  if (!b.innerHTML.includes('❌')) b.innerHTML += ' ❌ (SAI)';
-                } else {
-                  b.style.opacity = '0.35';
-                }
-              }
-            });
-          }
-
-          let restSeconds = 3;
-          const waitingBox = document.getElementById('waiting-box');
-          if (waitingBox) {
-            waitingBox.style.display = 'block';
-            waitingBox.style.background = 'rgba(16, 185, 129, 0.2)';
-            waitingBox.style.color = '#6ee7b7';
-            waitingBox.style.borderColor = 'rgba(16, 185, 129, 0.5)';
-            waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG HIỂN THỊ!</b> Chuẩn bị sau <b>${restSeconds}s</b>...`;
-          }
-
-          const restInterval = setInterval(() => {
-            restSeconds--;
-            if (waitingBox && restSeconds > 0) {
-              waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG HIỂN THỊ!</b> Chuẩn bị sau <b>${restSeconds}s</b>...`;
-            }
-            if (restSeconds <= 0) {
-              clearInterval(restInterval);
-              if (waitingBox) waitingBox.innerHTML = `🚀 Đang tải câu hỏi mới...`;
-            }
-          }, 1000);
-
-          if (!timeUpFired) {
-            timeUpFired = true;
-            socket.emit('time_up', { roomId: activeRoomId });
-          }
-        }
+        const t = Math.max(0, currentRemainingSeconds);
+        if (myRole === 'student') document.getElementById('timer').innerText = t;
+        if (myRole === 'teacher') document.getElementById('teacher-timer').innerText = t;
       }, 1000);
     });
 
-    function selectChoice(isCorrect, element) {
-      if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0) return;
+    // KHI NHẬN TÍN HIỆU HẾT GIỜ TỪ SERVER
+    socket.on('question_time_up', () => {
+      if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
+      
+      // Khóa cứng hiển thị thành 0
+      if (myRole === 'student') document.getElementById('timer').innerText = '0';
+      if (myRole === 'teacher') document.getElementById('teacher-timer').innerText = '0';
 
+      if (myRole === 'student') {
+        const submitBtn = document.getElementById('btn-submit');
+        if (submitBtn) submitBtn.style.display = 'none';
+
+        if (currentItemData && currentItemData.question.type === 'short_answer') {
+          if (!hasSubmittedCurrentQuestion) submitCurrentAnswer();
+          const essayInput = document.getElementById('student-essay-input');
+          if (essayInput) essayInput.disabled = true;
+
+          const revealBox = document.getElementById('essay-reveal-box');
+          if (revealBox) {
+            revealBox.style.display = 'block';
+            const correctList = currentItemData.question.correct.split(/[,|]/).map(s => s.trim()).filter(Boolean);
+            if (isSelectedChoiceCorrect) {
+              revealBox.style.background = 'rgba(16, 185, 129, 0.25)'; revealBox.style.color = '#6ee7b7'; revealBox.style.border = '1.5px solid #10b981';
+              revealBox.innerHTML = `🎉 <b>CHÍNH XÁC!</b><br><small style="color:#ffd166;">Đáp án: ${correctList.join(', ')}</small>`;
+            } else {
+              revealBox.style.background = 'rgba(239, 68, 68, 0.25)'; revealBox.style.color = '#fca5a5'; revealBox.style.border = '1.5px solid #ef4444';
+              revealBox.innerHTML = `❌ <b>CHƯA CHÍNH XÁC!</b><br><small style="color:#ffd166;">Đáp án đúng: ${correctList.join(', ')}</small>`;
+            }
+          }
+        } else {
+          const optButtons = document.querySelectorAll('.opt-btn');
+          optButtons.forEach(b => {
+            b.style.pointerEvents = 'none';
+            const isCorrect = b.getAttribute('data-is-correct') === 'true';
+            if (isCorrect) {
+              b.classList.remove('selected'); b.classList.add('reveal-correct');
+              if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅ (ĐÚNG)';
+            } else {
+              if (b.classList.contains('selected')) {
+                b.classList.remove('selected'); b.classList.add('reveal-wrong');
+                if (!b.innerHTML.includes('❌')) b.innerHTML += ' ❌ (SAI)';
+              } else b.style.opacity = '0.35';
+            }
+          });
+        }
+
+        let restSeconds = 3;
+        const waitingBox = document.getElementById('waiting-box');
+        if (waitingBox) {
+          waitingBox.style.display = 'block';
+          waitingBox.style.background = 'rgba(16, 185, 129, 0.2)';
+          waitingBox.style.color = '#6ee7b7';
+          waitingBox.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+          waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG HIỂN THỊ!</b> Chuẩn bị sau <b>${restSeconds}s</b>...`;
+        }
+
+        if (restTransitionInterval) clearInterval(restTransitionInterval);
+        restTransitionInterval = setInterval(() => {
+          if (isClientPaused) return; // Nếu tạm dừng thì đóng băng
+          restSeconds--;
+          if (waitingBox && restSeconds > 0) {
+            waitingBox.innerHTML = `💡 <b>ĐÁP ÁN ĐÚNG ĐANG HIỂN THỊ!</b> Chuẩn bị sau <b>${restSeconds}s</b>...`;
+          }
+          if (restSeconds <= 0) {
+            clearInterval(restTransitionInterval);
+            restTransitionInterval = null;
+            if (waitingBox) waitingBox.innerHTML = `🚀 Đang tải câu hỏi mới...`;
+          }
+        }, 1000);
+      }
+    });
+
+    function selectChoice(isCorrect, element) {
+      if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0 || isClientPaused) return;
       isSelectedChoiceCorrect = isCorrect;
       hasSelectedAnOption = true;
-
       if (element.tagName === 'BUTTON') {
         element.parentNode.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
         element.classList.add('selected');
@@ -1724,7 +1515,7 @@
     }
 
     function submitCurrentAnswer() {
-      if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0) return;
+      if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0 || isClientPaused) return;
 
       let answerType = 'mc';
       let answerTextVal = '';
@@ -1740,12 +1531,9 @@
 
         isSelectedChoiceCorrect = acceptableAnswers.some(ans => ans === userText);
         hasSelectedAnOption = true;
-
         if (inputEl) inputEl.disabled = true;
       } else {
-        if (!hasSelectedAnOption) {
-          return alert('Em hãy chọn một đáp án trước khi bấm Nộp!');
-        }
+        if (!hasSelectedAnOption) return alert('Em hãy chọn một đáp án trước khi bấm Nộp!');
       }
 
       hasSubmittedCurrentQuestion = true;
@@ -1760,10 +1548,7 @@
       }
 
       const optButtons = document.querySelectorAll('.opt-btn');
-      optButtons.forEach(b => {
-        b.style.pointerEvents = 'none';
-        b.style.opacity = '0.75';
-      });
+      optButtons.forEach(b => { b.style.pointerEvents = 'none'; b.style.opacity = '0.75'; });
 
       socket.emit('submit_answer', { 
         isCorrect: isSelectedChoiceCorrect, 
@@ -1776,12 +1561,9 @@
       });
     }
 
-    /* KHI KẾT THÚC BÀI THI: GOM NHÓM ĐÁP ÁN TỰ LUẬN THEO CÂU HỎI VÀ ĐẶT ĐÁP ÁN CHUẨN CỦA GV PHÍA CUỐI */
+    /* KHI KẾT THÚC BÀI THI */
     socket.on('quiz_ended', ({ quizName, essaySubmissions, leaderboard }) => {
-      if (localTimerInterval) {
-        clearInterval(localTimerInterval);
-        localTimerInterval = null;
-      }
+      if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
 
       currentQuizName = quizName;
 
@@ -1844,7 +1626,7 @@
                     </div>
                   `).join('')}
                 </div>
-                <!-- ĐÁP ÁN CHUẨN CỦA GIÁO VIÊN ĐẶT PHÍA DƯỚI ĐỂ SO SÁNH -->
+                <!-- ĐÁP ÁN CHUẨN ĐỂ SO SÁNH -->
                 <div class="teacher-ref-answer">
                   <b>🎯 Đáp án chuẩn của GV:</b> <span>${group.teacherAnswers || '(Chưa đặt)'}</span>
                 </div>
@@ -1875,7 +1657,8 @@
       if (itemEl) {
         itemEl.style.borderLeftColor = '#10b981';
         itemEl.style.background = 'rgba(16, 185, 129, 0.15)';
-        itemEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 6px 0; width: 100%;">✅ Đã chấp nhận đúng (+${points} điểm)</div>`;
+        itemEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 10px 0; width: 100%;">✅ Đã chấp nhận đúng (+${points} điểm)</div>`;
+        setTimeout(() => { itemEl.style.display = 'none'; }, 1000);
       }
     }
 
