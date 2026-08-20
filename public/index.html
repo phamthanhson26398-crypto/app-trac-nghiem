@@ -87,17 +87,17 @@
     }
 
     .header-banner {
-      font-size: 13px;
-      font-weight: 800;
+      font-size: 20px; /* CHỮ TO HƠN */
+      font-weight: 900;
       color: #ffd166;
       text-transform: uppercase;
       letter-spacing: 1.4px;
-      padding: 6px 14px;
-      margin: -4px auto 14px auto;
+      padding: 10px 25px;
+      margin: -4px auto 20px auto;
       text-align: center;
       background: rgba(255, 209, 102, 0.12);
-      border: 1px solid rgba(255, 209, 102, 0.3);
-      border-radius: 24px;
+      border: 2px solid rgba(255, 209, 102, 0.3);
+      border-radius: 30px;
       width: fit-content;
       text-shadow: 0 0 10px rgba(255, 209, 102, 0.4);
     }
@@ -308,6 +308,7 @@
     #qrcode-box { background: rgba(255, 255, 255, 0.06); border: 2px dashed rgba(16, 185, 129, 0.5); padding: 14px; border-radius: 18px; text-align: center; position: relative; }
     #qrcode { background: white; padding: 6px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
     #qrcode img { margin: auto; width: 100px !important; height: 100px !important; }
+    #xu-doan-logo { width: 120px; height: auto; margin-top: 15px; border-radius: 10px; }
 
     /* MODAL ZOOM QR CODE FULL MÀN HÌNH */
     .qr-zoom-modal {
@@ -461,9 +462,9 @@
     </div>
   </div>
 
-  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV (BỐ CỤC 3 CỘT MỚI: TRÁI = QR, GIỮA = KHO ĐỀ, PHẢI = HỌC SINH) -->
+  <!-- 4. MÀN HÌNH QUẢN TRỊ CỦA GLV -->
   <div id="teacher-screen" class="card" style="display: none;">
-    <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
+    <div class="header-banner">THIẾU NHI THÁNH THỂ VIỆT NAM</div>
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 12px;">
       <div>
@@ -475,8 +476,8 @@
 
     <!-- BỐ CỤC 3 CỘT -->
     <div class="teacher-dashboard-layout">
-      <!-- CỘT 1 (BÊN TRÁI): MÃ QR NHỎ GỌN -->
-      <div>
+      <!-- CỘT 1 (BÊN TRÁI): MÃ QR NHỎ GỌN + LOGO -->
+      <div style="text-align: center;">
         <div id="qrcode-box">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <h3 style="margin: 0; color: #6ee7b7; font-size: 13.5px; font-weight: 900;">📲 QUÉT MÃ QR</h3>
@@ -485,6 +486,8 @@
           <p style="margin: 2px 0 8px 0; font-size: 12px; color: var(--text-muted);">Mã: <strong id="teacher-room-code-txt" style="color: #ffd166; font-size: 13px;">--</strong></p>
           <div id="qrcode"></div>
         </div>
+        <!-- CHÈN LOGO XỨ ĐOÀN DƯỚI QR CODE -->
+        <img id="xu-doan-logo" src="/logo-xu-doan.png" alt="Logo Xứ Đoàn" style="width: 120px; height: auto; margin-top: 15px; border-radius: 10px;">
       </div>
 
       <!-- CỘT 2 (Ở GIỮA): KHO BÀI THI, SOẠN ĐỀ, BẢNG ĐIỂM VÀ NÚT PHÁT ĐỀ -->
