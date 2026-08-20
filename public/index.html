@@ -1649,7 +1649,7 @@
       }
     }
 
-    function submitCurrentAnswer() {
+function submitCurrentAnswer() {
       if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0 || isClientPaused) return;
 
       let answerType = 'mc';
@@ -1671,7 +1671,7 @@
         if (currentItemData.question.type === 'multiple') {
           answerTextVal = currentItemData.question.options[currentSelectedIndex] || '';
         } else if (currentItemData.question.type === 'tf') {
-          answerTextVal = selectedIndex;
+          answerTextVal = currentSelectedIndex; // Đã sửa đúng biến lưu giá trị Đúng/Sai của học sinh
         }
       }
 
