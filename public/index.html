@@ -1423,13 +1423,16 @@
         const btn = document.getElementById('btn-toggle-pause');
         if (btn) { btn.innerHTML = '▶️ Tiếp Tục'; btn.style.background = '#f59e0b'; }
 
-        if (currentItemData && currentItemData.question.type === 'short_answer') {
+       if (currentItemData && currentItemData.question.type === 'short_answer') {
           const liveEssayBox = document.getElementById('teacher-live-essay-review');
           const liveEssayList = document.getElementById('teacher-live-essay-list');
           if (liveEssayBox && liveEssayList) {
-            if (essaySubmissionsForCurrent && essaySubmissionsForCurrent.length > 0) {
+            // Lọc ra các bài nộp mà hệ thống đang chấm là chưa đúng (!s.isCorrect)
+            const wrongSubmissions = essaySubmissionsForCurrent.filter(s => !s.isCorrect);
+
+            if (wrongSubmissions && wrongSubmissions.length > 0) {
               liveEssayBox.style.display = 'block';
-              liveEssayList.innerHTML = essaySubmissionsForCurrent.map(s => `
+              liveEssayList.innerHTML = wrongSubmissions.map(s => `
                 <div class="student-review-row" id="live-review-item-${s.studentId}">
                   <div style="flex: 1;">
                     <div style="font-size: 13px; color: #cbd5e1;">👤 Thí sinh: <b style="color: #fff;">${s.studentName}</b> ${s.mascot ? s.mascot.icon : ''}</div>
@@ -1443,7 +1446,7 @@
               `).join('');
             } else {
               liveEssayBox.style.display = 'block';
-              liveEssayList.innerHTML = '<div style="color:var(--text-muted); font-size:13.5px; text-align:center;">Chưa có học sinh nào nộp câu trả lời.</div>';
+              liveEssayList.innerHTML = '<div style="color:#6ee7b7; font-size:13.5px; text-align:center; font-weight: bold;">🎉 Tất cả học sinh nộp bài đều đã làm đúng! Không còn bài nào cần chấm lại.</div>';
             }
           }
         }
