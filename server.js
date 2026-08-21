@@ -296,7 +296,8 @@ io.on('connection', (socket) => {
           const st = room.students[id];
           const hist = st.answerHistory.find(h => h.questionIndex === room.currentIndex);
           if (hist) {
-            if (hist.points === 0) {
+            // Sửa điều kiện: Chỉ lấy những em làm sai (isCorrect === false) và chưa được duyệt (isOverridden === false)
+            if (hist.isCorrect === false && !hist.isOverridden) {
               essaySubmissionsForCurrent.push({
                 studentId: st.id, studentName: st.name, mascot: st.mascot,
                 answerText: hist.userAnswer, potentialPoints: hist.points
