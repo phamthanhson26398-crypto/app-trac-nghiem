@@ -1428,7 +1428,7 @@
           const liveEssayList = document.getElementById('teacher-live-essay-list');
           if (liveEssayBox && liveEssayList) {
             // Chỉ lấy những học sinh chưa làm đúng hoặc chưa được giáo viên duyệt qua
-            const wrongSubmissions = essaySubmissionsForCurrent.filter(s => {
+            const wrongSubmissions = essaySubmissionsForCurrent.filter(s => !s.isCorrect);
               return s.potentialPoints === 0; // Hoặc chưa được hệ thống tính điểm đúng
             });
 
