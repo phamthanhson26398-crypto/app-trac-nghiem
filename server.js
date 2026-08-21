@@ -295,11 +295,14 @@ io.on('connection', (socket) => {
         Object.keys(room.students).forEach(id => {
           const st = room.students[id];
           const hist = st.answerHistory.find(h => h.questionIndex === room.currentIndex);
-          if (hist) {
+          // CHỈ LẤY NHỮNG BẠN NỘP SAI (isCorrect === false)
+          if (hist && hist.isCorrect === false) {
             essaySubmissionsForCurrent.push({
-              studentId: st.id, studentName: st.name, mascot: st.mascot,
-              answerText: hist.userAnswer, potentialPoints: hist.points
-              isCorrect: hist.isCorrect // <--- THÊM DÒNG NÀY VÀO ĐÂY
+              studentId: st.id, 
+              studentName: st.name, 
+              mascot: st.mascot,
+              answerText: hist.userAnswer, 
+              potentialPoints: hist.points || 10 // Đảm bảo có điểm thưởng nếu giáo viên bấm duyệt đúng
             });
           }
         });
