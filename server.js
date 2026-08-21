@@ -296,12 +296,12 @@ io.on('connection', (socket) => {
           const st = room.students[id];
           const hist = st.answerHistory.find(h => h.questionIndex === room.currentIndex);
           if (hist) {
-            // Chỉ đưa vào danh sách nếu điểm của câu đó bằng 0 (tức là hệ thống đang tính là sai)
             if (hist.points === 0) {
               essaySubmissionsForCurrent.push({
                 studentId: st.id, studentName: st.name, mascot: st.mascot,
-                answerText: hist.userAnswer, potentialPoints: hist.secondsLeft || 15 // hoặc dùng hist.points gốc trước khi gán về 0
+                answerText: hist.userAnswer, potentialPoints: hist.points
               });
+            }
           }
         });
       }
@@ -344,7 +344,6 @@ io.on('connection', (socket) => {
     if (targetRoomId && rooms[targetRoomId]) {
       const room = rooms[targetRoomId];
       if (room.students[studentId]) {
-        // Tìm lại đúng dữ liệu lịch sử của câu hỏi đó
         const historyItem = room.students[studentId].answerHistory.find(h => h.questionIndex === room.currentIndex);
         
         if (historyItem && !historyItem.isOverridden) {
