@@ -549,7 +549,7 @@
           <img src="/logo-nam-hoc-moi.png" alt="Logo Năm Học Mới" style="width: 100%; max-width: 200px; height: auto; border-radius: 20px;">
         </div>
       </div>
-    </div> <!-- ĐÓNG THẺ teacher-dashboard-layout -->
+    </div>
 
     <!-- MÀN HÌNH THEO DÕI LIVE CỦA GLV -->
     <div id="teacher-live-box" style="display: none; margin-top: 18px; background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 20px; border: 2px solid #10b981; text-align: center;">
@@ -567,7 +567,7 @@
         <div id="teacher-live-essay-list" style="max-height: 320px; overflow-y: auto; margin-top: 10px;"></div>
       </div>
     </div>
-  </div> <!-- ĐÓNG THẺ teacher-screen CHUẨN XÁC -->
+  </div>
 
   <!-- 5. MÀN HÌNH HỌC SINH NHẬP TÊN -->
   <div id="student-screen" class="card" style="display: none; text-align: center; max-width: 680px; margin: auto;">
@@ -1429,14 +1429,12 @@
         const btn = document.getElementById('btn-toggle-pause');
         if (btn) { btn.innerHTML = '▶️ Tiếp Tục'; btn.style.background = '#f59e0b'; }
 
-       if (currentItemData && currentItemData.question.type === 'short_answer') {
+        if (currentItemData && currentItemData.question.type === 'short_answer') {
           const liveEssayBox = document.getElementById('teacher-live-essay-review');
           const liveEssayList = document.getElementById('teacher-live-essay-list');
           if (liveEssayBox && liveEssayList) {
-            // Chỉ lấy những học sinh chưa làm đúng hoặc chưa được giáo viên duyệt qua
-            const wrongSubmissions = essaySubmissionsForCurrent;
-              return s.potentialPoints === 0; // Hoặc chưa được hệ thống tính điểm đúng
-            });
+            // Lọc ra các bài nộp mà hệ thống tính là sai (points === 0)
+            const wrongSubmissions = essaySubmissionsForCurrent || [];
 
             if (wrongSubmissions && wrongSubmissions.length > 0) {
               liveEssayBox.style.display = 'block';
@@ -1660,7 +1658,7 @@
       }
     }
 
-function submitCurrentAnswer() {
+    function submitCurrentAnswer() {
       if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0 || isClientPaused) return;
 
       let answerType = 'mc';
@@ -1682,7 +1680,7 @@ function submitCurrentAnswer() {
         if (currentItemData.question.type === 'multiple') {
           answerTextVal = currentItemData.question.options[currentSelectedIndex] || '';
         } else if (currentItemData.question.type === 'tf') {
-          answerTextVal = currentSelectedIndex; // Đã sửa đúng biến lưu giá trị Đúng/Sai của học sinh
+          answerTextVal = currentSelectedIndex;
         }
       }
 
