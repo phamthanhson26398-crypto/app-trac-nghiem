@@ -299,6 +299,7 @@ io.on('connection', (socket) => {
             essaySubmissionsForCurrent.push({
               studentId: st.id, studentName: st.name, mascot: st.mascot,
               answerText: hist.userAnswer, potentialPoints: hist.points
+              isCorrect: hist.isCorrect // <--- THÊM DÒNG NÀY VÀO ĐÂY
             });
           }
         });
