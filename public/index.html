@@ -790,15 +790,21 @@
 
     function handleAuthSubmit(event) {
       if (event) event.preventDefault();
-      const username = document.getElementById('auth-username').value.trim();
-      const pass = document.getElementById('auth-password').value.trim();
+      const usernameInput = document.getElementById('auth-username');
+      const passInput = document.getElementById('auth-password');
+      
+      if (!usernameInput || !passInput) return;
+      
+      const username = usernameInput.value.trim();
+      const pass = passInput.value.trim();
+      
       if (!username || !pass) {
         showAuthNotice('⚠️ Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
         return;
       }
 
       const btn = document.getElementById('auth-submit-btn');
-      btn.innerText = '⏳ Đang gửi yêu cầu...';
+      if (btn) btn.innerText = '⏳ Đang gửi yêu cầu...';
 
       if (isAuthRegisterMode) {
         socket.emit('teacher_register', { username, password: pass });
