@@ -1847,7 +1847,7 @@
       else box.style.display = 'none';
     }
 
-    function renderStudentReviewUI(studentData) {
+   function renderStudentReviewUI(studentData) {
       const container = document.getElementById('student-answers-review-container');
       if (!container || !studentData || !allQuizQuestionsList) return;
 
@@ -1858,10 +1858,18 @@
         const q = qItem.question;
         const studentAns = historyList.find(h => h.questionIndex === idx) || null;
         const isCorrect = studentAns ? studentAns.isCorrect : false;
+        
+        // 👉 Lấy số điểm đạt được của câu này (nếu chưa trả lời hoặc sai thì là 0 điểm)
+        const earnedPoints = studentAns ? (studentAns.points || 0) : 0;
 
         html += `
           <div class="review-question-box">
-            <div style="font-size: 12px; color: #ffd166; font-weight: 800; margin-bottom: 4px;">${qItem.partTitle} - Câu ${qItem.questionIndex}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <div style="font-size: 12px; color: #ffd166; font-weight: 800;">${qItem.partTitle} - Câu ${qItem.questionIndex}</div>
+              <div style="font-size: 12.5px; font-weight: 900; color: ${earnedPoints > 0 ? '#6ee7b7' : '#fca5a5'}; background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                ⭐ Điểm đạt được: ${earnedPoints} đ
+              </div>
+            </div>
             <div style="font-size: 15px; font-weight: 800; margin-bottom: 8px;">${q.title}</div>
         `;
 
@@ -1933,7 +1941,7 @@
                 <b style="color: ${isCorrect ? '#6ee7b7' : '#fca5a5'};">"${userVal}"</b>
                 ${isCorrect && !isOverridden ? ' ✅' : ''}
                 ${!isCorrect ? ' ❌ Sai' : ''}
-                ${isOverridden ? '<span style="color:#6ee7b7; font-weight:800; margin-left:6px;">✅ (Duyệt đúng +' + studentAns.points + 'đ)</span>' : ''}
+                ${isOverridden ? '<span style="color:#6ee7b7; font-weight:800; margin-left:6px;">✅ (Đã được duyệt)</span>' : ''}
               </div>
               <div style="font-size: 13px; color: #ffd166; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 6px;">
                 🎯 Đáp án chuẩn: <b>${teacherVal}</b>
