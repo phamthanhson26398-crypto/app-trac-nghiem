@@ -258,7 +258,9 @@ io.on('connection', (socket) => {
         p.questions.forEach((q, qIdx) => {
           queue.push({
             partTitle: p.title || `Phần ${pIdx + 1}`, partIndex: pIdx + 1, totalParts: parts.length,
-            questionIndex: qIdx + 1, totalQuestionsInPart: p.questions.length, question: q
+            questionIndex: qIdx + 1, totalQuestionsInPart: p.questions.length, 
+            maxScore: p.maxScore || 10, // Lưu điểm tổng của phần
+            question: q
           });
         });
       }
@@ -334,15 +336,14 @@ io.on('connection', (socket) => {
           student.answered = true;
           const secondsLeft = Math.max(1, parseInt(remainingTime) || 0);
           
-          // 👉 TÍNH ĐIỂM THEO TỶ LỆ PHẦN: Điểm = (Số giây còn lại / Tổng thời gian phần) * Điểm tối đa phần
+          // 👉 TÍNH ĐIỂM THEO TỶ LỆ THỜI GIAN VÀ TỔNG ĐIỂM CỦA PHẦN
           let earnedScore = 0;
           if (isCorrect && room.currentItem) {
             const totalDuration = parseInt(room.currentItem.question.duration) || 15;
             const maxScorePart = parseFloat(room.currentItem.maxScore) || 10;
             
-            // Công thức: Cứ mỗi giây nhân với tỷ lệ (maxScore / totalDuration)
             earnedScore = parseFloat((secondsLeft * (maxScorePart / totalDuration)).toFixed(2));
-            if (earnedScore < 0.5) earnedScore = 1; // Đảm bảo làm đúng là có ít nhất 1 điểm khích lệ
+            if (earnedScore <= 0) earnedScore = 0.5;
           }
 
           student.currentScore = earnedScore;
@@ -356,13 +357,14 @@ io.on('connection', (socket) => {
             userAnswer: answerText || '(Trống)',
             selectedIndex: selectedIndex,
             teacherAnswers: teacherAnswers || '',
-            points: earnedScore, // Lưu điểm theo hệ số mới
+            points: earnedScore,
             isOverridden: false
           });
         }
       }
     }
   });
+
   socket.on('override_essay_live', ({ roomId, studentId, points }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId]) {
@@ -371,12 +373,8 @@ io.on('connection', (socket) => {
         const historyItem = room.students[studentId].answerHistory.find(h => h.questionIndex === room.currentIndex);
         
         if (historyItem && !historyItem.isOverridden) {
-          // Lấy điểm chuẩn theo maxScore của phần hiện tại
-          const totalDuration = parseInt(room.currentItem.question.duration) || 15;
-          const maxScorePart = parseFloat(room.currentItem.maxScore) || 10;
-          const defaultPoints = parseFloat((totalDuration * (maxScorePart / totalDuration)).toFixed(2)) || maxScorePart;
-          
-          const earnedPoints = points ? parseFloat(points) : defaultPoints;
+          const maxScorePart = room.currentItem ? (parseFloat(room.currentItem.maxScore) || 10) : 10;
+          const earnedPoints = points ? parseFloat(points) : maxScorePart;
           
           room.students[studentId].score += earnedPoints;
           room.students[studentId].essayCorrect = (room.students[studentId].essayCorrect || 0) + 1;
