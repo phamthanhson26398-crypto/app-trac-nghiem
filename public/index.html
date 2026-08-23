@@ -1193,9 +1193,9 @@
         <label style="font-size: 13px;"><strong>Tên Phần:</strong></label>
         <input type="text" class="part-title" value="${partTitle}">
         
-        <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; padding: 10px; border-radius: 12px; margin: 8px 0;">
-          <label style="color: #6ee7b7; font-size: 13px;">⏱️ <b>Thời gian thi chung cho cả Phần này (Giây):</b></label>
-          <input type="number" class="part-duration" value="${partDuration}" min="5" style="margin-top: 4px; margin-bottom: 0;">
+        <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; padding: 10px; border-radius: 12px; margin: 8px 0;">
+          <label style="color: #fde047; font-size: 13px;">⭐ <b>Tổng điểm tối đa của Phần này:</b></label>
+          <input type="number" class="part-max-score" value="${data && data.maxScore ? data.maxScore : 10}" min="1" style="margin-top: 4px; margin-bottom: 0;">
         </div>
 
         <div class="q-container" style="margin-top: 10px;"></div>
@@ -1289,6 +1289,7 @@
       partBlocks.forEach((pBlock) => {
         const pTitle = pBlock.querySelector('.part-title').value;
         const partDuration = parseInt(pBlock.querySelector('.part-duration').value) || 15;
+        const partMaxScore = parseFloat(pBlock.querySelector('.part-max-score').value) || 10; // 👉 Lấy số điểm phần
         const qBlocks = pBlock.querySelectorAll('.q-block');
         const questions = [];
 
@@ -1313,7 +1314,7 @@
           }
         });
 
-        if (pTitle && questions.length > 0) partsData.push({ title: pTitle, questions });
+        if (pTitle && questions.length > 0) partsData.push({ title: pTitle, maxScore: partMaxScore, questions });
       });
       return partsData;
     }
