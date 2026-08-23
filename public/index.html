@@ -334,13 +334,7 @@
     .champion-podium { text-align: center; padding: 18px 10px 10px 10px; animation: championZoomIn 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; position: relative; }
     @keyframes championZoomIn { 0% { transform: scale(0.2); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    .champions-row { display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
-    .champion-avatar-wrap { position: relative; display: inline-block; text-align: center; }
-    .champion-crown { position: absolute; top: -28px; left: 50%; transform: translateX(-50%) rotate(-8deg); font-size: 36px; filter: drop-shadow(0 0 12px #ffd166); z-index: 10; }
-    .champion-mascot-circle { width: 92px; height: 92px; background: radial-gradient(circle, #ffeaa7 0%, #fdcb6e 60%, #e17055 100%); border: 3px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 48px; box-shadow: 0 0 30px rgba(255, 209, 102, 0.85), inset 0 0 12px rgba(255,255,255,0.8); }
     .champion-title-badge { background: linear-gradient(90deg, #f59e0b, #ffd166, #f59e0b); color: #000; font-weight: 900; font-size: 13px; padding: 5px 16px; border-radius: 24px; display: inline-block; letter-spacing: 1.2px; text-transform: uppercase; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.5); margin-bottom: 10px; }
-    .champion-name { font-size: 23px; font-weight: 900; color: #ffffff; text-shadow: 0 0 12px rgba(255, 209, 102, 0.8), 0 2px 4px rgba(0,0,0,0.8); margin: 3px 0; }
-    .champion-score { font-size: 17px; font-weight: 800; color: #6ee7b7; text-shadow: 0 0 10px rgba(110, 231, 183, 0.6); }
 
     .teacher-review-panel { background: rgba(0,0,0,0.55); border: 1.5px solid #f59e0b; border-radius: 18px; padding: 16px; margin-top: 14px; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
     .question-review-card { background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 209, 102, 0.3); border-radius: 16px; padding: 14px; margin-bottom: 16px; }
@@ -656,13 +650,40 @@
       </div>
     </div>
 
-    <!-- KHUNG TÔN VINH VÔ ĐỊCH -->
+    <!-- KHUNG TÔN VINH VÔ ĐỊCH (BỤC TRAO GIẢI TOP 3) -->
     <div id="champion-stage" class="champion-podium" style="display: none;">
-      <div id="champion-badge-title" class="champion-title-badge">👑 NHÀ VÔ ĐỊCH 👑</div>
+      <div class="champion-title-badge">👑 VINH DANH BỤC TRAO GIẢI 👑</div>
       <br>
-      <div id="champions-container-row" class="champions-row"></div>
-      <div id="champion-name" class="champion-name">--</div>
-      <div id="champion-score" class="champion-score">🔥 0 Điểm</div>
+      
+      <!-- BỤC ĐỨNG TOP 3 (THỨ TỰ: NHÌ - NHẤT - BA ĐỂ CÓ HIỆU ỨNG BỤC CAO THẤP) -->
+      <div class="podium-container" style="display: flex; justify-content: center; align-items: flex-end; gap: 12px; margin: 20px 0 10px 0;">
+        
+        <!-- HẠNG 2 (NHÌ) -->
+        <div id="podium-rank-2" style="display: none; flex-direction: column; align-items: center; width: 110px;">
+          <div id="podium-avatar-2" style="font-size: 38px; margin-bottom: 4px;">🥈</div>
+          <div id="podium-name-2" style="font-size: 13px; font-weight: 800; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;">--</div>
+          <div id="podium-score-2" style="font-size: 11px; font-weight: 700; color: #94a3b8;">0 đ</div>
+          <div style="background: linear-gradient(180deg, #64748b 0%, #475569 100%); width: 100%; height: 70px; border-radius: 12px 12px 0 0; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border-top: 3px solid #cbd5e1;">🥈 2</div>
+        </div>
+
+        <!-- HẠNG 1 (NHẤT - CAO NHẤT Ở GIỮA) -->
+        <div id="podium-rank-1" style="display: none; flex-direction: column; align-items: center; width: 130px; z-index: 5;">
+          <div style="font-size: 32px; margin-bottom: -10px; filter: drop-shadow(0 0 8px #ffd166);">👑</div>
+          <div id="podium-avatar-1" style="font-size: 46px; margin-bottom: 4px;">🥇</div>
+          <div id="podium-name-1" style="font-size: 14.5px; font-weight: 900; color: #ffd166; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px;">--</div>
+          <div id="podium-score-1" style="font-size: 12px; font-weight: 800; color: #6ee7b7;">0 đ</div>
+          <div style="background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); width: 100%; height: 105px; border-radius: 14px 14px 0 0; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: #fff; box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4); border-top: 3px solid #fef08a;">🥇 1</div>
+        </div>
+
+        <!-- HẠNG 3 (BA) -->
+        <div id="podium-rank-3" style="display: none; flex-direction: column; align-items: center; width: 110px;">
+          <div id="podium-avatar-3" style="font-size: 38px; margin-bottom: 4px;">🥉</div>
+          <div id="podium-name-3" style="font-size: 13px; font-weight: 800; color: #f97316; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;">--</div>
+          <div id="podium-score-3" style="font-size: 11px; font-weight: 700; color: #94a3b8;">0 đ</div>
+          <div style="background: linear-gradient(180deg, #c2410c 0%, #9a3412 100%); width: 100%; height: 50px; border-radius: 12px 12px 0 0; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border-top: 3px solid #fdba74;">🥉 3</div>
+        </div>
+
+      </div>
     </div>
 
     <!-- BẢNG ĐIỂM CỦA GIÁO LÝ VIÊN -->
@@ -1187,14 +1208,13 @@
 
       const partTitle = data ? data.title : `PHẦN ${partCount}`;
       const partDuration = data && data.questions && data.questions.length > 0 ? data.questions[0].duration : 15;
-      const partMaxScore = data && data.maxScore ? data.maxScore : 10; // Lấy điểm tối đa của phần
+      const partMaxScore = data && data.maxScore ? data.maxScore : 10;
 
       pDiv.innerHTML = `
         <button class="btn-delete" style="float:right;" onclick="this.parentElement.remove()">❌ Xóa Phần</button>
         <label style="font-size: 13px;"><strong>Tên Phần:</strong></label>
         <input type="text" class="part-title" value="${partTitle}">
         
-        <!-- Ô CÀI ĐẶT THỜI GIAN VÀ ĐIỂM SỐ CHUNG CHO CẢ PHẦN -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0;">
           <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; padding: 10px; border-radius: 12px;">
             <label style="color: #6ee7b7; font-size: 12.5px;">⏱️ <b>Thời gian (Giây):</b></label>
@@ -1297,7 +1317,7 @@
       partBlocks.forEach((pBlock) => {
         const pTitle = pBlock.querySelector('.part-title').value;
         const partDuration = parseInt(pBlock.querySelector('.part-duration').value) || 15;
-        const partMaxScore = parseFloat(pBlock.querySelector('.part-max-score').value) || 10; // 👉 Lấy số điểm phần
+        const partMaxScore = parseFloat(pBlock.querySelector('.part-max-score').value) || 10;
         const qBlocks = pBlock.querySelectorAll('.q-block');
         const questions = [];
 
@@ -1442,7 +1462,6 @@
           const liveEssayBox = document.getElementById('teacher-live-essay-review');
           const liveEssayList = document.getElementById('teacher-live-essay-list');
           if (liveEssayBox && liveEssayList) {
-            // Lọc ra các bài nộp mà hệ thống tính là sai (points === 0)
             const wrongSubmissions = essaySubmissionsForCurrent || [];
 
             if (wrongSubmissions && wrongSubmissions.length > 0) {
@@ -1754,40 +1773,43 @@
       });
 
       const rankedResults = calculateRanks(sortedList);
-      const topWinners = rankedResults.filter(s => s.rank === 1 && s.score > 0);
-      const championsRow = document.getElementById('champions-container-row');
-      championsRow.innerHTML = '';
-
-      if (topWinners.length === 0) {
-        document.getElementById('champion-badge-title').innerText = '👑 KẾT QUẢ THI ĐẤU 👑';
-        document.getElementById('champion-name').innerText = 'Chưa có bạn nào ghi điểm';
-        document.getElementById('champion-score').innerText = '0 Điểm';
-      } else if (topWinners.length === 1) {
-        const champ = topWinners[0];
-        const totalCorrect = (champ.mcCorrect || 0) + (champ.essayCorrect || 0);
-        document.getElementById('champion-badge-title').innerText = '👑 NHÀ VÔ ĐỊCH 👑';
-        championsRow.innerHTML = `
-          <div class="champion-avatar-wrap">
-            <div class="champion-crown">👑</div>
-            <div class="champion-mascot-circle">${champ.mascot ? champ.mascot.icon : '🦁'}</div>
-          </div>
-        `;
-        document.getElementById('champion-name').innerText = champ.name;
-        document.getElementById('champion-score').innerText = `🔥 ${champ.score} Điểm (Tổng đúng: ${totalCorrect} câu)`;
-      } else {
-        document.getElementById('champion-badge-title').innerText = '👑 ĐỒNG QUÁN QUÂN 👑';
-        championsRow.innerHTML = topWinners.map(champ => `
-          <div class="champion-avatar-wrap" style="margin: 0 6px;">
-            <div class="champion-crown">👑</div>
-            <div class="champion-mascot-circle">${champ.mascot ? champ.mascot.icon : '🦁'}</div>
-          </div>
-        `).join('');
-        document.getElementById('champion-name').innerText = topWinners.map(c => c.name).join(' & ');
-        document.getElementById('champion-score').innerText = `🔥 Cùng đạt ${topWinners[0].score} Điểm`;
-      }
 
       document.getElementById('champion-stage').style.display = 'block';
       triggerChampionConfetti();
+
+      // HIỂN THỊ BỤC TRAO GIẢI TOP 3 (NHẤT, NHÌ, BA)
+      const rank1El = document.getElementById('podium-rank-1');
+      const rank2El = document.getElementById('podium-rank-2');
+      const rank3El = document.getElementById('podium-rank-3');
+
+      rank1El.style.display = 'none';
+      rank2El.style.display = 'none';
+      rank3El.style.display = 'none';
+
+      const rank1List = rankedResults.filter(s => s.rank === 1 && s.score > 0);
+      const rank2List = rankedResults.filter(s => s.rank === 2 && s.score > 0);
+      const rank3List = rankedResults.filter(s => s.rank === 3 && s.score > 0);
+
+      if (rank1List.length > 0) {
+        rank1El.style.display = 'flex';
+        document.getElementById('podium-avatar-1').innerText = rank1List.map(s => s.mascot ? s.mascot.icon : '🦁').join(' & ');
+        document.getElementById('podium-name-1').innerText = rank1List.map(s => s.name).join(', ');
+        document.getElementById('podium-score-1').innerText = `${rank1List[0].score} đ`;
+      }
+
+      if (rank2List.length > 0) {
+        rank2El.style.display = 'flex';
+        document.getElementById('podium-avatar-2').innerText = rank2List.map(s => s.mascot ? s.mascot.icon : '🦁').join(' & ');
+        document.getElementById('podium-name-2').innerText = rank2List.map(s => s.name).join(', ');
+        document.getElementById('podium-score-2').innerText = `${rank2List[0].score} đ`;
+      }
+
+      if (rank3List.length > 0) {
+        rank3El.style.display = 'flex';
+        document.getElementById('podium-avatar-3').innerText = rank3List.map(s => s.mascot ? s.mascot.icon : '🦁').join(' & ');
+        document.getElementById('podium-name-3').innerText = rank3List.map(s => s.name).join(', ');
+        document.getElementById('podium-score-3').innerText = `${rank3List[0].score} đ`;
+      }
 
       if (myRole === 'teacher') {
         saveHistoryRecord(quizName, leaderboard);
