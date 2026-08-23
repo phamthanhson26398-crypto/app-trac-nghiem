@@ -371,7 +371,13 @@ io.on('connection', (socket) => {
         const historyItem = room.students[studentId].answerHistory.find(h => h.questionIndex === room.currentIndex);
         
         if (historyItem && !historyItem.isOverridden) {
-          const earnedPoints = parseInt(points);
+          // Lấy điểm chuẩn theo maxScore của phần hiện tại
+          const totalDuration = parseInt(room.currentItem.question.duration) || 15;
+          const maxScorePart = parseFloat(room.currentItem.maxScore) || 10;
+          const defaultPoints = parseFloat((totalDuration * (maxScorePart / totalDuration)).toFixed(2)) || maxScorePart;
+          
+          const earnedPoints = points ? parseFloat(points) : defaultPoints;
+          
           room.students[studentId].score += earnedPoints;
           room.students[studentId].essayCorrect = (room.students[studentId].essayCorrect || 0) + 1;
           room.students[studentId].essayWrong = Math.max(0, (room.students[studentId].essayWrong || 0) - 1);
