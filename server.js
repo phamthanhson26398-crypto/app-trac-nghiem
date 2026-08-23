@@ -20,11 +20,15 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 const DB_FILE = path.join(__dirname, 'teachers.json');
 
+// Đảm bảo load và khởi tạo file teachers.json an toàn
 function loadTeachersDB() {
   try {
     if (fs.existsSync(DB_FILE)) {
       const data = fs.readFileSync(DB_FILE, 'utf8');
       return JSON.parse(data);
+    } else {
+      // Nếu chưa có file, tạo sẵn file rỗng
+      fs.writeFileSync(DB_FILE, JSON.stringify({}, null, 2), 'utf8');
     }
   } catch (err) {
     console.error("Lỗi đọc file teachers.json:", err);
@@ -137,8 +141,11 @@ io.on('connection', (socket) => {
     if (!username || !password) return socket.emit('auth_response', { success: false, message: 'Vui lòng điền đủ thông tin!' });
     teachersDB = loadTeachersDB();
     if (teachersDB[username]) return socket.emit('auth_response', { success: false, message: 'Tên tài khoản này đã tồn tại!' });
+    
+    // Đăng ký thành công và lưu ngay vào file
     teachersDB[username] = password;
     saveTeachersDB(teachersDB);
+    
     socket.emit('auth_response', { success: true, isRegister: true, message: 'Đăng ký thành công!' });
     io.emit('admin_user_list_update', teachersDB);
   });
@@ -292,12 +299,17 @@ io.on('connection', (socket) => {
       
       let essaySubmissionsForCurrent = [];
       if (room.isPaused && room.currentItem && room.currentItem.question.type === 'short_answer') {
+        const correctRaw = (room.currentItem.question.correct || '').toLowerCase();
+        const acceptableAnswers = correctRaw.split(/[,|]/).map(s => s.trim()).filter(Boolean);
+
         Object.keys(room.students).forEach(id => {
           const st = room.students[id];
           const hist = st.answerHistory.find(h => h.questionIndex === room.currentIndex);
           if (hist) {
-            // Sửa điều kiện: Chỉ lấy những em làm sai (isCorrect === false) và chưa được duyệt (isOverridden === false)
-            if (hist.isCorrect === false && !hist.isOverridden) {
+            const userText = (hist.userAnswer || '').trim().toLowerCase();
+            const isReallyCorrect = acceptableAnswers.some(ans => ans === userText);
+
+            if (!isReallyCorrect && !hist.isOverridden) {
               essaySubmissionsForCurrent.push({
                 studentId: st.id, studentName: st.name, mascot: st.mascot,
                 answerText: hist.userAnswer, potentialPoints: hist.points
