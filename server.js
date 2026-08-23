@@ -333,7 +333,19 @@ io.on('connection', (socket) => {
         if (!student.answered) {
           student.answered = true;
           const secondsLeft = Math.max(1, parseInt(remainingTime) || 0);
-          student.currentScore = isCorrect ? secondsLeft : 0;
+          
+          // 👉 TÍNH ĐIỂM THEO TỶ LỆ PHẦN: Điểm = (Số giây còn lại / Tổng thời gian phần) * Điểm tối đa phần
+          let earnedScore = 0;
+          if (isCorrect && room.currentItem) {
+            const totalDuration = parseInt(room.currentItem.question.duration) || 15;
+            const maxScorePart = parseFloat(room.currentItem.maxScore) || 10;
+            
+            // Công thức: Cứ mỗi giây nhân với tỷ lệ (maxScore / totalDuration)
+            earnedScore = parseFloat((secondsLeft * (maxScorePart / totalDuration)).toFixed(2));
+            if (earnedScore < 0.5) earnedScore = 1; // Đảm bảo làm đúng là có ít nhất 1 điểm khích lệ
+          }
+
+          student.currentScore = earnedScore;
 
           student.answerHistory.push({
             questionIndex: room.currentIndex,
@@ -344,14 +356,13 @@ io.on('connection', (socket) => {
             userAnswer: answerText || '(Trống)',
             selectedIndex: selectedIndex,
             teacherAnswers: teacherAnswers || '',
-            points: secondsLeft,
+            points: earnedScore, // Lưu điểm theo hệ số mới
             isOverridden: false
           });
         }
       }
     }
   });
-
   socket.on('override_essay_live', ({ roomId, studentId, points }) => {
     const targetRoomId = roomId || currentRoomId;
     if (targetRoomId && rooms[targetRoomId]) {
