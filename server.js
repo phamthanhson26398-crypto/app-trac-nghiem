@@ -11,10 +11,10 @@ const io = new Server(server, {
   transports: ['websocket', 'polling']
 });
 
-app.use(express.static(path.join(__dirname, 'công cộng')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'công cộng', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
