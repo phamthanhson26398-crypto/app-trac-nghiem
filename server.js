@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const fs = require('fs');
+const mongoose = require('mongoose');
 
 const app = express();
 const server = http.createServer(app);
@@ -18,33 +18,40 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-const DB_FILE = path.join(__dirname, 'teachers.json');
 
-// Đảm bảo load và khởi tạo file teachers.json an toàn
-function loadTeachersDB() {
+// 👉 KẾT NỐI MONGODB ATLAS VĨNH VIỄN
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://buntony11_db_user:Son.01655850906@tnttcluster.hrxeeyz.mongodb.net/?retryWrites=true&w=majority&appName=TNTTCluster';
+
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log('✅ Đã kết nối thành công với MongoDB Atlas!');
+}).catch(err => {
+  console.error('❌ Lỗi kết nối MongoDB:', err);
+});
+
+// Định nghĩa cấu trúc lưu tài khoản trên Database
+const teacherSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true }
+});
+const Teacher = mongoose.model('Teacher', teacherSchema);
+
+// Hàm phụ trợ lấy toàn bộ danh sách giáo viên dạng object { username: password }
+async function loadTeachersDB() {
   try {
-    if (fs.existsSync(DB_FILE)) {
-      const data = fs.readFileSync(DB_FILE, 'utf8');
-      return JSON.parse(data);
-    } else {
-      // Nếu chưa có file, tạo sẵn file rỗng
-      fs.writeFileSync(DB_FILE, JSON.stringify({}, null, 2), 'utf8');
-    }
+    const list = await Teacher.find({});
+    const db = {};
+    list.forEach(t => {
+      db[t.username] = t.password;
+    });
+    return db;
   } catch (err) {
-    console.error("Lỗi đọc file teachers.json:", err);
-  }
-  return {};
-}
-
-function saveTeachersDB(db) {
-  try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf8');
-  } catch (err) {
-    console.error("Lỗi ghi file teachers.json:", err);
+    console.error("Lỗi đọc database giáo viên:", err);
+    return {};
   }
 }
-
-let teachersDB = loadTeachersDB();
 
 const MASCOTS = [
   { icon: '🦁', title: 'Sư Tử Dũng Mãnh' }, { icon: '🐯', title: 'Hổ Con Nhanh Nhẹn' },
@@ -137,48 +144,60 @@ io.on('connection', (socket) => {
   let currentRoomId = null;
   const clientDeviceToken = socket.handshake.query.deviceToken;
 
-  socket.on('teacher_register', ({ username, password }) => {
+  socket.on('teacher_register', async ({ username, password }) => {
     if (!username || !password) return socket.emit('auth_response', { success: false, message: 'Vui lòng điền đủ thông tin!' });
-    teachersDB = loadTeachersDB();
-    if (teachersDB[username]) return socket.emit('auth_response', { success: false, message: 'Tên tài khoản này đã tồn tại!' });
-    
-    // Đăng ký thành công và lưu ngay vào file
-    teachersDB[username] = password;
-    saveTeachersDB(teachersDB);
-    
-    socket.emit('auth_response', { success: true, isRegister: true, message: 'Đăng ký thành công!' });
-    io.emit('admin_user_list_update', teachersDB);
-  });
-
-  socket.on('teacher_login', ({ username, password }) => {
-    teachersDB = loadTeachersDB();
-    if (teachersDB[username] && teachersDB[username] === password) {
-      socket.emit('auth_response', { success: true, isRegister: false, username: username });
-    } else {
-      socket.emit('auth_response', { success: false, message: 'Sai tên tài khoản hoặc mật khẩu!' });
+    try {
+      const existing = await Teacher.findOne({ username });
+      if (existing) return socket.emit('auth_response', { success: false, message: 'Tên tài khoản này đã tồn tại!' });
+      
+      const newTeacher = new Teacher({ username, password });
+      await newTeacher.save();
+      
+      socket.emit('auth_response', { success: true, isRegister: true, message: 'Đăng ký thành công!' });
+      const updatedDB = await loadTeachersDB();
+      io.emit('admin_user_list_update', updatedDB);
+    } catch (err) {
+      console.error(err);
+      socket.emit('auth_response', { success: false, message: 'Lỗi server khi đăng ký!' });
     }
   });
 
-  socket.on('admin_get_users', () => { 
-    teachersDB = loadTeachersDB();
-    socket.emit('admin_user_list_update', teachersDB); 
-  });
-
-  socket.on('admin_reset_pass', ({ username, newPass }) => {
-    teachersDB = loadTeachersDB();
-    if (teachersDB[username]) {
-      teachersDB[username] = newPass;
-      saveTeachersDB(teachersDB);
-      io.emit('admin_user_list_update', teachersDB);
+  socket.on('teacher_login', async ({ username, password }) => {
+    try {
+      const teacher = await Teacher.findOne({ username });
+      if (teacher && teacher.password === password) {
+        socket.emit('auth_response', { success: true, isRegister: false, username: username });
+      } else {
+        socket.emit('auth_response', { success: false, message: 'Sai tên tài khoản hoặc mật khẩu!' });
+      }
+    } catch (err) {
+      console.error(err);
+      socket.emit('auth_response', { success: false, message: 'Lỗi đăng nhập!' });
     }
   });
 
-  socket.on('admin_delete_user', ({ username }) => {
-    teachersDB = loadTeachersDB();
-    if (teachersDB[username]) {
-      delete teachersDB[username];
-      saveTeachersDB(teachersDB);
-      io.emit('admin_user_list_update', teachersDB);
+  socket.on('admin_get_users', async () => { 
+    const updatedDB = await loadTeachersDB();
+    socket.emit('admin_user_list_update', updatedDB); 
+  });
+
+  socket.on('admin_reset_pass', async ({ username, newPass }) => {
+    try {
+      await Teacher.updateOne({ username }, { password: newPass });
+      const updatedDB = await loadTeachersDB();
+      io.emit('admin_user_list_update', updatedDB);
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  socket.on('admin_delete_user', async ({ username }) => {
+    try {
+      await Teacher.deleteOne({ username });
+      const updatedDB = await loadTeachersDB();
+      io.emit('admin_user_list_update', updatedDB);
+    } catch (err) {
+      console.error(err);
     }
   });
 
@@ -259,7 +278,7 @@ io.on('connection', (socket) => {
           queue.push({
             partTitle: p.title || `Phần ${pIdx + 1}`, partIndex: pIdx + 1, totalParts: parts.length,
             questionIndex: qIdx + 1, totalQuestionsInPart: p.questions.length, 
-            maxScore: p.maxScore || 10, // Lưu điểm tổng của phần
+            maxScore: p.maxScore || 10,
             question: q
           });
         });
@@ -336,7 +355,6 @@ io.on('connection', (socket) => {
           student.answered = true;
           const secondsLeft = Math.max(1, parseInt(remainingTime) || 0);
           
-          // 👉 TÍNH ĐIỂM THEO TỶ LỆ THỜI GIAN VÀ TỔNG ĐIỂM CỦA PHẦN
           let earnedScore = 0;
           if (isCorrect && room.currentItem) {
             const totalDuration = parseInt(room.currentItem.question.duration) || 15;
