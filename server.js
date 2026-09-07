@@ -142,10 +142,13 @@ io.on('connection', (socket) => {
   const clientDeviceToken = socket.handshake.query.deviceToken;
 
   // Đăng nhập Giáo Lý Viên
+  // Xử lý đăng nhập Giáo Lý Viên
   socket.on('teacher_login', async ({ username, password }) => {
     try {
       const cleanUser = (username || '').trim();
       const cleanPass = (password || '').trim();
+      
+      // Tìm kiếm trong database MongoDB
       const teacher = await Teacher.findOne({ username: cleanUser });
       
       if (teacher && teacher.password === cleanPass) {
@@ -154,7 +157,7 @@ io.on('connection', (socket) => {
         socket.emit('auth_response', { success: false, message: 'Sai tên tài khoản hoặc mật khẩu!' });
       }
     } catch (err) {
-      console.error(err);
+      console.error("Lỗi đăng nhập:", err);
       socket.emit('auth_response', { success: false, message: 'Lỗi đăng nhập server!' });
     }
   });
