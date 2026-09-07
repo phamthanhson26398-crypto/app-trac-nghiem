@@ -17,6 +17,23 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// 👉 BỔ SUNG API HTTP ĐỂ TRANG QUẢN TRỊ ADMIN TẢI DANH SÁCH TỪ MONGODB TRỰC TIẾP
+app.get('/api/teachers', async (req, res) => {
+  try {
+    const list = await Teacher.find({});
+    const db = {};
+    list.forEach(t => {
+      if (t.username) {
+        db[t.username] = t.password;
+      }
+    });
+    res.json(db);
+  } catch (err) {
+    console.error("Lỗi API get teachers:", err);
+    res.status(500).json({});
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 
 // 👉 KẾT NỐI MONGODB ATLAS VĨNH VIỄN
