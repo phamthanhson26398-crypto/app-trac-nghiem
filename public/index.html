@@ -445,11 +445,11 @@
       "Hồi hộp ghê 💓", "Quyết tâm giật giải 🏅", "Xin nhẹ top 1 😎"
     ];
 
+    // 👉 Đổi từ 2500 thành 5000 (tức là 5 giây thay vì 2.5 giây) để comment xuất hiện thong thả, dễ đọc hơn
     setInterval(() => {
       const speechBubbles = document.querySelectorAll('.mascot-speech');
       if (speechBubbles.length === 0) return;
       
-      // Chọn ngẫu nhiên 1-2 linh vật để hiển thị comment
       const randomCount = Math.min(speechBubbles.length, Math.floor(Math.random() * 2) + 1);
       for(let i=0; i<randomCount; i++) {
         const randomIndex = Math.floor(Math.random() * speechBubbles.length);
@@ -457,10 +457,10 @@
         if (!bubble.classList.contains('show')) {
           bubble.innerText = FUNNY_COMMENTS[Math.floor(Math.random() * FUNNY_COMMENTS.length)];
           bubble.classList.add('show');
-          setTimeout(() => bubble.classList.remove('show'), 3000);
+          setTimeout(() => bubble.classList.remove('show'), 3500); // Tăng thời gian hiển thị bong bóng lên 3.5 giây
         }
       }
-    }, 2500);
+    }, 5000); // 👈 Tăng khoảng cách thời gian giữa các lần hiện comment (5 giây một lần)
 
     function showAuthNotice(msg, isSuccess = false) {
       const box = document.getElementById('auth-status-box');
