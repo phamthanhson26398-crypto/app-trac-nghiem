@@ -797,18 +797,22 @@
     function selectRole(role) {
       myRole = role;
       document.getElementById('role-screen').style.display = 'none';
-      if (role === 'teacher') document.getElementById('auth-screen').style.display = 'block';
-      else if (role === 'student') document.getElementById('student-screen').style.display = 'block';
-      else if (role === 'admin') {
+      if (role === 'teacher') {
+        document.getElementById('auth-screen').style.display = 'block';
+      } else if (role === 'admin') {
         const adminPass = prompt('Mật khẩu Admin:');
         if (adminPass === 'tnttthaiha') {
           document.getElementById('admin-screen').style.display = 'block';
           
-          // 👉 Thêm dòng lệnh này để khi vào Admin là tự động tải danh sách từ MongoDB lên ngay lập tức
+          // 👉 Đảm bảo gọi lệnh lấy danh sách và gọi thêm lần nữa sau 0.5 giây để chắc chắn socket đã sẵn sàng
           socket.emit('admin_get_users');
-          
+          setTimeout(() => {
+            socket.emit('admin_get_users');
+          }, 500);
+
         } else {
-          alert('Sai mật khẩu!'); document.getElementById('role-screen').style.display = 'block';
+          alert('Sai mật khẩu!'); 
+          document.getElementById('role-screen').style.display = 'block';
         }
       }
     }
