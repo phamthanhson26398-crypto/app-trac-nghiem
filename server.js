@@ -159,16 +159,21 @@ io.on('connection', (socket) => {
     }
   });
 
-  // 👉 ADMIN TẠO / CẤP TÀI KHOẢN MỚI TRONG BẢNG QUẢN TRỊ
+  // 👉 SỬA LẠI ĐOẠN NÀY TRONG server.js ĐỂ TẠO XONG LÀ LƯU VÀ HIỂN THỊ LUÔN
   socket.on('admin_create_user', async ({ username, password }) => {
     if (!username || !password) return;
     try {
       const existing = await Teacher.findOne({ username });
-      if (existing) return; // Nếu đã tồn tại thì bỏ qua
+      if (existing) {
+        // Nếu đã tồn tại thì cập nhật mật khẩu luôn
+        await Teacher.updateOne({ username }, { password });
+      } else {
+        // Chưa có thì tạo mới
+        const newTeacher = new Teacher({ username, password });
+        await newTeacher.save();
+      }
       
-      const newTeacher = new Teacher({ username, password });
-      await newTeacher.save();
-      
+      // Bắt buộc phải có dòng này để cập nhật danh sách về giao diện Admin
       const updatedDB = await loadTeachersDB();
       io.emit('admin_user_list_update', updatedDB);
     } catch (err) {
