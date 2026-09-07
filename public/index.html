@@ -901,9 +901,7 @@
       if (!tbody) return;
       tbody.innerHTML = '';
       
-      // 👉 Chuyển đổi object users thành danh sách các tên tài khoản
       const userList = Object.keys(users || {});
-      
       if (userList.length === 0) {
         tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Chưa có tài khoản nào.</td></tr>';
         return;
