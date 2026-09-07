@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 // 👉 KẾT NỐI MONGODB ATLAS VĨNH VIỄN
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://buntony11_db_user:Son.01655850906@tnttcluster.hrxeeyz.mongodb.net/?retryWrites=true&w=majority&appName=TNTTCluster';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://buntony11_db_user:Son.01655850906@tnttcluster.hrxeeyz.mongodb.net/tntt_db?retryWrites=true&w=majority&appName=TNTTCluster';
 
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
