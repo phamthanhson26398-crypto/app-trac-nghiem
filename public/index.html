@@ -46,7 +46,7 @@
       overflow-x: hidden;
     }
 
-    #teacher-screen {
+    #teacher-screen, #student-screen {
       max-width: 1450px !important;
       width: 85% !important;
       margin: auto !important;
@@ -84,7 +84,7 @@
       border-radius: 20px; 
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2); 
       margin-bottom: 16px; 
-      border: 1.5px solid var(--glass-border); /* 🌟 Áp dụng khung viền màu Be cho các thẻ */
+      border: 1.5px solid var(--glass-border);
       position: relative;
     }
 
@@ -135,7 +135,7 @@
       padding: 11px 14px; 
       margin-top: 5px; 
       margin-bottom: 12px; 
-      border: 1.5px solid var(--glass-border); /* 🌟 Viền ô nhập liệu màu be */
+      border: 1.5px solid var(--glass-border);
       border-radius: 13px; 
       font-family: inherit; 
       font-size: 14px;
@@ -154,7 +154,7 @@
 
     .sub-panel {
       background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--glass-border); /* 🌟 Viền panel be */
+      border: 1px solid var(--glass-border);
       padding: 14px;
       border-radius: 16px;
       margin-bottom: 12px;
@@ -173,6 +173,21 @@
     .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 4px 0 #d62828, 0 5px 12px rgba(251, 133, 0, 0.3) !important; }
     .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 4px 0 #047857, 0 5px 12px rgba(6, 214, 160, 0.3) !important; }
 
+    .opt-btn.selected {
+      border: 2.5px solid #ffd166 !important;
+      box-shadow: 0 0 20px rgba(255, 209, 102, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.4) !important;
+      transform: scale(1.02); filter: brightness(1.15);
+    }
+
+    .btn-submit-answer {
+      display: flex !important; width: 90% !important; max-width: 320px !important;
+      margin: 22px auto 6px auto !important; padding: 14px 20px !important; font-size: 16px !important;
+      font-weight: 900 !important; border-radius: 16px !important;
+      background: linear-gradient(180deg, #10b981 0%, #047857 100%) !important;
+      box-shadow: 0 4px 0 #065f46, 0 6px 18px rgba(16, 185, 129, 0.45) !important;
+      text-align: center; justify-content: center;
+    }
+
     .opt-btn.reveal-correct {
       background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
       border: 2.5px solid #a7f3d0 !important; animation: neonBlinkGreen 0.45s infinite alternate !important; opacity: 1 !important; z-index: 2;
@@ -180,6 +195,12 @@
     @keyframes neonBlinkGreen {
       0% { box-shadow: 0 0 4px #10b981; transform: scale(1); }
       100% { box-shadow: 0 0 20px #10b981, 0 0 40px rgba(16, 185, 129, 0.8); transform: scale(1.025); }
+    }
+    .opt-btn.reveal-wrong { background: #4a0404 !important; border: 2.5px solid #ef4444 !important; color: #fca5a5 !important; opacity: 0.9 !important; }
+
+    .essay-input-box {
+      width: 100%; padding: 13px 15px; font-size: 15px; font-weight: 700;
+      border: 1.5px solid #ffd166; border-radius: 14px; background: rgba(0, 0, 0, 0.5); color: #ffd166; margin-top: 8px;
     }
 
     .btn-delete { background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 2px 0 #991b1b; padding: 5px 10px; border-radius: 8px; font-size: 12px; }
@@ -321,7 +342,7 @@
     </div>
   </div>
 
-  <!-- MÀN HÌNH QUẢN TRỊ CỦA GIÁO LÝ VIÊN ĐẦY ĐỦ 100% TÍNH NĂNG -->
+  <!-- MÀN HÌNH QUẢN TRỊ CỦA GIÁO LÝ VIÊN -->
   <div id="teacher-screen" class="card" style="display: none;">
     <div class="header-banner">THIẾU NHI THÁNH THỂ VIỆT NAM</div>
     
@@ -420,6 +441,54 @@
     </div>
   </div>
 
+  <!-- MÀN HÌNH HỌC SINH (QUÉT QR) -->
+  <div id="student-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
+    <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
+    <div id="student-join-section">
+      <h2 style="text-align: center; margin-top: 0; font-size: 22px; font-weight: 900;">🎒 THAM GIA PHÒNG THI</h2>
+      <p style="text-align: center; color: var(--text-muted); font-size: 13.5px; margin-bottom: 16px;">Nhập tên thánh và họ tên của bạn để vào phòng</p>
+      
+      <label style="font-size: 13.5px;"><strong>Mã phòng:</strong></label>
+      <input type="text" id="student-room-input" placeholder="Mã phòng thi">
+
+      <label style="font-size: 13.5px;"><strong>Tên Thánh & Họ Tên:</strong></label>
+      <input type="text" id="student-name-input" placeholder="Ví dụ: Giuse Nguyễn Văn A">
+
+      <button onclick="joinStudentRoom()" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 6px;">Vào Phòng Thi Ngay 🚀</button>
+    </div>
+
+    <!-- PHÒNG CHỜ CỦA HỌC SINH -->
+    <div id="student-lobby-section" style="display: none; text-align: center; padding: 20px 0;">
+      <div id="student-mascot-badge" style="font-size: 55px; margin-bottom: 10px;">🦁</div>
+      <h2 id="student-welcome-name" style="color: #6ee7b7; margin: 0 0 6px 0; font-size: 22px;">--</h2>
+      <p style="color: var(--text-muted); font-size: 14px; margin: 0 0 20px 0;">Đã vào phòng chờ thành công! Hãy đợi Huynh trưởng phát đề nhé...</p>
+      <div style="background: rgba(0,0,0,0.3); padding: 14px; border-radius: 16px; border: 1px dashed var(--glass-border); display: inline-block;">
+        <span style="font-size: 14px; color: #ffd166; font-weight: bold;">⏳ Đang kết nối ổn định với hệ thống...</span>
+      </div>
+    </div>
+
+    <!-- MÀN HÌNH LÀM BÀI CỦA HỌC SINH -->
+    <div id="student-quiz-section" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span id="student-q-progress" style="font-size: 13.5px; font-weight: 800; color: #6ee7b7;">Câu số --</span>
+        <span id="student-q-timer" style="font-size: 16px; font-weight: 900; color: #ffd166;">⏱️ --s</span>
+      </div>
+      <h3 id="student-q-title" style="font-size: 18px; font-weight: 800; margin-bottom: 14px; line-height: 1.4;">--</h3>
+      <div id="student-options-container"></div>
+      <div id="student-answer-feedback" style="text-align: center; margin-top: 14px; font-weight: 800; font-size: 15px;"></div>
+    </div>
+
+    <!-- MÀN HÌNH KẾT QUẢ CỦA HỌC SINH -->
+    <div id="student-result-section" style="display: none; text-align: center; padding: 20px 0;">
+      <h2 style="color: #ffd166; font-size: 24px; margin-bottom: 6px;">🎉 HOÀN THÀNH BÀI THI!</h2>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">Cảm ơn bạn đã tham gia bài kiểm tra.</p>
+      <div style="background: rgba(0,0,0,0.35); padding: 20px; border-radius: 18px; border: 1px solid var(--glass-border); display: inline-block; min-width: 240px;">
+        <div style="font-size: 13.5px; color: #cbd5e1;">Tổng điểm đạt được:</div>
+        <div id="student-final-score-display" style="font-size: 42px; font-weight: 900; color: #6ee7b7; margin-top: 4px;">0 đ</div>
+      </div>
+    </div>
+  </div>
+
   <!-- MÀN HÌNH KẾT QUẢ VÀ BỤC VINH DANH -->
   <div id="result-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
@@ -488,6 +557,9 @@
     let restTransitionInterval = null;
     let currentRemainingSeconds = 0;
     let currentItemData = null;
+    let studentTimerInterval = null;
+    let studentTimeLeft = 0;
+    let hasAnsweredCurrent = false;
 
     function showAuthNotice(msg, isSuccess = false) {
       const box = document.getElementById('auth-status-box');
@@ -605,6 +677,7 @@
       document.getElementById('auth-screen').style.display = 'none';
       document.getElementById('admin-screen').style.display = 'none';
       document.getElementById('teacher-screen').style.display = 'none';
+      document.getElementById('student-screen').style.display = 'none';
       document.getElementById('role-screen').style.display = 'block';
     }
 
@@ -638,7 +711,7 @@
       if (qrContainer) qrContainer.innerHTML = "";
       if (qrZoomContainer) qrZoomContainer.innerHTML = "";
       let hostUrl = window.location.origin;
-      const roomUrl = `${hostUrl}?role=student&room=${encodeURIComponent(roomId)}`;
+      const roomUrl = `${hostUrl}/?role=student&room=${encodeURIComponent(roomId)}`;
       if (qrContainer) new QRCode(qrContainer, { text: roomUrl, width: 100, height: 100, colorDark : "#000000", colorLight : "#ffffff" });
       if (qrZoomContainer) new QRCode(qrZoomContainer, { text: roomUrl, width: 320, height: 320, colorDark : "#000000", colorLight : "#ffffff" });
       const zoomCode = document.getElementById("zoom-room-code");
@@ -647,6 +720,151 @@
 
     function openQRZoom() { document.getElementById("qr-zoom-modal").style.display = "flex"; }
     function closeQRZoom() { document.getElementById("qr-zoom-modal").style.display = "none"; }
+
+    function joinStudentRoom() {
+      const roomInput = document.getElementById('student-room-input');
+      const nameInput = document.getElementById('student-name-input');
+      if (!roomInput || !nameInput) return;
+      const roomId = roomInput.value.trim();
+      const name = nameInput.value.trim();
+      if (!roomId || !name) return alert('Vui lòng nhập mã phòng và tên của bạn!');
+
+      activeRoomId = roomId;
+      myRole = 'student';
+      socket.emit('join_room', { name, role: 'student', roomId, deviceToken: myDeviceToken });
+
+      document.getElementById('student-join-section').style.display = 'none';
+      document.getElementById('student-lobby-section').style.display = 'block';
+      document.getElementById('student-welcome-name').innerText = name;
+    }
+
+    socket.on('my_mascot_assigned', (mascot) => {
+      const badge = document.getElementById('student-mascot-badge');
+      if (badge && mascot) badge.innerText = mascot.icon;
+    });
+
+    socket.on('kicked_by_teacher', () => {
+      alert('Bạn đã bị Huynh trưởng mời ra khỏi phòng thi!');
+      location.reload();
+    });
+
+    socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
+      if (myRole !== 'student') return;
+      document.getElementById('student-lobby-section').style.display = 'none';
+      document.getElementById('student-quiz-section').style.display = 'block';
+      document.getElementById('student-result-section').style.display = 'none';
+
+      document.getElementById('student-q-progress').innerText = `Câu số ${currentIndex + 1}/${totalQuestions}`;
+      studentTimeLeft = duration;
+      hasAnsweredCurrent = false;
+      document.getElementById('student-q-timer').innerText = `⏱️ ${studentTimeLeft}s`;
+      document.getElementById('student-answer-feedback').innerHTML = '';
+
+      if (studentTimerInterval) clearInterval(studentTimerInterval);
+      studentTimerInterval = setInterval(() => {
+        studentTimeLeft--;
+        document.getElementById('student-q-timer').innerText = `⏱️ ${Math.max(0, studentTimeLeft)}s`;
+        if (studentTimeLeft <= 0) { clearInterval(studentTimerInterval); }
+      }, 1000);
+
+      const q = item.question;
+      document.getElementById('student-q-title').innerText = q.title;
+      const container = document.getElementById('student-options-container');
+      container.innerHTML = '';
+
+      if (q.type === 'multiple') {
+        const optClasses = ['opt-btn-a', 'opt-btn-b', 'opt-btn-c', 'opt-btn-d'];
+        const optPrefix = ['🔴 A', '🔵 B', '🟠 C', '🟢 D'];
+        q.options.forEach((opt, optIdx) => {
+          const isCorrect = (optIdx == q.correct);
+          const btnClass = optClasses[optIdx] || 'opt-btn-a';
+          if (opt) {
+            const btn = document.createElement('button');
+            btn.className = `opt-btn ${btnClass}`;
+            btn.innerHTML = `<b>${optPrefix[optIdx]}:</b> ${opt}`;
+            btn.onclick = () => submitStudentAnswer(isCorrect, optIdx, q.title, q.type, opt);
+            container.appendChild(btn);
+          }
+        });
+      } else if (q.type === 'tf') {
+        const isTrueCorrect = (q.correct === 'Đúng');
+        const isFalseCorrect = (q.correct === 'Sai');
+        container.innerHTML = `
+          <button class="opt-btn opt-btn-d" onclick="submitStudentAnswer(${isTrueCorrect}, 'Đúng', '${q.title}', 'tf', 'Đúng')">🟢 Đúng</button>
+          <button class="opt-btn opt-btn-a" onclick="submitStudentAnswer(${isFalseCorrect}, 'Sai', '${q.title}', 'tf', 'Sai')">🔴 Sai</button>
+        `;
+      } else if (q.type === 'short_answer') {
+        container.innerHTML = `
+          <input type="text" id="student-essay-input" class="essay-input-box" placeholder="Nhập đáp án của bạn...">
+          <button onclick="submitStudentEssay('${q.correct.replace(/'/g, "\\'")}', '${q.title.replace(/'/g, "\\'")}')" class="btn-submit-answer">Gửi Đáp Án ✍️</button>
+        `;
+      }
+    });
+
+    function submitStudentAnswer(isCorrect, selectedIndex, title, type, answerText) {
+      if (hasAnsweredCurrent) return;
+      hasAnsweredCurrent = true;
+      if (studentTimerInterval) clearInterval(studentTimerInterval);
+
+      const buttons = document.querySelectorAll('#student-options-container .opt-btn');
+      buttons.forEach((b, idx) => {
+        b.style.pointerEvents = 'none';
+        if (idx === selectedIndex || (type === 'tf' && b.innerText.includes(answerText))) {
+          b.classList.add('selected');
+        } else {
+          b.style.opacity = '0.4';
+        }
+      });
+
+      const feedback = document.getElementById('student-answer-feedback');
+      if (isCorrect) {
+        feedback.innerHTML = '<span style="color:#6ee7b7; font-size:18px;">✅ ĐÃ KHÓA ĐÁP ÁN CHÍNH XÁC!</span>';
+      } else {
+        feedback.innerHTML = '<span style="color:#fca5a5; font-size:18px;">🔒 ĐÃ KHÓA ĐÁP ÁN!</span>';
+      }
+
+      socket.emit('submit_answer', {
+        isCorrect: isCorrect, remainingTime: studentTimeLeft, roomId: activeRoomId,
+        type: type, answerText: answerText, questionTitle: title, selectedIndex: selectedIndex
+      });
+    }
+
+    function submitStudentEssay(teacherAnswersRaw, title) {
+      if (hasAnsweredCurrent) return;
+      const inputEl = document.getElementById('student-essay-input');
+      if (!inputEl) return;
+      const userText = inputEl.value.trim();
+      if (!userText) return alert('Vui lòng nhập câu trả lời!');
+      hasAnsweredCurrent = true;
+      if (studentTimerInterval) clearInterval(studentTimerInterval);
+      inputEl.disabled = true;
+
+      const acceptable = teacherAnswersRaw.split(/[,|]/).map(s => s.trim().toLowerCase());
+      const isCorrect = acceptable.includes(userText.toLowerCase());
+
+      const feedback = document.getElementById('student-answer-feedback');
+      feedback.innerHTML = isCorrect ? '<span style="color:#6ee7b7; font-size:18px;">✅ ĐÃ GỬI - CHÍNH XÁC!</span>' : '<span style="color:#fde047; font-size:18px;">⏳ ĐÃ GỬI - ĐANG CHỜ HUYNH TRƯỞNG DUYỆT!</span>';
+
+      socket.emit('submit_answer', {
+        isCorrect: isCorrect, remainingTime: studentTimeLeft, roomId: activeRoomId,
+        type: 'short_answer', answerText: userText, questionTitle: title, teacherAnswers: teacherAnswersRaw
+      });
+    }
+
+    socket.on('quiz_ended', ({ quizName, leaderboard }) => {
+      if (myRole === 'student') {
+        document.getElementById('student-quiz-section').style.display = 'none';
+        document.getElementById('student-result-section').style.display = 'block';
+        const me = leaderboard.find(s => s.id === socket.id || s.deviceToken === myDeviceToken);
+        if (me) document.getElementById('student-final-score-display').innerText = `${me.score} đ`;
+        return;
+      }
+      if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
+      if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
+      document.getElementById('teacher-screen').style.display = 'none';
+      document.getElementById('result-screen').style.display = 'block';
+      document.getElementById('suspense-container').style.display = 'block';
+    });
 
     function getTeacherQuizStorageKey() { return `all_quizzes_user_${currentTeacherUser}`; }
     function getTeacherHistoryStorageKey() { return `quiz_history_user_${currentTeacherUser}`; }
@@ -1074,6 +1292,13 @@
     }
 
     socket.on('quiz_ended', ({ quizName, leaderboard }) => {
+      if (myRole === 'student') {
+        document.getElementById('student-quiz-section').style.display = 'none';
+        document.getElementById('student-result-section').style.display = 'block';
+        const me = leaderboard.find(s => s.id === socket.id || s.deviceToken === myDeviceToken);
+        if (me) document.getElementById('student-final-score-display').innerText = `${me.score} đ`;
+        return;
+      }
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
       document.getElementById('teacher-screen').style.display = 'none';
@@ -1160,6 +1385,22 @@
         socket.emit('clear_room_students', { roomId: activeRoomId });
         socket.emit('join_room', { role: 'teacher', roomId: activeRoomId, deviceToken: myDeviceToken });
         return;
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const roomParam = urlParams.get('room');
+      if (roomParam || urlParams.get('role') === 'student') {
+        document.getElementById('role-screen').style.display = 'none';
+        const studentScreen = document.getElementById('student-screen');
+        if (studentScreen) studentScreen.style.display = 'block';
+        if (roomParam) {
+          const roomInputEl = document.getElementById('student-room-input');
+          if (roomInputEl) {
+            roomInputEl.value = roomParam;
+            roomInputEl.readOnly = true;
+            roomInputEl.style.opacity = '0.8';
+          }
+        }
       }
     });
   </script>
