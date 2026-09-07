@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TNTT Thái Hà - TGP Hà Nội</title>
   
-  <!-- 👉 Thay thế dòng link icon cũ bằng đoạn này để ép trình duyệt nhận diện -->
+  <!-- 👉 Biểu tượng logo Xứ Đoàn trên tab trình duyệt -->
   <link rel="icon" type="image/png" sizes="32x32" href="./logo.png">
   <link rel="shortcut icon" href="/logo.png" type="image/png">
 
@@ -412,10 +412,11 @@
     </button>
   </div>
 
+  <!-- 👉 ĐÃ GỠ BỎ HOÀN TOÀN TÍNH NĂNG TỰ ĐĂNG KÝ, CHỈ GIỮ ĐĂNG NHẬP -->
   <div id="auth-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
-    <h2 id="auth-title" style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
-    <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Mỗi tài khoản sẽ có một Phòng Thi & Mã QR riêng</p>
+    <h2 style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
+    <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Vui lòng nhập tài khoản được cấp bởi Quản Trị Viên</p>
 
     <div id="auth-status-box" style="display: none; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 800; text-align: center; margin-bottom: 12px;"></div>
 
@@ -429,25 +430,32 @@
       <button type="submit" id="auth-submit-btn" style="width: 100%; padding: 13px; font-size: 15px; margin-top: 4px;">Đăng Nhập Ngay</button>
     </form>
 
-    <div style="text-align: center; margin-top: 14px; font-size: 13px;">
-      <span id="auth-toggle-text" style="color: var(--text-muted);">Chưa có tài khoản?</span>
-      <a href="javascript:void(0)" onclick="toggleAuthMode()" style="color: #6ee7b7; font-weight: 800; text-decoration: none; margin-left: 4px;">Đăng Ký Mới</a>
-    </div>
-
     <button onclick="backToRoleScreen()" style="background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.15); width: 100%; margin-top: 12px; box-shadow: none; font-size: 13px;">← Quay Lại</button>
   </div>
 
+  <!-- 👉 BỔ SUNG KHUNG CẤP TÀI KHOẢN MỚI TRONG GIAO DIỆN ADMIN -->
   <div id="admin-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <div>
         <h2 style="margin: 0; font-size: 18px; color: #ffd166;">⚙️ Quản Trị Hệ Thống (Admin)</h2>
-        <small style="color: var(--text-muted); font-size: 12px;">Xem toàn bộ tài khoản đăng ký trên mọi thiết bị</small>
+        <small style="color: var(--text-muted); font-size: 12px;">Quản lý và cấp tài khoản Giáo Lý Viên</small>
       </div>
       <button onclick="backToRoleScreen()" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-size: 12px; padding: 5px 10px; box-shadow: none; border: 1px solid rgba(239, 68, 68, 0.4);">Đăng Xuất</button>
     </div>
+
+    <!-- KHUNG TẠO TÀI KHOẢN MỚI -->
+    <div class="sub-panel" style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981;">
+      <h3 style="margin: 0 0 8px 0; font-size: 14.5px; color: #6ee7b7;">➕ Cấp Tài Khoản Mới Cho GLV</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <input type="text" id="admin-new-user" placeholder="Tên tài khoản mới" style="margin-bottom: 0;">
+        <input type="password" id="admin-new-pass" placeholder="Mật khẩu" style="margin-bottom: 0;">
+      </div>
+      <button onclick="adminCreateAccount()" style="width: 100%; margin-top: 10px; background: linear-gradient(180deg, #10b981 0%, #047857 100%); font-size: 13.5px; padding: 10px; box-shadow: 0 2px 0 #064e3b;">✨ Tạo và Cấp Tài Khoản</button>
+    </div>
+
     <div class="sub-panel">
-      <h3 style="margin: 0 0 8px 0; font-size: 14.5px;">📋 Danh Sách Toàn Bộ GLV Đã Đăng Ký</h3>
+      <h3 style="margin: 0 0 8px 0; font-size: 14.5px;">📋 Danh Sách Toàn Bộ GLV Trong Hệ Thống</h3>
       <table>
         <thead>
           <tr>
@@ -766,7 +774,6 @@
     let localTimerInterval = null;
     let restTransitionInterval = null;
     let currentRemainingSeconds = 0;
-    let isAuthRegisterMode = false;
     let currentQuizName = '';
     let currentItemData = null;
     
@@ -806,16 +813,6 @@
       }
     }
 
-    function toggleAuthMode() {
-      isAuthRegisterMode = !isAuthRegisterMode;
-      const box = document.getElementById('auth-status-box');
-      if (box) box.style.display = 'none';
-      document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
-      document.getElementById('auth-submit-btn').innerText = isAuthRegisterMode ? 'Tạo Tài Khoản Mới' : 'Đăng Nhập Ngay';
-      document.getElementById('auth-toggle-text').innerText = isAuthRegisterMode ? 'Đã có tài khoản?' : 'Chưa có tài khoản?';
-      document.querySelector('#auth-screen a').innerText = isAuthRegisterMode ? 'Đăng Nhập' : 'Đăng Ký Mới';
-    }
-
     function handleAuthSubmit(event) {
       if (event) event.preventDefault();
       const usernameInput = document.getElementById('auth-username');
@@ -832,43 +829,54 @@
       }
 
       const btn = document.getElementById('auth-submit-btn');
-      if (btn) btn.innerText = '⏳ Đang gửi yêu cầu...';
+      if (btn) btn.innerText = '⏳ Đang đăng nhập...';
 
-      if (isAuthRegisterMode) {
-        socket.emit('teacher_register', { username, password: pass });
-      } else {
-        socket.emit('teacher_login', { username, password: pass });
-      }
+      socket.emit('teacher_login', { username, password: pass });
     }
 
-    socket.on('auth_response', ({ success, message, isRegister, username }) => {
+    socket.on('auth_response', ({ success, message, username }) => {
       const btn = document.getElementById('auth-submit-btn');
-      if (btn) btn.innerText = isAuthRegisterMode ? 'Tạo Tài Khoản Mới' : 'Đăng Nhập Ngay';
+      if (btn) btn.innerText = 'Đăng Nhập Ngay';
 
       if (!success) {
         showAuthNotice(message || '❌ Đăng nhập thất bại.');
         return;
       }
       
-      if (isRegister) {
-        showAuthNotice(message || 'Đăng ký thành công! Hãy đăng nhập.', true);
-        toggleAuthMode();
-      } else {
-        currentTeacherUser = username; activeRoomId = username;
-        sessionStorage.setItem('tntt_current_teacher', username);
-        document.getElementById('logged-user-name').innerText = username;
-        document.getElementById('teacher-room-id-badge').innerText = activeRoomId;
-        document.getElementById('teacher-room-code-txt').innerText = activeRoomId;
+      currentTeacherUser = username; activeRoomId = username;
+      sessionStorage.setItem('tntt_current_teacher', username);
+      document.getElementById('logged-user-name').innerText = username;
+      document.getElementById('teacher-room-id-badge').innerText = activeRoomId;
+      document.getElementById('teacher-room-code-txt').innerText = activeRoomId;
 
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('teacher-screen').style.display = 'block';
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('teacher-screen').style.display = 'block';
 
-        generateRoomQRCode(activeRoomId);
-        loadSavedQuizzes();
-        socket.emit('clear_room_students', { roomId: activeRoomId });
-        socket.emit('join_room', { role: 'teacher', roomId: activeRoomId, deviceToken: myDeviceToken });
-      }
+      generateRoomQRCode(activeRoomId);
+      loadSavedQuizzes();
+      socket.emit('clear_room_students', { roomId: activeRoomId });
+      socket.emit('join_room', { role: 'teacher', roomId: activeRoomId, deviceToken: myDeviceToken });
     });
+
+    // 👉 Hàm Admin bấm tạo tài khoản mới trực tiếp
+    function adminCreateAccount() {
+      const uInput = document.getElementById('admin-new-user');
+      const pInput = document.getElementById('admin-new-pass');
+      if (!uInput || !pInput) return;
+
+      const username = uInput.value.trim();
+      const password = pInput.value.trim();
+
+      if (!username || !password) {
+        alert('⚠️ Vui lòng điền đầy đủ tên tài khoản và mật khẩu!');
+        return;
+      }
+
+      socket.emit('admin_create_user', { username, password });
+      uInput.value = '';
+      pInput.value = '';
+      alert(`Đã gửi lệnh tạo tài khoản "${username}" thành công!`);
+    }
 
     function backToRoleScreen() {
       document.getElementById('auth-screen').style.display = 'none';
@@ -1866,7 +1874,6 @@
         const studentAns = historyList.find(h => h.questionIndex === idx) || null;
         const isCorrect = studentAns ? studentAns.isCorrect : false;
         
-        // 👉 Lấy số điểm đạt được của câu này (nếu chưa trả lời hoặc sai thì là 0 điểm)
         const earnedPoints = studentAns ? (studentAns.points || 0) : 0;
 
         html += `
