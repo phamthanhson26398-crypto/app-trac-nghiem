@@ -144,24 +144,7 @@ io.on('connection', (socket) => {
   let currentRoomId = null;
   const clientDeviceToken = socket.handshake.query.deviceToken;
 
-  socket.on('teacher_register', async ({ username, password }) => {
-    if (!username || !password) return socket.emit('auth_response', { success: false, message: 'Vui lòng điền đủ thông tin!' });
-    try {
-      const existing = await Teacher.findOne({ username });
-      if (existing) return socket.emit('auth_response', { success: false, message: 'Tên tài khoản này đã tồn tại!' });
-      
-      const newTeacher = new Teacher({ username, password });
-      await newTeacher.save();
-      
-      socket.emit('auth_response', { success: true, isRegister: true, message: 'Đăng ký thành công!' });
-      const updatedDB = await loadTeachersDB();
-      io.emit('admin_user_list_update', updatedDB);
-    } catch (err) {
-      console.error(err);
-      socket.emit('auth_response', { success: false, message: 'Lỗi server khi đăng ký!' });
-    }
-  });
-
+  // 👉 CHỈ CÒN TÍNH NĂNG ĐĂNG NHẬP CHO NGƯỜI DÙNG NGOÀI
   socket.on('teacher_login', async ({ username, password }) => {
     try {
       const teacher = await Teacher.findOne({ username });
@@ -173,6 +156,23 @@ io.on('connection', (socket) => {
     } catch (err) {
       console.error(err);
       socket.emit('auth_response', { success: false, message: 'Lỗi đăng nhập!' });
+    }
+  });
+
+  // 👉 ADMIN TẠO / CẤP TÀI KHOẢN MỚI TRONG BẢNG QUẢN TRỊ
+  socket.on('admin_create_user', async ({ username, password }) => {
+    if (!username || !password) return;
+    try {
+      const existing = await Teacher.findOne({ username });
+      if (existing) return; // Nếu đã tồn tại thì bỏ qua
+      
+      const newTeacher = new Teacher({ username, password });
+      await newTeacher.save();
+      
+      const updatedDB = await loadTeachersDB();
+      io.emit('admin_user_list_update', updatedDB);
+    } catch (err) {
+      console.error(err);
     }
   });
 
