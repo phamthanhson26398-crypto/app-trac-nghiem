@@ -44,7 +44,9 @@ async function loadTeachersDB() {
     const list = await Teacher.find({});
     const db = {};
     list.forEach(t => {
-      db[t.username] = t.password;
+      if (t.username) {
+        db[t.username] = t.password;
+      }
     });
     return db;
   } catch (err) {
@@ -144,36 +146,39 @@ io.on('connection', (socket) => {
   let currentRoomId = null;
   const clientDeviceToken = socket.handshake.query.deviceToken;
 
-  // 👉 CHỈ CÒN TÍNH NĂNG ĐĂNG NHẬP CHO NGƯỜI DÙNG NGOÀI
+  // Xử lý đăng nhập Giáo Lý Viên
   socket.on('teacher_login', async ({ username, password }) => {
     try {
-      const teacher = await Teacher.findOne({ username });
-      if (teacher && teacher.password === password) {
-        socket.emit('auth_response', { success: true, isRegister: false, username: username });
+      const cleanUser = (username || '').trim();
+      const cleanPass = (password || '').trim();
+      const teacher = await Teacher.findOne({ username: cleanUser });
+      
+      if (teacher && teacher.password === cleanPass) {
+        socket.emit('auth_response', { success: true, username: cleanUser });
       } else {
         socket.emit('auth_response', { success: false, message: 'Sai tên tài khoản hoặc mật khẩu!' });
       }
     } catch (err) {
       console.error(err);
-      socket.emit('auth_response', { success: false, message: 'Lỗi đăng nhập!' });
+      socket.emit('auth_response', { success: false, message: 'Lỗi đăng nhập server!' });
     }
   });
 
-  // 👉 SỬA LẠI ĐOẠN NÀY TRONG server.js ĐỂ TẠO XONG LÀ LƯU VÀ HIỂN THỊ LUÔN
+  // Admin tạo tài khoản mới và phát tín hiệu cập nhật danh sách ngay lập tức
   socket.on('admin_create_user', async ({ username, password }) => {
-    if (!username || !password) return;
+    const cleanUser = (username || '').trim();
+    const cleanPass = (password || '').trim();
+    if (!cleanUser || !cleanPass) return;
+
     try {
-      const existing = await Teacher.findOne({ username });
+      const existing = await Teacher.findOne({ username: cleanUser });
       if (existing) {
-        // Nếu đã tồn tại thì cập nhật mật khẩu luôn
-        await Teacher.updateOne({ username }, { password });
+        await Teacher.updateOne({ username: cleanUser }, { password: cleanPass });
       } else {
-        // Chưa có thì tạo mới
-        const newTeacher = new Teacher({ username, password });
+        const newTeacher = new Teacher({ username: cleanUser, password: cleanPass });
         await newTeacher.save();
       }
       
-      // Bắt buộc phải có dòng này để cập nhật danh sách về giao diện Admin
       const updatedDB = await loadTeachersDB();
       io.emit('admin_user_list_update', updatedDB);
     } catch (err) {
@@ -181,6 +186,7 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Lấy danh sách tài khoản cho Admin
   socket.on('admin_get_users', async () => { 
     const updatedDB = await loadTeachersDB();
     socket.emit('admin_user_list_update', updatedDB); 
@@ -188,7 +194,7 @@ io.on('connection', (socket) => {
 
   socket.on('admin_reset_pass', async ({ username, newPass }) => {
     try {
-      await Teacher.updateOne({ username }, { password: newPass });
+      await Teacher.updateOne({ username: username.trim() }, { password: newPass.trim() });
       const updatedDB = await loadTeachersDB();
       io.emit('admin_user_list_update', updatedDB);
     } catch (err) {
@@ -198,7 +204,7 @@ io.on('connection', (socket) => {
 
   socket.on('admin_delete_user', async ({ username }) => {
     try {
-      await Teacher.deleteOne({ username });
+      await Teacher.deleteOne({ username: username.trim() });
       const updatedDB = await loadTeachersDB();
       io.emit('admin_user_list_update', updatedDB);
     } catch (err) {
