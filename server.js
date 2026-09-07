@@ -17,23 +17,6 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 👉 BỔ SUNG API HTTP ĐỂ TRANG QUẢN TRỊ ADMIN TẢI DANH SÁCH TỪ MONGODB TRỰC TIẾP
-app.get('/api/teachers', async (req, res) => {
-  try {
-    const list = await Teacher.find({});
-    const db = {};
-    list.forEach(t => {
-      if (t.username) {
-        db[t.username] = t.password;
-      }
-    });
-    res.json(db);
-  } catch (err) {
-    console.error("Lỗi API get teachers:", err);
-    res.status(500).json({});
-  }
-});
-
 const PORT = process.env.PORT || 3000;
 
 // 👉 KẾT NỐI MONGODB ATLAS VĨNH VIỄN
@@ -55,22 +38,17 @@ const teacherSchema = new mongoose.Schema({
 });
 const Teacher = mongoose.model('Teacher', teacherSchema);
 
-// Hàm phụ trợ lấy toàn bộ danh sách giáo viên dạng object { username: password }
-async function loadTeachersDB() {
+// API HTTP lấy danh sách giáo viên trả về định dạng mảng rõ ràng để client dễ đọc
+app.get('/api/teachers', async (req, res) => {
   try {
     const list = await Teacher.find({});
-    const db = {};
-    list.forEach(t => {
-      if (t.username) {
-        db[t.username] = t.password;
-      }
-    });
-    return db;
+    // Trả về trực tiếp mảng các document từ database
+    res.json(list);
   } catch (err) {
-    console.error("Lỗi đọc database giáo viên:", err);
-    return {};
+    console.error("Lỗi API get teachers:", err);
+    res.status(500).json([]);
   }
-}
+});
 
 const MASCOTS = [
   { icon: '🦁', title: 'Sư Tử Dũng Mãnh' }, { icon: '🐯', title: 'Hổ Con Nhanh Nhẹn' },
@@ -163,7 +141,7 @@ io.on('connection', (socket) => {
   let currentRoomId = null;
   const clientDeviceToken = socket.handshake.query.deviceToken;
 
-  // Xử lý đăng nhập Giáo Lý Viên
+  // Đăng nhập Giáo Lý Viên
   socket.on('teacher_login', async ({ username, password }) => {
     try {
       const cleanUser = (username || '').trim();
@@ -181,7 +159,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Admin tạo tài khoản mới và phát tín hiệu cập nhật danh sách ngay lập tức
+  // Admin tạo tài khoản mới
   socket.on('admin_create_user', async ({ username, password }) => {
     const cleanUser = (username || '').trim();
     const cleanPass = (password || '').trim();
@@ -196,24 +174,27 @@ io.on('connection', (socket) => {
         await newTeacher.save();
       }
       
-      const updatedDB = await loadTeachersDB();
-      io.emit('admin_user_list_update', updatedDB);
+      const list = await Teacher.find({});
+      io.emit('admin_user_list_update', list);
     } catch (err) {
       console.error(err);
     }
   });
 
-  // Lấy danh sách tài khoản cho Admin
   socket.on('admin_get_users', async () => { 
-    const updatedDB = await loadTeachersDB();
-    socket.emit('admin_user_list_update', updatedDB); 
+    try {
+      const list = await Teacher.find({});
+      socket.emit('admin_user_list_update', list);
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   socket.on('admin_reset_pass', async ({ username, newPass }) => {
     try {
       await Teacher.updateOne({ username: username.trim() }, { password: newPass.trim() });
-      const updatedDB = await loadTeachersDB();
-      io.emit('admin_user_list_update', updatedDB);
+      const list = await Teacher.find({});
+      io.emit('admin_user_list_update', list);
     } catch (err) {
       console.error(err);
     }
@@ -222,8 +203,8 @@ io.on('connection', (socket) => {
   socket.on('admin_delete_user', async ({ username }) => {
     try {
       await Teacher.deleteOne({ username: username.trim() });
-      const updatedDB = await loadTeachersDB();
-      io.emit('admin_user_list_update', updatedDB);
+      const list = await Teacher.find({});
+      io.emit('admin_user_list_update', list);
     } catch (err) {
       console.error(err);
     }
