@@ -22,7 +22,7 @@
       --bg: #072318;
       --glass-bg: rgba(13, 37, 27, 0.88);
       --glass-card: rgba(255, 255, 255, 0.08);
-      --glass-border: #d4c5b9; /* 🌟 Khung viền bên trong màu Be thanh lịch */
+      --glass-border: #d4c5b9; /* Khung viền bên trong màu Be thanh lịch */
       --text: #ffffff;
       --text-muted: #94a3b8;
     }
@@ -196,7 +196,6 @@
       0% { box-shadow: 0 0 4px #10b981; transform: scale(1); }
       100% { box-shadow: 0 0 20px #10b981, 0 0 40px rgba(16, 185, 129, 0.8); transform: scale(1.025); }
     }
-    .opt-btn.reveal-wrong { background: #4a0404 !important; border: 2.5px solid #ef4444 !important; color: #fca5a5 !important; opacity: 0.9 !important; }
 
     .essay-input-box {
       width: 100%; padding: 13px 15px; font-size: 15px; font-weight: 700;
@@ -441,9 +440,10 @@
     </div>
   </div>
 
-  <!-- MÀN HÌNH HỌC SINH (QUÉT QR) -->
+  <!-- MÀN HÌNH HỌC SINH (GIỮ NGUYÊN 100% CẤU TRÚC GỐC) -->
   <div id="student-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
+    
     <div id="student-join-section">
       <h2 style="text-align: center; margin-top: 0; font-size: 22px; font-weight: 900;">🎒 THAM GIA PHÒNG THI</h2>
       <p style="text-align: center; color: var(--text-muted); font-size: 13.5px; margin-bottom: 16px;">Nhập tên thánh và họ tên của bạn để vào phòng</p>
@@ -463,11 +463,11 @@
       <h2 id="student-welcome-name" style="color: #6ee7b7; margin: 0 0 6px 0; font-size: 22px;">--</h2>
       <p style="color: var(--text-muted); font-size: 14px; margin: 0 0 20px 0;">Đã vào phòng chờ thành công! Hãy đợi Huynh trưởng phát đề nhé...</p>
       <div style="background: rgba(0,0,0,0.3); padding: 14px; border-radius: 16px; border: 1px dashed var(--glass-border); display: inline-block;">
-        <span style="font-size: 14px; color: #ffd166; font-weight: bold;">⏳ Đang kết nối ổn định với hệ thống...</span>
+        <span style="font-size: 14px; color: #ffd166; font-weight: bold;">⏳ Đang chờ bắt đầu bài thi...</span>
       </div>
     </div>
 
-    <!-- MÀN HÌNH LÀM BÀI CỦA HỌC SINH -->
+    <!-- MÀN HÌNH LÀM BÀI GỐC CỦA HỌC SINH -->
     <div id="student-quiz-section" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
         <span id="student-q-progress" style="font-size: 13.5px; font-weight: 800; color: #6ee7b7;">Câu số --</span>
@@ -475,10 +475,11 @@
       </div>
       <h3 id="student-q-title" style="font-size: 18px; font-weight: 800; margin-bottom: 14px; line-height: 1.4;">--</h3>
       <div id="student-options-container"></div>
+      <button id="student-submit-btn" onclick="submitStudentAnswer()" style="display: none; width: 100%; margin-top: 16px; padding: 14px; font-size: 15px; background: linear-gradient(180deg, #10b981 0%, #047857 100%); box-shadow: 0 4px 0 #065f46;">NỘP BÀI ➔</button>
       <div id="student-answer-feedback" style="text-align: center; margin-top: 14px; font-weight: 800; font-size: 15px;"></div>
     </div>
 
-    <!-- MÀN HÌNH KẾT QUẢ CỦA HỌC SINH -->
+    <!-- MÀN HÌNH KẾT QUẢ HỌC SINH -->
     <div id="student-result-section" style="display: none; text-align: center; padding: 20px 0;">
       <h2 style="color: #ffd166; font-size: 24px; margin-bottom: 6px;">🎉 HOÀN THÀNH BÀI THI!</h2>
       <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">Cảm ơn bạn đã tham gia bài kiểm tra.</p>
@@ -557,9 +558,12 @@
     let restTransitionInterval = null;
     let currentRemainingSeconds = 0;
     let currentItemData = null;
+    
+    // Biến của học sinh (Cấu trúc gốc)
     let studentTimerInterval = null;
     let studentTimeLeft = 0;
-    let hasAnsweredCurrent = false;
+    let selectedStudentAnswer = null;
+    let hasSubmittedCurrent = false;
 
     function showAuthNotice(msg, isSuccess = false) {
       const box = document.getElementById('auth-status-box');
@@ -721,6 +725,7 @@
     function openQRZoom() { document.getElementById("qr-zoom-modal").style.display = "flex"; }
     function closeQRZoom() { document.getElementById("qr-zoom-modal").style.display = "none"; }
 
+    // --- CƠ CHẾ THAM GIA VÀ LÀM BÀI CỦA HỌC SINH (GIỮ NGUYÊN GỐC) ---
     function joinStudentRoom() {
       const roomInput = document.getElementById('student-room-input');
       const nameInput = document.getElementById('student-name-input');
@@ -756,17 +761,25 @@
 
       document.getElementById('student-q-progress').innerText = `Câu số ${currentIndex + 1}/${totalQuestions}`;
       studentTimeLeft = duration;
-      hasAnsweredCurrent = false;
+      hasSubmittedCurrent = false;
+      selectedStudentAnswer = null;
+
       document.getElementById('student-q-timer').innerText = `⏱️ ${studentTimeLeft}s`;
       document.getElementById('student-answer-feedback').innerHTML = '';
+      const submitBtn = document.getElementById('student-submit-btn');
+      if (submitBtn) submitBtn.style.display = 'none';
 
       if (studentTimerInterval) clearInterval(studentTimerInterval);
       studentTimerInterval = setInterval(() => {
         studentTimeLeft--;
         document.getElementById('student-q-timer').innerText = `⏱️ ${Math.max(0, studentTimeLeft)}s`;
-        if (studentTimeLeft <= 0) { clearInterval(studentTimerInterval); }
+        if (studentTimeLeft <= 0) { 
+          clearInterval(studentTimerInterval); 
+          if (!hasSubmittedCurrent) submitStudentAnswer(); 
+        }
       }, 1000);
 
+      currentItemData = item;
       const q = item.question;
       document.getElementById('student-q-title').innerText = q.title;
       const container = document.getElementById('student-options-container');
@@ -776,113 +789,92 @@
         const optClasses = ['opt-btn-a', 'opt-btn-b', 'opt-btn-c', 'opt-btn-d'];
         const optPrefix = ['🔴 A', '🔵 B', '🟠 C', '🟢 D'];
         q.options.forEach((opt, optIdx) => {
-          const isCorrect = (optIdx == q.correct);
           const btnClass = optClasses[optIdx] || 'opt-btn-a';
           if (opt) {
             const btn = document.createElement('button');
             btn.className = `opt-btn ${btnClass}`;
             btn.innerHTML = `<b>${optPrefix[optIdx]}:</b> ${opt}`;
-            btn.onclick = () => submitStudentAnswer(isCorrect, optIdx, q.title, q.type, opt);
+            btn.onclick = () => {
+              if (hasSubmittedCurrent) return;
+              document.querySelectorAll('#student-options-container .opt-btn').forEach(b => b.classList.remove('selected'));
+              btn.classList.add('selected');
+              selectedStudentAnswer = optIdx;
+              if (submitBtn) submitBtn.style.display = 'flex';
+            };
             container.appendChild(btn);
           }
         });
       } else if (q.type === 'tf') {
-        const isTrueCorrect = (q.correct === 'Đúng');
-        const isFalseCorrect = (q.correct === 'Sai');
         container.innerHTML = `
-          <button class="opt-btn opt-btn-d" onclick="submitStudentAnswer(${isTrueCorrect}, 'Đúng', '${q.title}', 'tf', 'Đúng')">🟢 Đúng</button>
-          <button class="opt-btn opt-btn-a" onclick="submitStudentAnswer(${isFalseCorrect}, 'Sai', '${q.title}', 'tf', 'Sai')">🔴 Sai</button>
+          <button class="opt-btn opt-btn-d" onclick="selectTFAnswer(this, 'Đúng')">🟢 Đúng</button>
+          <button class="opt-btn opt-btn-a" onclick="selectTFAnswer(this, 'Sai')">🔴 Sai</button>
         `;
       } else if (q.type === 'short_answer') {
         container.innerHTML = `
           <input type="text" id="student-essay-input" class="essay-input-box" placeholder="Nhập đáp án của bạn...">
-          <button onclick="submitStudentEssay('${q.correct.replace(/'/g, "\\'")}', '${q.title.replace(/'/g, "\\'")}')" class="btn-submit-answer">Gửi Đáp Án ✍️</button>
         `;
+        if (submitBtn) submitBtn.style.display = 'flex';
       }
     });
 
-    function submitStudentAnswer(isCorrect, selectedIndex, title, type, answerText) {
-      if (hasAnsweredCurrent) return;
-      hasAnsweredCurrent = true;
+    function selectTFAnswer(btn, val) {
+      if (hasSubmittedCurrent) return;
+      document.querySelectorAll('#student-options-container .opt-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedStudentAnswer = val;
+      const submitBtn = document.getElementById('student-submit-btn');
+      if (submitBtn) submitBtn.style.display = 'flex';
+    }
+
+    function submitStudentAnswer() {
+      if (hasSubmittedCurrent) return;
+      hasSubmittedCurrent = true;
       if (studentTimerInterval) clearInterval(studentTimerInterval);
 
-      const buttons = document.querySelectorAll('#student-options-container .opt-btn');
-      buttons.forEach((b, idx) => {
-        b.style.pointerEvents = 'none';
-        if (idx === selectedIndex || (type === 'tf' && b.innerText.includes(answerText))) {
-          b.classList.add('selected');
-        } else {
-          b.style.opacity = '0.4';
-        }
-      });
+      const submitBtn = document.getElementById('student-submit-btn');
+      if (submitBtn) submitBtn.style.display = 'none';
+
+      const q = currentItemData.question;
+      let isCorrect = false;
+      let answerText = '';
+
+      if (q.type === 'multiple') {
+        answerText = selectedStudentAnswer !== null ? q.options[selectedStudentAnswer] : '';
+        isCorrect = (selectedStudentAnswer !== null && selectedStudentAnswer == q.correct);
+      } else if (q.type === 'tf') {
+        answerText = selectedStudentAnswer || '';
+        isCorrect = (selectedStudentAnswer === q.correct);
+      } else if (q.type === 'short_answer') {
+        const inputEl = document.getElementById('student-essay-input');
+        answerText = inputEl ? inputEl.value.trim() : '';
+        if (inputEl) inputEl.disabled = true;
+        const acceptable = q.correct.split(/[,|]/).map(s => s.trim().toLowerCase());
+        isCorrect = acceptable.includes(answerText.toLowerCase());
+      }
 
       const feedback = document.getElementById('student-answer-feedback');
-      if (isCorrect) {
-        feedback.innerHTML = '<span style="color:#6ee7b7; font-size:18px;">✅ ĐÃ KHÓA ĐÁP ÁN CHÍNH XÁC!</span>';
-      } else {
-        feedback.innerHTML = '<span style="color:#fca5a5; font-size:18px;">🔒 ĐÃ KHÓA ĐÁP ÁN!</span>';
-      }
+      feedback.innerHTML = '<span style="color:#ffd166; font-size:18px;">🔒 ĐÃ NỘP BÀI - ĐANG CHỜ KẾT QUẢ...</span>';
 
       socket.emit('submit_answer', {
         isCorrect: isCorrect, remainingTime: studentTimeLeft, roomId: activeRoomId,
-        type: type, answerText: answerText, questionTitle: title, selectedIndex: selectedIndex
+        type: q.type, answerText: answerText, questionTitle: q.title, teacherAnswers: q.correct
       });
     }
 
-    function submitStudentEssay(teacherAnswersRaw, title) {
-      if (hasAnsweredCurrent) return;
-      const inputEl = document.getElementById('student-essay-input');
-      if (!inputEl) return;
-      const userText = inputEl.value.trim();
-      if (!userText) return alert('Vui lòng nhập câu trả lời!');
-      hasAnsweredCurrent = true;
-      if (studentTimerInterval) clearInterval(studentTimerInterval);
-      inputEl.disabled = true;
-
-      const acceptable = teacherAnswersRaw.split(/[,|]/).map(s => s.trim().toLowerCase());
-      const isCorrect = acceptable.includes(userText.toLowerCase());
-
-      const feedback = document.getElementById('student-answer-feedback');
-      feedback.innerHTML = isCorrect ? '<span style="color:#6ee7b7; font-size:18px;">✅ ĐÃ GỬI - CHÍNH XÁC!</span>' : '<span style="color:#fde047; font-size:18px;">⏳ ĐÃ GỬI - ĐANG CHỜ HUYNH TRƯỞNG DUYỆT!</span>';
-
-      socket.emit('submit_answer', {
-        isCorrect: isCorrect, remainingTime: studentTimeLeft, roomId: activeRoomId,
-        type: 'short_answer', answerText: userText, questionTitle: title, teacherAnswers: teacherAnswersRaw
-      });
-    }
-
-    socket.on('quiz_ended', ({ quizName, leaderboard }) => {
-      if (myRole === 'student') {
-        document.getElementById('student-quiz-section').style.display = 'none';
-        document.getElementById('student-result-section').style.display = 'block';
-        const me = leaderboard.find(s => s.id === socket.id || s.deviceToken === myDeviceToken);
-        if (me) document.getElementById('student-final-score-display').innerText = `${me.score} đ`;
-        return;
-      }
-      if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
-      if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
-      document.getElementById('teacher-screen').style.display = 'none';
-      document.getElementById('result-screen').style.display = 'block';
-      document.getElementById('suspense-container').style.display = 'block';
-    });
-
+    // --- KHO BÀI THI LƯU TRÊN MÂY (MONGODB ATLAS) ---
     function getTeacherQuizStorageKey() { return `all_quizzes_user_${currentTeacherUser}`; }
     function getTeacherHistoryStorageKey() { return `quiz_history_user_${currentTeacherUser}`; }
 
-    function saveHistoryRecord(quizName, leaderboard) {
-      if (!quizName) return;
-      const historyData = JSON.parse(localStorage.getItem(getTeacherHistoryStorageKey()) || '{}');
-      if (!historyData[quizName]) historyData[quizName] = [];
-      const attempt = historyData[quizName].length + 1;
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + now.toLocaleDateString('vi-VN');
-      historyData[quizName].unshift({ attempt: attempt, time: timeStr, results: leaderboard });
-      localStorage.setItem(getTeacherHistoryStorageKey(), JSON.stringify(historyData));
+    function loadSavedQuizzes() {
+      socket.emit('get_teacher_quizzes', { username: currentTeacherUser });
     }
 
-    function loadSavedQuizzes() {
-      const saved = localStorage.getItem(getTeacherQuizStorageKey());
-      const currentQuizzes = saved ? JSON.parse(saved) : {};
+    socket.on('teacher_quizzes_loaded', ({ quizzes }) => {
+      window.currentCloudQuizzes = quizzes || {};
+      renderQuizListUI(window.currentCloudQuizzes);
+    });
+
+    function renderQuizListUI(currentQuizzes) {
       const listContainer = document.getElementById('quiz-list-container');
       const historySelect = document.getElementById('history-quiz-select');
       const activeSelect = document.getElementById('active-quiz-select');
@@ -894,7 +886,7 @@
 
       const keys = Object.keys(currentQuizzes);
       if (keys.length === 0) {
-        listContainer.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-size: 13px; margin: 4px 0;">Chưa có bài thi nào được lưu.</p>';
+        listContainer.innerHTML = '<p style="color: var(--text-muted); font-style: italic; font-size: 13px; margin: 4px 0;">Chưa có bài thi nào trên mây.</p>';
         activeSelect.innerHTML = '<option value="">(Chưa có bài)</option>';
         return;
       }
@@ -958,6 +950,17 @@
       }
     }
 
+    function saveHistoryRecord(quizName, leaderboard) {
+      if (!quizName) return;
+      const historyData = JSON.parse(localStorage.getItem(getTeacherHistoryStorageKey()) || '{}');
+      if (!historyData[quizName]) historyData[quizName] = [];
+      const attempt = historyData[quizName].length + 1;
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + now.toLocaleDateString('vi-VN');
+      historyData[quizName].unshift({ attempt: attempt, time: timeStr, results: leaderboard });
+      localStorage.setItem(getTeacherHistoryStorageKey(), JSON.stringify(historyData));
+    }
+
     function createNewQuizSection() {
       editingQuizKey = null;
       document.getElementById('current-quiz-title').innerText = '📝 Soạn Bài Kiểm Tra Mới';
@@ -969,8 +972,7 @@
     }
 
     function editQuiz(name) {
-      const saved = localStorage.getItem(getTeacherQuizStorageKey());
-      const currentQuizzes = saved ? JSON.parse(saved) : {};
+      const currentQuizzes = window.currentCloudQuizzes || {};
       if (!currentQuizzes[name]) return;
       editingQuizKey = name;
       document.getElementById('current-quiz-title').innerText = `📝 Chỉnh Sửa: ${name}`;
@@ -989,21 +991,21 @@
       if (!newName) return alert('Vui lòng nhập tên bài kiểm tra!');
       const parts = getStructureFromScreen();
       if (parts.length === 0) return alert('Bài thi phải có ít nhất 1 Phần và 1 câu hỏi hoàn chỉnh!');
-      const saved = localStorage.getItem(getTeacherQuizStorageKey());
-      const currentQuizzes = saved ? JSON.parse(saved) : {};
+
+      const currentQuizzes = window.currentCloudQuizzes || {};
       if (editingQuizKey && editingQuizKey !== newName) delete currentQuizzes[editingQuizKey];
       currentQuizzes[newName] = parts;
-      localStorage.setItem(getTeacherQuizStorageKey(), JSON.stringify(currentQuizzes));
-      alert(`Đã lưu thành công bài thi "${newName}"!`);
+
+      socket.emit('save_teacher_quizzes', { username: currentTeacherUser, quizzes: currentQuizzes });
+      alert(`Đã lưu thành công bài thi "${newName}" lên mây!`);
       closeEditor(); loadSavedQuizzes();
     }
 
     function deleteQuiz(name) {
       if (confirm(`Bạn có chắc muốn xóa bài "${name}" không?`)) {
-        const saved = localStorage.getItem(getTeacherQuizStorageKey());
-        const currentQuizzes = saved ? JSON.parse(saved) : {};
+        const currentQuizzes = window.currentCloudQuizzes || {};
         delete currentQuizzes[name];
-        localStorage.setItem(getTeacherQuizStorageKey(), JSON.stringify(currentQuizzes));
+        socket.emit('save_teacher_quizzes', { username: currentTeacherUser, quizzes: currentQuizzes });
         loadSavedQuizzes(); renderHistoryUI();
       }
     }
@@ -1156,8 +1158,7 @@
     function startQuiz() {
       const activeSelect = document.getElementById('active-quiz-select');
       const selectedQuizName = activeSelect.value;
-      const saved = localStorage.getItem(getTeacherQuizStorageKey());
-      const currentQuizzes = saved ? JSON.parse(saved) : {};
+      const currentQuizzes = window.currentCloudQuizzes || {};
       if (!selectedQuizName || !currentQuizzes[selectedQuizName]) return alert('Chọn bài thi!');
       const btn = document.getElementById('start-btn');
       btn.disabled = true; btn.innerText = '⏳ BÀI THI ĐANG DIỄN RA...';
