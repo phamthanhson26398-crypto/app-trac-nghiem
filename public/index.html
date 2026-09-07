@@ -108,10 +108,9 @@
       width: 52px; height: 52px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.06) 100%);
       border: 2px solid #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.35), 0 0 10px rgba(16, 185, 129, 0.35); cursor: pointer;
-      animation: mascotBounce 2.5s ease-in-out infinite; /* Áp dụng hiệu ứng nhún nhảy */
+      animation: mascotBounce 2.5s ease-in-out infinite; 
     }
 
-    /* Độ trễ nhún nhảy để đội hình linh vật chuyển động ngẫu nhiên tự nhiên hơn */
     .lobby-student-chip:nth-child(2n) .lobby-student-avatar { animation-delay: 0.3s; }
     .lobby-student-chip:nth-child(3n) .lobby-student-avatar { animation-delay: 0.7s; }
     .lobby-student-chip:nth-child(5n) .lobby-student-avatar { animation-delay: 1.1s; }
@@ -322,7 +321,7 @@
       <button onclick="joinStudentRoom()" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 6px;">Vào Phòng Thi Ngay 🚀</button>
     </div>
 
-    <!-- PHÒNG CHỜ CỦA HỌC SINH (CÓ DANH SÁCH LỚP) -->
+    <!-- PHÒNG CHỜ CỦA HỌC SINH -->
     <div id="student-lobby-section" style="display: none; text-align: center; padding: 20px 0;">
       <div class="lobby-student-avatar" id="student-mascot-badge" style="font-size: 55px; width: 90px; height: 90px; margin: 0 auto 10px auto;">🦁</div>
       <h2 id="student-welcome-name" style="color: #6ee7b7; margin: 0 0 6px 0; font-size: 22px;">--</h2>
@@ -338,7 +337,7 @@
       </div>
     </div>
 
-    <!-- MÀN HÌNH LÀM BÀI GỐC CỦA HỌC SINH -->
+    <!-- MÀN HÌNH LÀM BÀI CỦA HỌC SINH -->
     <div id="student-quiz-section" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
         <span id="student-q-progress" style="font-size: 13.5px; font-weight: 800; color: #6ee7b7;">Câu số --</span>
@@ -430,13 +429,13 @@
     let currentRemainingSeconds = 0;
     let currentItemData = null;
     
-    // Biến của học sinh (Cấu trúc gốc)
+    // --- Biến của học sinh ---
     let studentTimerInterval = null;
     let studentTimeLeft = 0;
     let selectedStudentAnswer = null;
     let hasSubmittedCurrent = false;
 
-    // QUẢN LÝ HIỆU ỨNG COMMENT VUI NHỘN Ở PHÒNG CHỜ
+    // --- QUẢN LÝ HIỆU ỨNG COMMENT VUI NHỘN Ở PHÒNG CHỜ ---
     const FUNNY_COMMENTS = [
       "Đề có khó không nhỉ 🤔", "Sẵn sàng 100% 🔥", "Run quá đi 🥶",
       "Đói bụng ghê 🍕", "Phát đề lẹ Thầy ơi ⏰", "Hổ báo trường mẫu giáo 🐯",
@@ -445,7 +444,6 @@
       "Hồi hộp ghê 💓", "Quyết tâm giật giải 🏅", "Xin nhẹ top 1 😎"
     ];
 
-    // 👉 Đổi từ 2500 thành 5000 (tức là 5 giây thay vì 2.5 giây) để comment xuất hiện thong thả, dễ đọc hơn
     setInterval(() => {
       const speechBubbles = document.querySelectorAll('.mascot-speech');
       if (speechBubbles.length === 0) return;
@@ -457,10 +455,10 @@
         if (!bubble.classList.contains('show')) {
           bubble.innerText = FUNNY_COMMENTS[Math.floor(Math.random() * FUNNY_COMMENTS.length)];
           bubble.classList.add('show');
-          setTimeout(() => bubble.classList.remove('show'), 3500); // Tăng thời gian hiển thị bong bóng lên 3.5 giây
+          setTimeout(() => bubble.classList.remove('show'), 3500);
         }
       }
-    }, 5000); // 👈 Tăng khoảng cách thời gian giữa các lần hiện comment (5 giây một lần)
+    }, 5000); // Tốc độ comment chậm lại 5 giây
 
     function showAuthNotice(msg, isSuccess = false) {
       const box = document.getElementById('auth-status-box');
@@ -622,7 +620,8 @@
     function openQRZoom() { document.getElementById("qr-zoom-modal").style.display = "flex"; }
     function closeQRZoom() { document.getElementById("qr-zoom-modal").style.display = "none"; }
 
-    // --- CƠ CHẾ THAM GIA VÀ LÀM BÀI CỦA HỌC SINH (GIỮ NGUYÊN GỐC) ---
+
+    // --- CƠ CHẾ THAM GIA VÀ LÀM BÀI CỦA HỌC SINH ---
     function joinStudentRoom() {
       const roomInput = document.getElementById('student-room-input');
       const nameInput = document.getElementById('student-name-input');
@@ -633,6 +632,11 @@
 
       activeRoomId = roomId;
       myRole = 'student';
+      
+      // 👉 Lưu phiên đăng nhập của học sinh để F5 không bị văng
+      sessionStorage.setItem('tntt_current_student_room', activeRoomId);
+      sessionStorage.setItem('tntt_current_student_name', name);
+
       socket.emit('join_room', { name, role: 'student', roomId, deviceToken: myDeviceToken });
 
       document.getElementById('student-join-section').style.display = 'none';
@@ -647,6 +651,8 @@
 
     socket.on('kicked_by_teacher', () => {
       alert('Bạn đã bị Huynh trưởng mời ra khỏi phòng thi!');
+      sessionStorage.removeItem('tntt_current_student_room');
+      sessionStorage.removeItem('tntt_current_student_name');
       location.reload();
     });
 
@@ -1064,7 +1070,7 @@
 
     function togglePauseQuiz() { socket.emit('toggle_pause', { roomId: activeRoomId }); }
 
-    // ĐỒNG BỘ HIỂN THỊ HỌC SINH & LINH VẬT TRÊN MÀN HÌNH CHỜ (CẢ GV LẪN HS ĐỀU THẤY)
+    // ĐỒNG BỘ HIỂN THỊ HỌC SINH & LINH VẬT TRÊN MÀN HÌNH CHỜ
     socket.on('update_students', (students) => {
       const countEl = document.getElementById('count');
       if (countEl) countEl.innerText = students.length;
@@ -1186,15 +1192,6 @@
       }, 1000);
     });
 
-    function approveLiveEssay(studentId, points) {
-      socket.emit('override_essay_live', { roomId: activeRoomId, studentId: studentId, points: points });
-      const rowEl = document.getElementById(`live-review-item-${studentId}`);
-      if (rowEl) {
-        rowEl.style.borderLeftColor = '#10b981'; rowEl.style.background = 'rgba(16, 185, 129, 0.15)';
-        rowEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 6px 0; width: 100%;">✅ Đã duyệt đúng (+${points} điểm)</div>`;
-      }
-    }
-
     socket.on('quiz_ended', ({ quizName, leaderboard }) => {
       if (myRole === 'student') {
         document.getElementById('student-quiz-section').style.display = 'none';
@@ -1273,6 +1270,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      // 1. Phục hồi trạng thái đăng nhập cho Giáo Lý Viên
       const savedTeacher = sessionStorage.getItem('tntt_current_teacher');
       if (savedTeacher) {
         currentTeacherUser = savedTeacher;
@@ -1291,6 +1289,25 @@
         return;
       }
 
+      // 2. Tự động phục hồi phiên của học sinh (Nếu F5 trang sẽ giữ nguyên trong phòng)
+      const savedStudentRoom = sessionStorage.getItem('tntt_current_student_room');
+      const savedStudentName = sessionStorage.getItem('tntt_current_student_name');
+      
+      if (savedStudentRoom && savedStudentName) {
+        myRole = 'student';
+        activeRoomId = savedStudentRoom;
+        
+        document.getElementById('role-screen').style.display = 'none';
+        document.getElementById('student-screen').style.display = 'block';
+        document.getElementById('student-join-section').style.display = 'none';
+        document.getElementById('student-lobby-section').style.display = 'block';
+        document.getElementById('student-welcome-name').innerText = savedStudentName;
+        
+        socket.emit('join_room', { name: savedStudentName, role: 'student', roomId: activeRoomId, deviceToken: myDeviceToken });
+        return;
+      }
+
+      // 3. Xử lý quét mã QR để điền mã phòng tự động
       const urlParams = new URLSearchParams(window.location.search);
       const roomParam = urlParams.get('room');
       if (roomParam || urlParams.get('role') === 'student') {
