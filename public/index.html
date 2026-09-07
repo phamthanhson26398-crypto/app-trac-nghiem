@@ -399,16 +399,13 @@
 
   <div id="role-screen" class="card" style="max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
-    <h2 style="text-align: center; margin-top: 0; font-size: 22px; font-weight: 900; letter-spacing: -0.3px;">🎯 BẠN LÀ AI?</h2>
-    <p style="text-align: center; color: var(--text-muted); margin-top: -6px; margin-bottom: 18px; font-size: 13.5px;">Vui lòng chọn vai trò để bắt đầu</p>
+    <h2 style="text-align: center; margin-top: 0; font-size: 22px; font-weight: 900; letter-spacing: -0.3px;">🎯 HỆ THỐNG QUẢN TRỊ</h2>
+    <p style="text-align: center; color: var(--text-muted); margin-top: -6px; margin-bottom: 18px; font-size: 13.5px;">Vui lòng chọn phân quyền để tiếp tục</p>
     <button onclick="selectRole('teacher')" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); width: 100%; padding: 14px; font-size: 15px; box-shadow: 0 3px 0 #047857;">
-      👨‍🏫 Tôi là Giáo Lý Viên / Huynh Trưởng
+      👨‍🏫 Giáo Lý Viên / Huynh Trưởng
     </button>
-    <button onclick="selectRole('student')" style="background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%); width: 100%; margin-top: 12px; padding: 14px; font-size: 15px; box-shadow: 0 3px 0 #1e40af;">
-      🙋‍♂️ Tôi là Học Sinh
-    </button>
-    <button onclick="selectRole('admin')" style="background: linear-gradient(180deg, #475569 0%, #334155 100%); width: 100%; margin-top: 12px; padding: 10px; font-size: 13px; box-shadow: 0 2px 0 #1e293b;">
-      ⚙️ Quản Trị Viên
+    <button onclick="selectRole('admin')" style="background: linear-gradient(180deg, #475569 0%, #334155 100%); width: 100%; margin-top: 12px; padding: 12px; font-size: 14px; box-shadow: 0 2px 0 #1e293b;">
+      ⚙️ Quản Trị Viên (Admin)
     </button>
   </div>
 
@@ -806,7 +803,10 @@
         const adminPass = prompt('Mật khẩu Admin:');
         if (adminPass === 'tnttthaiha') {
           document.getElementById('admin-screen').style.display = 'block';
+          
+          // 👉 Thêm dòng lệnh này để khi vào Admin là tự động tải danh sách từ MongoDB lên ngay lập tức
           socket.emit('admin_get_users');
+          
         } else {
           alert('Sai mật khẩu!'); document.getElementById('role-screen').style.display = 'block';
         }
