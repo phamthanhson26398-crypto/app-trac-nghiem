@@ -78,10 +78,11 @@
     .opt-btn-b { background: linear-gradient(135deg, #3a86ff 0%, #0077b6 100%) !important; box-shadow: 0 4px 0 #023e8a, 0 5px 12px rgba(58, 134, 255, 0.3) !important; }
     .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 4px 0 #d62828, 0 5px 12px rgba(251, 133, 0, 0.3) !important; }
     .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 4px 0 #047857, 0 5px 12px rgba(6, 214, 160, 0.3) !important; }
+    
     .opt-btn.selected { border: 2.5px solid #ffd166 !important; box-shadow: 0 0 20px rgba(255, 209, 102, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.4) !important; transform: scale(1.02); filter: brightness(1.15); }
-    .btn-submit-answer { display: flex !important; width: 90% !important; max-width: 320px !important; margin: 22px auto 6px auto !important; padding: 14px 20px !important; font-size: 16px !important; font-weight: 900 !important; border-radius: 16px !important; background: linear-gradient(180deg, #10b981 0%, #047857 100%) !important; box-shadow: 0 4px 0 #065f46, 0 6px 18px rgba(16, 185, 129, 0.45) !important; text-align: center; justify-content: center; }
     .opt-btn.reveal-correct { background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important; border: 2.5px solid #a7f3d0 !important; animation: neonBlinkGreen 0.45s infinite alternate !important; opacity: 1 !important; z-index: 2; }
     @keyframes neonBlinkGreen { 0% { box-shadow: 0 0 4px #10b981; transform: scale(1); } 100% { box-shadow: 0 0 20px #10b981, 0 0 40px rgba(16, 185, 129, 0.8); transform: scale(1.025); } }
+    .opt-btn.reveal-wrong { background: #4a0404 !important; border: 2.5px solid #ef4444 !important; color: #fca5a5 !important; opacity: 0.9 !important; }
 
     .essay-input-box { width: 100%; padding: 13px 15px; font-size: 15px; font-weight: 700; border: 1.5px solid #ffd166; border-radius: 14px; background: rgba(0, 0, 0, 0.5); color: #ffd166; margin-top: 8px; }
     .btn-delete { background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 2px 0 #991b1b; padding: 5px 10px; border-radius: 8px; font-size: 12px; }
@@ -117,7 +118,6 @@
 
     .lobby-student-name { font-size: 11px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px; text-align: center; background: rgba(0, 0, 0, 0.6); padding: 2px 6px; border-radius: 8px; border: 1px solid var(--glass-border); }
     
-    /* Bong bóng chat vui nhộn của linh vật */
     .mascot-speech {
       position: absolute; top: -10px; background: rgba(255,255,255,0.95); color: #0f172a;
       font-size: 10px; padding: 4px 8px; border-radius: 12px; font-weight: 800;
@@ -307,7 +307,7 @@
     </div>
   </div>
 
-  <!-- MÀN HÌNH HỌC SINH -->
+  <!-- MÀN HÌNH HỌC SINH (KHÔI PHỤC ĐÚNG CẤU TRÚC GỐC) -->
   <div id="student-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -327,7 +327,6 @@
       <h2 id="student-welcome-name" style="color: #6ee7b7; margin: 0 0 6px 0; font-size: 22px;">--</h2>
       <p style="color: var(--text-muted); font-size: 14px; margin: 0 0 20px 0;">Đã vào phòng chờ thành công! Hãy đợi Huynh trưởng phát đề nhé...</p>
       
-      <!-- DANH SÁCH CÁC BẠN TRONG PHÒNG HIỆN Ở MÁY HỌC SINH -->
       <div style="background: rgba(0,0,0,0.3); padding: 14px; border-radius: 16px; border: 1px dashed var(--glass-border); display: inline-block; width: 100%; max-width: 480px;">
         <span style="font-size: 14px; color: #ffd166; font-weight: bold;">⏳ Đang chờ bắt đầu bài thi...</span>
         <div style="margin-top: 15px; text-align: center;">
@@ -337,7 +336,7 @@
       </div>
     </div>
 
-    <!-- MÀN HÌNH LÀM BÀI CỦA HỌC SINH -->
+    <!-- MÀN HÌNH LÀM BÀI GỐC CỦA HỌC SINH -->
     <div id="student-quiz-section" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
         <span id="student-q-progress" style="font-size: 13.5px; font-weight: 800; color: #6ee7b7;">Câu số --</span>
@@ -349,13 +348,20 @@
       <div id="student-answer-feedback" style="text-align: center; margin-top: 14px; font-weight: 800; font-size: 15px;"></div>
     </div>
 
-    <!-- MÀN HÌNH KẾT QUẢ HỌC SINH -->
+    <!-- MÀN HÌNH KẾT QUẢ CHI TIẾT CỦA HỌC SINH (CÓ ĐỦ ĐÚNG, SAI, BỎ QUA) -->
     <div id="student-result-section" style="display: none; text-align: center; padding: 20px 0;">
       <h2 style="color: #ffd166; font-size: 24px; margin-bottom: 6px;">🎉 HOÀN THÀNH BÀI THI!</h2>
       <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">Cảm ơn bạn đã tham gia bài kiểm tra.</p>
-      <div style="background: rgba(0,0,0,0.35); padding: 20px; border-radius: 18px; border: 1px solid var(--glass-border); display: inline-block; min-width: 240px;">
+      
+      <div style="background: rgba(0,0,0,0.35); padding: 20px; border-radius: 18px; border: 1px solid var(--glass-border); display: inline-block; min-width: 280px;">
         <div style="font-size: 13.5px; color: #cbd5e1;">Tổng điểm đạt được:</div>
         <div id="student-final-score-display" style="font-size: 42px; font-weight: 900; color: #6ee7b7; margin-top: 4px;">0 đ</div>
+        
+        <div style="display: flex; justify-content: space-around; margin-top: 16px; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 12px;">
+          <div><div style="font-size: 12px; color: #94a3b8;">✅ Đúng</div><div id="student-res-correct" style="font-size: 18px; font-weight: 900; color: #10b981;">0</div></div>
+          <div><div style="font-size: 12px; color: #94a3b8;">❌ Sai</div><div id="student-res-wrong" style="font-size: 18px; font-weight: 900; color: #ef4444;">0</div></div>
+          <div><div style="font-size: 12px; color: #94a3b8;">⏭️ Bỏ qua</div><div id="student-res-skipped" style="font-size: 18px; font-weight: 900; color: #f59e0b;">0</div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -429,11 +435,13 @@
     let currentRemainingSeconds = 0;
     let currentItemData = null;
     
-    // --- Biến của học sinh ---
+    // --- Biến của học sinh (Cấu trúc gốc) ---
     let studentTimerInterval = null;
     let studentTimeLeft = 0;
     let selectedStudentAnswer = null;
     let hasSubmittedCurrent = false;
+    let totalQuestionsCount = 0;
+    let studentStats = { correct: 0, wrong: 0, skipped: 0 };
 
     // --- QUẢN LÝ HIỆU ỨNG COMMENT VUI NHỘN Ở PHÒNG CHỜ ---
     const FUNNY_COMMENTS = [
@@ -458,7 +466,7 @@
           setTimeout(() => bubble.classList.remove('show'), 3500);
         }
       }
-    }, 5000); // Tốc độ comment chậm lại 5 giây
+    }, 5000);
 
     function showAuthNotice(msg, isSuccess = false) {
       const box = document.getElementById('auth-status-box');
@@ -621,7 +629,7 @@
     function closeQRZoom() { document.getElementById("qr-zoom-modal").style.display = "none"; }
 
 
-    // --- CƠ CHẾ THAM GIA VÀ LÀM BÀI CỦA HỌC SINH ---
+    // --- CƠ CHẾ THAM GIA VÀ LÀM BÀI GỐC CỦA HỌC SINH ---
     function joinStudentRoom() {
       const roomInput = document.getElementById('student-room-input');
       const nameInput = document.getElementById('student-name-input');
@@ -632,8 +640,8 @@
 
       activeRoomId = roomId;
       myRole = 'student';
+      studentStats = { correct: 0, wrong: 0, skipped: 0 };
       
-      // 👉 Lưu phiên đăng nhập của học sinh để F5 không bị văng
       sessionStorage.setItem('tntt_current_student_room', activeRoomId);
       sessionStorage.setItem('tntt_current_student_name', name);
 
@@ -658,6 +666,7 @@
 
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
       if (myRole !== 'student') return;
+      totalQuestionsCount = totalQuestions;
       document.getElementById('student-lobby-section').style.display = 'none';
       document.getElementById('student-quiz-section').style.display = 'block';
       document.getElementById('student-result-section').style.display = 'none';
@@ -755,14 +764,58 @@
         isCorrect = acceptable.includes(answerText.toLowerCase());
       }
 
+      // Cập nhật thống kê cá nhân của học sinh
+      if (selectedStudentAnswer === null && answerText === '') {
+        studentStats.skipped++;
+      } else if (isCorrect) {
+        studentStats.correct++;
+      } else {
+        studentStats.wrong++;
+      }
+
       const feedback = document.getElementById('student-answer-feedback');
-      feedback.innerHTML = '<span style="color:#ffd166; font-size:18px;">🔒 ĐÃ NỘP BÀI - ĐANG CHỜ KẾT QUẢ...</span>';
+      if (isCorrect) {
+        feedback.innerHTML = '<span style="color:#6ee7b7; font-size:18px;">✅ ĐÃ NỘP - CHÍNH XÁC!</span>';
+      } else {
+        feedback.innerHTML = '<span style="color:#ef4444; font-size:18px;">❌ ĐÃ NỘP - CHƯA CHÍNH XÁC!</span>';
+      }
+
+      // Hiển thị trực quan đáp án đúng cho học sinh
+      const buttons = document.querySelectorAll('#student-options-container .opt-btn');
+      buttons.forEach((b, idx) => {
+        b.style.pointerEvents = 'none';
+        if (q.type === 'multiple' && idx == q.correct) {
+          b.classList.add('reveal-correct');
+        } else if (q.type === 'tf' && b.innerText.includes(q.correct)) {
+          b.classList.add('reveal-correct');
+        }
+      });
 
       socket.emit('submit_answer', {
         isCorrect: isCorrect, remainingTime: studentTimeLeft, roomId: activeRoomId,
         type: q.type, answerText: answerText, questionTitle: q.title, teacherAnswers: q.correct
       });
     }
+
+    // Khi hết giờ câu hỏi (hiện thời gian nghỉ 10s cho học sinh)
+    socket.on('question_time_up', () => {
+      if (!hasSubmittedCurrent) {
+        studentStats.skipped++;
+        hasSubmittedCurrent = true;
+        if (studentTimerInterval) clearInterval(studentTimerInterval);
+        const submitBtn = document.getElementById('student-submit-btn');
+        if (submitBtn) submitBtn.style.display = 'none';
+        document.getElementById('student-answer-feedback').innerHTML = '<span style="color:#f59e0b; font-size:18px;">⏰ HẾT GIỜ - BỎ QUA!</span>';
+      }
+      
+      let restSecs = 10;
+      document.getElementById('student-q-timer').innerText = `⏳ Nghỉ: ${restSecs}s`;
+      const restTimer = setInterval(() => {
+        restSecs--;
+        document.getElementById('student-q-timer').innerText = `⏳ Nghỉ: ${Math.max(0, restSecs)}s`;
+        if (restSecs <= 0) clearInterval(restTimer);
+      }, 1000);
+    });
 
     // --- KHO BÀI THI LƯU TRÊN MÂY (MONGODB ATLAS) ---
     function getTeacherQuizStorageKey() { return `all_quizzes_user_${currentTeacherUser}`; }
@@ -1197,7 +1250,12 @@
         document.getElementById('student-quiz-section').style.display = 'none';
         document.getElementById('student-result-section').style.display = 'block';
         const me = leaderboard.find(s => s.id === socket.id || s.deviceToken === myDeviceToken);
-        if (me) document.getElementById('student-final-score-display').innerText = `${me.score} đ`;
+        if (me) {
+          document.getElementById('student-final-score-display').innerText = `${me.score} đ`;
+          document.getElementById('student-res-correct').innerText = studentStats.correct;
+          document.getElementById('student-res-wrong').innerText = studentStats.wrong;
+          document.getElementById('student-res-skipped').innerText = studentStats.skipped;
+        }
         return;
       }
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
