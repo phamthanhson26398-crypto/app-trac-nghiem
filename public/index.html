@@ -307,7 +307,7 @@
     </div>
   </div>
 
-  <!-- MÀN HÌNH HỌC SINH (KHÔI PHỤC ĐÚNG CẤU TRÚC GỐC) -->
+  <!-- MÀN HÌNH HỌC SINH -->
   <div id="student-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -336,7 +336,7 @@
       </div>
     </div>
 
-    <!-- MÀN HÌNH LÀM BÀI GỐC CỦA HỌC SINH -->
+    <!-- MÀN HÌNH LÀM BÀI ĐÚNG GỐC CỦA HỌC SINH (ĐỒNG HỒ KHÔNG BỊ DỪNG SỚM) -->
     <div id="student-quiz-section" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
         <span id="student-q-progress" style="font-size: 13.5px; font-weight: 800; color: #6ee7b7;">Câu số --</span>
@@ -348,7 +348,7 @@
       <div id="student-answer-feedback" style="text-align: center; margin-top: 14px; font-weight: 800; font-size: 15px;"></div>
     </div>
 
-    <!-- MÀN HÌNH KẾT QUẢ CHI TIẾT CỦA HỌC SINH (CÓ ĐỦ ĐÚNG, SAI, BỎ QUA) -->
+    <!-- MÀN HÌNH KẾT QUẢ ĐẦY ĐỦ CỦA HỌC SINH -->
     <div id="student-result-section" style="display: none; text-align: center; padding: 20px 0;">
       <h2 style="color: #ffd166; font-size: 24px; margin-bottom: 6px;">🎉 HOÀN THÀNH BÀI THI!</h2>
       <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">Cảm ơn bạn đã tham gia bài kiểm tra.</p>
@@ -435,12 +435,11 @@
     let currentRemainingSeconds = 0;
     let currentItemData = null;
     
-    // --- Biến của học sinh (Cấu trúc gốc) ---
+    // --- Biến của học sinh ---
     let studentTimerInterval = null;
     let studentTimeLeft = 0;
     let selectedStudentAnswer = null;
     let hasSubmittedCurrent = false;
-    let totalQuestionsCount = 0;
     let studentStats = { correct: 0, wrong: 0, skipped: 0 };
 
     // --- QUẢN LÝ HIỆU ỨNG COMMENT VUI NHỘN Ở PHÒNG CHỜ ---
@@ -629,7 +628,7 @@
     function closeQRZoom() { document.getElementById("qr-zoom-modal").style.display = "none"; }
 
 
-    // --- CƠ CHẾ THAM GIA VÀ LÀM BÀI GỐC CỦA HỌC SINH ---
+    // --- CƠ CHẾ THAM GIA VÀ LÀM BÀI CỦA HỌC SINH ---
     function joinStudentRoom() {
       const roomInput = document.getElementById('student-room-input');
       const nameInput = document.getElementById('student-name-input');
@@ -666,7 +665,6 @@
 
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
       if (myRole !== 'student') return;
-      totalQuestionsCount = totalQuestions;
       document.getElementById('student-lobby-section').style.display = 'none';
       document.getElementById('student-quiz-section').style.display = 'block';
       document.getElementById('student-result-section').style.display = 'none';
@@ -681,6 +679,7 @@
       const submitBtn = document.getElementById('student-submit-btn');
       if (submitBtn) submitBtn.style.display = 'none';
 
+      // 👉 ĐỒNG HỒ ĐẾM NGƯỢC CHẠY CHUẨN XÁC TỪNG GIÂY
       if (studentTimerInterval) clearInterval(studentTimerInterval);
       studentTimerInterval = setInterval(() => {
         studentTimeLeft--;
@@ -741,7 +740,7 @@
     function submitStudentAnswer() {
       if (hasSubmittedCurrent) return;
       hasSubmittedCurrent = true;
-      if (studentTimerInterval) clearInterval(studentTimerInterval);
+      // ⚠️ CHÚ Ý: KHÔNG XÓA `studentTimerInterval` Ở ĐÂY ĐỂ ĐỒNG HỒ CỦA CÂU VẪN CHẠY BÌNH THƯỜNG TRÊN MÀN HÌNH CHỜ HẾT GIỜ
 
       const submitBtn = document.getElementById('student-submit-btn');
       if (submitBtn) submitBtn.style.display = 'none';
@@ -764,7 +763,7 @@
         isCorrect = acceptable.includes(answerText.toLowerCase());
       }
 
-      // Cập nhật thống kê cá nhân của học sinh
+      // Thống kê cá nhân
       if (selectedStudentAnswer === null && answerText === '') {
         studentStats.skipped++;
       } else if (isCorrect) {
@@ -780,7 +779,7 @@
         feedback.innerHTML = '<span style="color:#ef4444; font-size:18px;">❌ ĐÃ NỘP - CHƯA CHÍNH XÁC!</span>';
       }
 
-      // Hiển thị trực quan đáp án đúng cho học sinh
+      // Hiện đáp án đúng ngay sau khi nộp
       const buttons = document.querySelectorAll('#student-options-container .opt-btn');
       buttons.forEach((b, idx) => {
         b.style.pointerEvents = 'none';
@@ -797,7 +796,7 @@
       });
     }
 
-    // Khi hết giờ câu hỏi (hiện thời gian nghỉ 10s cho học sinh)
+    // Khi hết giờ câu hỏi
     socket.on('question_time_up', () => {
       if (!hasSubmittedCurrent) {
         studentStats.skipped++;
