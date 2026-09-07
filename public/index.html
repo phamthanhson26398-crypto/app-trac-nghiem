@@ -377,6 +377,7 @@
       const btn = document.getElementById('auth-submit-btn');
       if (btn) btn.innerText = '⏳ Đang đăng nhập...';
 
+      // Gửi yêu cầu đăng nhập lên server qua socket
       socket.emit('teacher_login', { username, password: pass });
     }
 
@@ -389,23 +390,29 @@
         return;
       }
       
-      // Lưu lại phiên đăng nhập
       currentTeacherUser = username; 
       activeRoomId = username;
       sessionStorage.setItem('tntt_current_teacher', username);
       
-      // Hiển thị tên lên giao diện quản trị của GLV
-      document.getElementById('logged-user-name').innerText = username;
-      document.getElementById('teacher-room-id-badge').innerText = activeRoomId;
-      document.getElementById('teacher-room-code-txt').innerText = activeRoomId;
+      const nameEl = document.getElementById('logged-user-name');
+      if (nameEl) nameEl.innerText = username;
+      
+      const badgeEl = document.getElementById('teacher-room-id-badge');
+      if (badgeEl) badgeEl.innerText = activeRoomId;
+      
+      const codeTxtEl = document.getElementById('teacher-room-code-txt');
+      if (codeTxtEl) codeTxtEl.innerText = activeRoomId;
 
-      // 👉 Chuyển màn hình: Tắt màn hình đăng nhập và bật màn hình quản trị của Giáo Lý Viên lên
-      document.getElementById('auth-screen').style.display = 'none';
-      document.getElementById('teacher-screen').style.display = 'block';
+      // Ẩn màn hình đăng nhập, hiện màn hình Giáo Lý Viên
+      const authScreen = document.getElementById('auth-screen');
+      if (authScreen) authScreen.style.display = 'none';
 
-      // Tạo mã QR phòng thi và kết nối socket phòng
-      generateRoomQRCode(activeRoomId);
-      loadSavedQuizzes();
+      const teacherScreen = document.getElementById('teacher-screen');
+      if (teacherScreen) teacherScreen.style.display = 'block';
+
+      if (typeof generateRoomQRCode === 'function') generateRoomQRCode(activeRoomId);
+      if (typeof loadSavedQuizzes === 'function') loadSavedQuizzes();
+      
       socket.emit('clear_room_students', { roomId: activeRoomId });
       socket.emit('join_room', { role: 'teacher', roomId: activeRoomId, deviceToken: myDeviceToken });
     });
