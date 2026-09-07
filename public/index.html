@@ -163,6 +163,46 @@
     .part-block { background: rgba(0, 0, 0, 0.28); border: 1.5px solid rgba(255, 255, 255, 0.12); padding: 14px; border-radius: 16px; margin-bottom: 14px; }
     .q-block { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 13px; margin-bottom: 10px; }
 
+    .opt-btn { 
+      text-align: left; margin-top: 14px; width: 100%; font-size: 15.5px; font-weight: 700; line-height: 1.4;
+      padding: 14px 18px; border-radius: 16px; display: flex; align-items: center; gap: 10px;
+      color: #fff !important; border: 2.5px solid transparent !important; transition: all 0.2s ease;
+    }
+    .opt-btn-a { background: linear-gradient(135deg, #e63946 0%, #d62828 100%) !important; box-shadow: 0 4px 0 #9d0208, 0 5px 12px rgba(230, 57, 70, 0.3) !important; }
+    .opt-btn-b { background: linear-gradient(135deg, #3a86ff 0%, #0077b6 100%) !important; box-shadow: 0 4px 0 #023e8a, 0 5px 12px rgba(58, 134, 255, 0.3) !important; }
+    .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 4px 0 #d62828, 0 5px 12px rgba(251, 133, 0, 0.3) !important; }
+    .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 4px 0 #047857, 0 5px 12px rgba(6, 214, 160, 0.3) !important; }
+
+    .opt-btn.selected {
+      border: 2.5px solid #ffd166 !important;
+      box-shadow: 0 0 20px rgba(255, 209, 102, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.4) !important;
+      transform: scale(1.02); filter: brightness(1.15);
+    }
+
+    .btn-submit-answer {
+      display: flex !important; width: 90% !important; max-width: 320px !important;
+      margin: 22px auto 6px auto !important; padding: 14px 20px !important; font-size: 16px !important;
+      font-weight: 900 !important; border-radius: 16px !important;
+      background: linear-gradient(180deg, #10b981 0%, #047857 100%) !important;
+      box-shadow: 0 4px 0 #065f46, 0 6px 18px rgba(16, 185, 129, 0.45) !important;
+      text-align: center; justify-content: center;
+    }
+
+    .opt-btn.reveal-correct {
+      background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
+      border: 2.5px solid #a7f3d0 !important; animation: neonBlinkGreen 0.45s infinite alternate !important; opacity: 1 !important; z-index: 2;
+    }
+    @keyframes neonBlinkGreen {
+      0% { box-shadow: 0 0 4px #10b981; transform: scale(1); }
+      100% { box-shadow: 0 0 20px #10b981, 0 0 40px rgba(16, 185, 129, 0.8); transform: scale(1.025); }
+    }
+    .opt-btn.reveal-wrong { background: #4a0404 !important; border: 2.5px solid #ef4444 !important; color: #fca5a5 !important; opacity: 0.9 !important; }
+
+    .essay-input-box {
+      width: 100%; padding: 13px 15px; font-size: 15px; font-weight: 700;
+      border: 1.5px solid #ffd166; border-radius: 14px; background: rgba(0, 0, 0, 0.5); color: #ffd166; margin-top: 8px;
+    }
+
     .btn-delete { background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 2px 0 #991b1b; padding: 5px 10px; border-radius: 8px; font-size: 12px; }
     .btn-edit { background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 2px 0 #b45309; color: white; padding: 5px 10px; border-radius: 8px; font-size: 12px; margin-right: 5px; }
 
@@ -173,7 +213,7 @@
     #qrcode-box { background: rgba(255, 255, 255, 0.06); border: 2px dashed rgba(16, 185, 129, 0.5); padding: 14px; border-radius: 18px; text-align: center; position: relative; }
     #qrcode { background: white; padding: 6px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
     #qrcode img { margin: auto; width: 100px !important; height: 100px !important; }
-    #xu-doan-logo { width: 120px; height: auto; margin-top: 15px; border-radius: 10px; }
+    #xu-doan-logo { width: 120px; height: auto; margin-top: 15px; border-radius: 30px; }
 
     .lobby-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 12px 8px; margin-top: 12px; max-height: 480px; overflow-y: auto; padding: 8px 4px;
@@ -290,7 +330,7 @@
     </div>
   </div>
 
-  <!-- MÀN HÌNH QUẢN TRỊ CỦA GIÁO LÝ VIÊN (ĐÃ PHỤC HỒI ĐẦY ĐỦ 3 CỘT VÀ CHỨC NĂNG) -->
+  <!-- MÀN HÌNH QUẢN TRỊ CỦA GIÁO LÝ VIÊN -->
   <div id="teacher-screen" class="card" style="display: none;">
     <div class="header-banner">THIẾU NHI THÁNH THỂ VIỆT NAM</div>
     
@@ -347,7 +387,7 @@
         </div>
       </div>
 
-      <!-- CỘT 3: SỐ NGƯỜI VÀ LOGO -->
+      <!-- CỘT 3: SỐ NGƯỜI, LOGO NĂM HỌC VÀ CHỦ ĐỀ -->
       <div style="display: flex; flex-direction: column; gap: 16px;">
         <div style="background: rgba(0, 0, 0, 0.28); border: 1.5px dashed rgba(255, 255, 255, 0.15); padding: 14px; border-radius: 18px; min-height: 250px;">
           <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1);">
@@ -355,6 +395,15 @@
             <span style="font-size: 10.5px; color: var(--text-muted);">(Bấm ❌ mời ra)</span>
           </div>
           <div id="teacher-student-grid" class="lobby-grid"></div>
+        </div>
+        
+        <!-- LOGO NĂM HỌC MỚI VÀ CHỦ ĐỀ NĂM HỌC ĐÃ ĐƯỢC PHỤC HỒI -->
+        <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 18px; text-align: center;">
+          <img src="/logo-nam-hoc-moi.png" alt="Logo Năm Học Mới" style="width: 100%; max-width: 180px; height: auto; border-radius: 16px; display: block; margin: 0 auto;">
+          <div style="margin-top: 10px; background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 209, 102, 0.3); padding: 8px 10px; border-radius: 12px;">
+            <div style="font-size: 12.5px; font-weight: 900; color: #ffd166;">NĂM HỌC 2026 - 2027</div>
+            <div style="font-size: 12.5px; font-weight: 900; color: #6ee7b7; margin-top: 2px;">Chủ đề: Magnificat</div>
+          </div>
         </div>
       </div>
     </div>
