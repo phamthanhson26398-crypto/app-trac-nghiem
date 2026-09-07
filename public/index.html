@@ -14,17 +14,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #059669;
-      --primary-dark: #047857;
+      --primary: #10b981;
+      --primary-dark: #059669;
       --secondary: #6366f1;
       --danger: #ef4444;
-      --warning: #d97706;
-      --bg: #f7f4ee; /* 🌟 Phông nền màu Be chủ đạo */
-      --glass-bg: rgba(255, 255, 255, 0.92); /* Khung thẻ sáng màu */
-      --glass-card: rgba(0, 0, 0, 0.03);
-      --glass-border: rgba(0, 0, 0, 0.08);
-      --text: #2c221e; /* Chữ tối màu dễ đọc trên nền be */
-      --text-muted: #64748b;
+      --warning: #ffb703;
+      --bg: #072318;
+      --glass-bg: rgba(13, 37, 27, 0.88);
+      --glass-card: rgba(255, 255, 255, 0.08);
+      --glass-border: #d4c5b9; /* 🌟 Khung viền bên trong màu Be thanh lịch */
+      --text: #ffffff;
+      --text-muted: #94a3b8;
     }
 
     * { box-sizing: border-box; }
@@ -36,6 +36,11 @@
       width: 100% !important;
       margin: auto; 
       background-color: var(--bg);
+      background-image: radial-gradient(circle at 50% 10%, rgba(16, 185, 129, 0.25) 0%, transparent 60%), url('/bg.png');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
@@ -63,13 +68,13 @@
     #editor-section {
       width: 100% !important;
       max-width: none !important;
-      background: #ffffff !important;
-      border: 2px solid #059669 !important;
+      background: rgba(0,0,0,0.65) !important;
+      border: 2px solid var(--glass-border) !important;
     }
 
     ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 10px; }
-    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 10px; }
 
     .card { 
       background: var(--glass-bg); 
@@ -77,25 +82,26 @@
       -webkit-backdrop-filter: blur(16px);
       padding: 20px 20px; 
       border-radius: 20px; 
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2); 
       margin-bottom: 16px; 
-      border: 1px solid var(--glass-border);
+      border: 1.5px solid var(--glass-border); /* 🌟 Áp dụng khung viền màu Be cho các thẻ */
       position: relative;
     }
 
     .header-banner {
       font-size: 20px;
       font-weight: 900;
-      color: #b45309;
+      color: #ffd166;
       text-transform: uppercase;
       letter-spacing: 1.4px;
       padding: 10px 25px;
       margin: -4px auto 20px auto;
       text-align: center;
-      background: rgba(245, 158, 11, 0.12);
-      border: 2px solid rgba(245, 158, 11, 0.3);
+      background: rgba(255, 209, 102, 0.12);
+      border: 2px solid rgba(255, 209, 102, 0.3);
       border-radius: 30px;
       width: fit-content;
+      text-shadow: 0 0 10px rgba(255, 209, 102, 0.4);
     }
 
     button { 
@@ -108,7 +114,7 @@
       font-size: 14px; 
       font-weight: 800; 
       font-family: inherit;
-      box-shadow: 0 3px 0 #047857, 0 5px 12px rgba(16, 185, 129, 0.25);
+      box-shadow: 0 3px 0 #047857, 0 5px 12px rgba(16, 185, 129, 0.35);
       transition: all 0.12s ease;
       display: inline-flex;
       align-items: center;
@@ -117,7 +123,7 @@
     }
     button:hover { 
       transform: translateY(-2px); 
-      box-shadow: 0 5px 0 #047857, 0 7px 16px rgba(16, 185, 129, 0.35); 
+      box-shadow: 0 5px 0 #047857, 0 7px 16px rgba(16, 185, 129, 0.45); 
     }
     button:active { 
       transform: translateY(2px); 
@@ -129,32 +135,33 @@
       padding: 11px 14px; 
       margin-top: 5px; 
       margin-bottom: 12px; 
-      border: 1.5px solid #cbd5e1; 
+      border: 1.5px solid var(--glass-border); /* 🌟 Viền ô nhập liệu màu be */
       border-radius: 13px; 
       font-family: inherit; 
       font-size: 14px;
       font-weight: 600;
-      background: #ffffff;
-      color: #1e293b;
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
       transition: all 0.2s;
     }
     input:focus, select:focus, textarea:focus {
       outline: none;
-      border-color: #059669;
-      box-shadow: 0 0 10px rgba(5, 150, 105, 0.2);
+      border-color: #10b981;
+      background: rgba(0, 0, 0, 0.55);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
     }
-    select option { background: #ffffff; color: #1e293b; }
+    select option { background: #0d251b; color: #fff; }
 
     .sub-panel {
-      background: rgba(0, 0, 0, 0.02);
-      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border); /* 🌟 Viền panel be */
       padding: 14px;
       border-radius: 16px;
       margin-bottom: 12px;
     }
 
-    .part-block { background: #f1ebd9; border: 1.5px solid #e2d9c2; padding: 14px; border-radius: 16px; margin-bottom: 14px; }
-    .q-block { background: #ffffff; border: 1px solid #e2e8f0; padding: 12px; border-radius: 13px; margin-bottom: 10px; }
+    .part-block { background: rgba(0, 0, 0, 0.28); border: 1.5px solid var(--glass-border); padding: 14px; border-radius: 16px; margin-bottom: 14px; }
+    .q-block { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); padding: 12px; border-radius: 13px; margin-bottom: 10px; }
 
     .opt-btn { 
       text-align: left; margin-top: 14px; width: 100%; font-size: 15.5px; font-weight: 700; line-height: 1.4;
@@ -166,59 +173,68 @@
     .opt-btn-c { background: linear-gradient(135deg, #fb8500 0%, #f77f00 100%) !important; box-shadow: 0 4px 0 #d62828, 0 5px 12px rgba(251, 133, 0, 0.3) !important; }
     .opt-btn-d { background: linear-gradient(135deg, #06d6a0 0%, #059669 100%) !important; box-shadow: 0 4px 0 #047857, 0 5px 12px rgba(6, 214, 160, 0.3) !important; }
 
-    .btn-delete { background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 2px 0 #991b1b; padding: 5px 10px; border-radius: 8px; font-size: 12px; color: #fff; }
+    .opt-btn.reveal-correct {
+      background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
+      border: 2.5px solid #a7f3d0 !important; animation: neonBlinkGreen 0.45s infinite alternate !important; opacity: 1 !important; z-index: 2;
+    }
+    @keyframes neonBlinkGreen {
+      0% { box-shadow: 0 0 4px #10b981; transform: scale(1); }
+      100% { box-shadow: 0 0 20px #10b981, 0 0 40px rgba(16, 185, 129, 0.8); transform: scale(1.025); }
+    }
+
+    .btn-delete { background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 2px 0 #991b1b; padding: 5px 10px; border-radius: 8px; font-size: 12px; }
     .btn-edit { background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 2px 0 #b45309; color: white; padding: 5px 10px; border-radius: 8px; font-size: 12px; margin-right: 5px; }
 
     table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-    th, td { border: 1px solid rgba(0, 0, 0, 0.1); padding: 8px 6px; text-align: left; font-size: 12.5px; color: #1e293b; }
-    th { background: rgba(0, 0, 0, 0.05); font-weight: 800; color: #92400e; }
+    th, td { border: 1px solid var(--glass-border); padding: 8px 6px; text-align: left; font-size: 12.5px; }
+    th { background: rgba(255, 255, 255, 0.05); font-weight: 800; color: #ffd166; }
 
-    #qrcode-box { background: #ffffff; border: 2px dashed rgba(5, 150, 105, 0.5); padding: 14px; border-radius: 18px; text-align: center; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    #qrcode { background: white; padding: 6px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    #qrcode-box { background: rgba(255, 255, 255, 0.04); border: 2px dashed var(--glass-border); padding: 14px; border-radius: 18px; text-align: center; position: relative; }
+    #qrcode { background: white; padding: 6px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
     #qrcode img { margin: auto; width: 100px !important; height: 100px !important; }
-    #xu-doan-logo { width: 120px; height: auto; margin-top: 15px; border-radius: 10px; }
+    #xu-doan-logo { width: 120px; height: auto; margin-top: 15px; border-radius: 30px; }
 
     .lobby-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 12px 8px; margin-top: 12px; max-height: 480px; overflow-y: auto; padding: 8px 4px;
     }
     .lobby-student-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; user-select: none; }
     .lobby-student-avatar {
-      width: 52px; height: 52px; background: #ffffff;
-      border: 2px solid #059669; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer;
+      width: 52px; height: 52px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.06) 100%);
+      border: 2px solid #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35), 0 0 10px rgba(16, 185, 129, 0.35); cursor: pointer;
     }
     .lobby-student-name {
-      font-size: 11px; font-weight: 800; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px; text-align: center; background: #ffffff; padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);
+      font-size: 11px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px; text-align: center; background: rgba(0, 0, 0, 0.6); padding: 2px 6px; border-radius: 8px; border: 1px solid var(--glass-border);
     }
     .btn-kick-student {
       position: absolute; top: -3px; right: 4px; background: #ef4444 !important; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: 900; border: 1.5px solid #ffffff !important; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 20;
     }
 
-    .quiz-manager { background: rgba(0, 0, 0, 0.02); padding: 16px; border-radius: 18px; margin-bottom: 14px; border: 1px solid rgba(0, 0, 0, 0.08); }
-    .quiz-item { background: #ffffff; padding: 12px 14px; border-radius: 14px; margin-top: 8px; border: 1px solid rgba(0, 0, 0, 0.08); display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-    .quiz-item-actions { display: flex; justify-content: flex-end; border-top: 1px dashed rgba(0, 0, 0, 0.1); padding-top: 6px; }
+    .quiz-manager { background: rgba(255, 255, 255, 0.03); padding: 16px; border-radius: 18px; margin-bottom: 14px; border: 1px solid var(--glass-border); }
+    .quiz-item { background: rgba(0, 0, 0, 0.35); padding: 12px 14px; border-radius: 14px; margin-top: 8px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 6px; }
+    .quiz-item-actions { display: flex; justify-content: flex-end; border-top: 1px dashed var(--glass-border); padding-top: 6px; }
 
-    .history-card { background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.08); padding: 12px; border-radius: 14px; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+    .history-card { background: rgba(0, 0, 0, 0.35); border: 1px solid var(--glass-border); padding: 12px; border-radius: 14px; margin-bottom: 8px; }
 
     .suspense-box { text-align: center; padding: 20px 12px; }
-    .suspense-icon { font-size: 60px; display: inline-block; }
+    .suspense-icon { font-size: 60px; display: inline-block; filter: drop-shadow(0 0 16px rgba(255, 209, 102, 0.8)); }
     .btn-reveal-ceremony {
       background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%) !important; color: #fff !important;
       font-size: 16px !important; font-weight: 900 !important; padding: 15px 18px !important; border-radius: 18px !important;
-      width: 100% !important; margin-top: 15px !important; box-shadow: 0 5px 0 #92400e, 0 8px 24px rgba(245, 158, 11, 0.4) !important;
+      width: 100% !important; margin-top: 15px !important; box-shadow: 0 5px 0 #92400e, 0 8px 24px rgba(245, 158, 11, 0.6) !important;
       border: 1.5px solid #fef08a !important;
     }
 
     .champion-podium { text-align: center; padding: 18px 10px 10px 10px; position: relative; }
-    .champion-title-badge { background: linear-gradient(90deg, #f59e0b, #ffd166, #f59e0b); color: #000; font-weight: 900; font-size: 13px; padding: 5px 16px; border-radius: 24px; display: inline-block; letter-spacing: 1.2px; text-transform: uppercase; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); margin-bottom: 10px; }
+    .champion-title-badge { background: linear-gradient(90deg, #f59e0b, #ffd166, #f59e0b); color: #000; font-weight: 900; font-size: 13px; padding: 5px 16px; border-radius: 24px; display: inline-block; letter-spacing: 1.2px; text-transform: uppercase; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.5); margin-bottom: 10px; }
 
     .qr-zoom-modal {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 99999;
+      background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(12px); z-index: 99999;
       display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
     }
     .qr-zoom-box {
-      background: white; padding: 30px; border-radius: 28px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      background: white; padding: 30px; border-radius: 28px; box-shadow: 0 0 50px rgba(16, 185, 129, 0.6);
       text-align: center; max-width: 90vw; max-height: 90vh;
     }
   </style>
@@ -239,7 +255,7 @@
   <!-- MÀN HÌNH CHỌN VAI TRÒ -->
   <div id="role-screen" class="card" style="max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
-    <h2 style="text-align: center; margin-top: 0; font-size: 22px; font-weight: 900; color: #1e293b;">🎯 HỆ THỐNG QUẢN TRỊ</h2>
+    <h2 style="text-align: center; margin-top: 0; font-size: 22px; font-weight: 900; letter-spacing: -0.3px;">🎯 HỆ THỐNG QUẢN TRỊ</h2>
     <p style="text-align: center; color: var(--text-muted); margin-top: -6px; margin-bottom: 18px; font-size: 13.5px;">Vui lòng chọn phân quyền để tiếp tục</p>
     <button onclick="selectRole('teacher')" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); width: 100%; padding: 14px; font-size: 15px; box-shadow: 0 3px 0 #047857;">
       👨‍🏫 Giáo Lý Viên / Huynh Trưởng
@@ -252,22 +268,22 @@
   <!-- ĐĂNG NHẬP GIÁO LÝ VIÊN -->
   <div id="auth-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
-    <h2 style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px; color: #1e293b;">🔐 Đăng Nhập Giáo Lý Viên</h2>
+    <h2 style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
     <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Vui lòng nhập tài khoản được cấp bởi Quản Trị Viên</p>
 
     <div id="auth-status-box" style="display: none; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 800; text-align: center; margin-bottom: 12px;"></div>
 
     <form onsubmit="handleAuthSubmit(event)">
-      <label style="font-size: 13.5px; color: #1e293b;"><strong>Tài khoản (Tên đăng nhập):</strong></label>
+      <label style="font-size: 13.5px;"><strong>Tài khoản (Tên đăng nhập):</strong></label>
       <input type="text" id="auth-username" placeholder="Ví dụ: huynh_truong_01" required autocomplete="username">
 
-      <label style="font-size: 13.5px; color: #1e293b;"><strong>Mật khẩu:</strong></label>
+      <label style="font-size: 13.5px;"><strong>Mật khẩu:</strong></label>
       <input type="password" id="auth-password" placeholder="••••••••" required autocomplete="current-password">
 
       <button type="submit" id="auth-submit-btn" style="width: 100%; padding: 13px; font-size: 15px; margin-top: 4px;">Đăng Nhập Ngay</button>
     </form>
 
-    <button onclick="backToRoleScreen()" style="background: transparent; color: var(--text-muted); border: 1px solid #cbd5e1; width: 100%; margin-top: 12px; box-shadow: none; font-size: 13px;">← Quay Lại</button>
+    <button onclick="backToRoleScreen()" style="background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.15); width: 100%; margin-top: 12px; box-shadow: none; font-size: 13px;">← Quay Lại</button>
   </div>
 
   <!-- QUẢN TRỊ VIÊN (ADMIN) -->
@@ -275,14 +291,14 @@
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <div>
-        <h2 style="margin: 0; font-size: 18px; color: #b45309;">⚙️ Quản Trị Hệ Thống (Admin)</h2>
+        <h2 style="margin: 0; font-size: 18px; color: #ffd166;">⚙️ Quản Trị Hệ Thống (Admin)</h2>
         <small style="color: var(--text-muted); font-size: 12px;">Quản lý và cấp tài khoản Giáo Lý Viên</small>
       </div>
-      <button onclick="backToRoleScreen()" style="background: rgba(239, 68, 68, 0.15); color: #dc2626; font-size: 12px; padding: 5px 10px; box-shadow: none; border: 1px solid rgba(239, 68, 68, 0.3);">Đăng Xuất</button>
+      <button onclick="backToRoleScreen()" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-size: 12px; padding: 5px 10px; box-shadow: none; border: 1px solid rgba(239, 68, 68, 0.4);">Đăng Xuất</button>
     </div>
 
-    <div class="sub-panel" style="background: rgba(5, 150, 105, 0.06); border: 1px solid #059669;">
-      <h3 style="margin: 0 0 8px 0; font-size: 14.5px; color: #047857;">➕ Cấp Tài Khoản Mới Cho GLV</h3>
+    <div class="sub-panel" style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981;">
+      <h3 style="margin: 0 0 8px 0; font-size: 14.5px; color: #6ee7b7;">➕ Cấp Tài Khoản Mới Cho GLV</h3>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
         <input type="text" id="admin-new-user" placeholder="Tên tài khoản mới" style="margin-bottom: 0;">
         <input type="password" id="admin-new-pass" placeholder="Mật khẩu" style="margin-bottom: 0;">
@@ -291,7 +307,7 @@
     </div>
 
     <div class="sub-panel">
-      <h3 style="margin: 0 0 8px 0; font-size: 14.5px; color: #1e293b;">📋 Danh Sách Toàn Bộ GLV Trong Hệ Thống</h3>
+      <h3 style="margin: 0 0 8px 0; font-size: 14.5px;">📋 Danh Sách Toàn Bộ GLV Trong Hệ Thống</h3>
       <table>
         <thead>
           <tr>
@@ -309,12 +325,12 @@
   <div id="teacher-screen" class="card" style="display: none;">
     <div class="header-banner">THIẾU NHI THÁNH THỂ VIỆT NAM</div>
     
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 12px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 12px;">
       <div>
-        <h2 style="margin: 0; font-size: 22px; font-weight: 900; color: #1e293b;">👨‍🏫 <span id="logged-user-name" style="color: #059669;">GLV</span></h2>
-        <small style="color: var(--text-muted); font-size: 14px;">Phòng thi: <b id="teacher-room-id-badge" style="color: #b45309; font-size: 15px;">--</b></small>
+        <h2 style="margin: 0; font-size: 22px; font-weight: 900;">👨‍🏫 <span id="logged-user-name" style="color: #6ee7b7;">GLV</span></h2>
+        <small style="color: var(--text-muted); font-size: 14px;">Phòng thi: <b id="teacher-room-id-badge" style="color: #ffd166; font-size: 15px;">--</b></small>
       </div>
-      <button onclick="logoutTeacher()" style="background: rgba(239, 68, 68, 0.15); color: #dc2626; font-size: 13px; padding: 6px 14px; box-shadow: none; border: 1px solid rgba(239, 68, 68, 0.3);">Đăng Xuất</button>
+      <button onclick="logoutTeacher()" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-size: 13px; padding: 6px 14px; box-shadow: none; border: 1px solid rgba(239, 68, 68, 0.4);">Đăng Xuất</button>
     </div>
 
     <div class="teacher-dashboard-layout">
@@ -322,10 +338,10 @@
       <div style="text-align: center;">
         <div id="qrcode-box">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <h3 style="margin: 0; color: #047857; font-size: 13.5px; font-weight: 900;">📲 QUÉT MÃ QR</h3>
+            <h3 style="margin: 0; color: #6ee7b7; font-size: 13.5px; font-weight: 900;">📲 QUÉT MÃ QR</h3>
             <button onclick="openQRZoom()" style="background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%); padding: 3px 8px; font-size: 11px; box-shadow: 0 2px 0 #312e81;" title="Phóng to mã QR">🔍 Phóng To</button>
           </div>
-          <p style="margin: 2px 0 8px 0; font-size: 12px; color: var(--text-muted);">Mã: <strong id="teacher-room-code-txt" style="color: #b45309; font-size: 13px;">--</strong></p>
+          <p style="margin: 2px 0 8px 0; font-size: 12px; color: var(--text-muted);">Mã: <strong id="teacher-room-code-txt" style="color: #ffd166; font-size: 13px;">--</strong></p>
           <div id="qrcode"></div>
         </div>
         <img id="xu-doan-logo" src="/logo-xu-doan.png" alt="Logo Xứ Đoàn" style="width: 200px; height: auto; margin-top: 15px; border-radius: 30px;">
@@ -335,18 +351,18 @@
       <div>
         <div class="quiz-manager">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #1e293b;">📁 Kho Bài Thi</h3>
+            <h3 style="margin: 0; font-size: 15px; font-weight: 800;">📁 Kho Bài Thi</h3>
             <button onclick="createNewQuizSection()" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); font-size: 12px; padding: 7px 12px; box-shadow: 0 2px 0 #047857;">➕ Soạn Bài Mới</button>
           </div>
           <div id="quiz-list-container" style="margin-top: 8px; max-height: 200px; overflow-y: auto;"></div>
         </div>
 
-        <div id="editor-section" style="display: none; border: 1.5px solid #059669; padding: 14px; border-radius: 16px; margin-bottom: 14px; background: #ffffff;">
+        <div id="editor-section" style="display: none; border: 1.5px solid #10b981; padding: 14px; border-radius: 16px; margin-bottom: 14px; background: rgba(0,0,0,0.6);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h3 id="current-quiz-title" style="margin: 0; color: #047857; font-size: 15px;">📝 Soạn Đề Thi</h3>
-            <button onclick="closeEditor()" style="background: #e2e8f0; color: #1e293b; font-size: 11px; padding: 4px 8px; box-shadow: none;">❌ Đóng</button>
+            <h3 id="current-quiz-title" style="margin: 0; color: #6ee7b7; font-size: 15px;">📝 Soạn Đề Thi</h3>
+            <button onclick="closeEditor()" style="background: rgba(255,255,255,0.1); color: #cbd5e1; font-size: 11px; padding: 4px 8px; box-shadow: none;">❌ Đóng</button>
           </div>
-          <label style="font-size: 13.5px; color: #1e293b;"><strong>Tên Bài Kiểm Tra:</strong></label>
+          <label style="font-size: 13.5px;"><strong>Tên Bài Kiểm Tra:</strong></label>
           <input type="text" id="quiz-name-input" placeholder="Ví dụ: Đố vui Kinh Thánh - Tuần 1">
           <div id="parts-list"></div>
           <button onclick="addPartInput()" style="background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%); width: 100%; margin-bottom: 8px; font-size: 13.5px; box-shadow: 0 2px 0 #075985;">➕ THÊM PHẦN MỚI</button>
@@ -355,15 +371,15 @@
 
         <!-- LỊCH SỬ THI & BẢNG ĐIỂM -->
         <div class="quiz-manager">
-          <h3 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 800; color: #1e293b;">📊 Bảng Điểm & Lịch Sử Thi</h3>
+          <h3 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 800;">📊 Bảng Điểm & Lịch Sử Thi</h3>
           <select id="history-quiz-select" onchange="renderHistoryUI()"><option value="">-- Chọn bài kiểm tra để xem điểm --</option></select>
           <div id="history-display-area" style="margin-top: 8px;"></div>
         </div>
 
-        <div style="background: rgba(0,0,0,0.02); border: 1.5px solid rgba(0,0,0,0.08); padding: 14px; border-radius: 16px; margin-top: 14px;">
-          <label style="font-size: 13.5px; color: #1e293b;"><strong>Chọn bài thi chuẩn bị phát:</strong></label>
-          <select id="active-quiz-select" style="font-weight: 800; color: #047857; font-size: 14px;"></select>
-          <button id="start-btn" onclick="startQuiz()" style="background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); font-size: 16px; width: 100%; padding: 14px; margin-top: 6px; box-shadow: 0 4px 0 #7f1d1d, 0 8px 20px rgba(239, 68, 68, 0.3);">
+        <div style="background: rgba(255,255,255,0.04); border: 1.5px solid var(--glass-border); padding: 14px; border-radius: 16px; margin-top: 14px;">
+          <label style="font-size: 13.5px;"><strong>Chọn bài thi chuẩn bị phát:</strong></label>
+          <select id="active-quiz-select" style="font-weight: 800; color: #6ee7b7; font-size: 14px;"></select>
+          <button id="start-btn" onclick="startQuiz()" style="background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); font-size: 16px; width: 100%; padding: 14px; margin-top: 6px; box-shadow: 0 4px 0 #7f1d1d, 0 8px 20px rgba(239, 68, 68, 0.45);">
             🚀 BẮT ĐẦU PHÁT ĐỀ
           </button>
         </div>
@@ -371,34 +387,34 @@
 
       <!-- CỘT 3: SỐ NGƯỜI, CHỦ ĐỀ VÀ LOGO NĂM HỌC -->
       <div style="display: flex; flex-direction: column; gap: 16px;">
-        <div style="background: #ffffff; border: 1.5px dashed rgba(0, 0, 0, 0.15); padding: 14px; border-radius: 18px; min-height: 250px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
-          <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px solid rgba(0,0,0,0.08);">
-            <span style="font-weight: 800; font-size: 13.5px; color: #047857;">🐾 SỐ NGƯỜI (<span id="count">0</span>)</span>
+        <div style="background: rgba(0, 0, 0, 0.28); border: 1.5px dashed var(--glass-border); padding: 14px; border-radius: 18px; min-height: 250px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <span style="font-weight: 800; font-size: 13.5px; color: #6ee7b7;">🐾 SỐ NGƯỜI (<span id="count">0</span>)</span>
             <span style="font-size: 10.5px; color: var(--text-muted);">(Bấm ❌ mời ra)</span>
           </div>
           <div id="teacher-student-grid" class="lobby-grid"></div>
         </div>
         
-        <div style="background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.08); padding: 15px; border-radius: 18px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+        <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); padding: 15px; border-radius: 18px; text-align: center;">
           <img src="/logo-nam-hoc-moi.png" alt="Logo Năm Học Mới" style="width: 100%; max-width: 180px; height: auto; border-radius: 16px; display: block; margin: 0 auto;">
-          <div style="margin-top: 10px; background: #f8fafc; border: 1px solid rgba(245, 158, 11, 0.3); padding: 8px 10px; border-radius: 12px;">
-            <div style="font-size: 12.5px; font-weight: 900; color: #b45309;">NĂM HỌC 2026 - 2027</div>
-            <div style="font-size: 12.5px; font-weight: 900; color: #047857; margin-top: 2px;">Chủ đề: Magnificat - Tạ ơn</div>
+          <div style="margin-top: 10px; background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 209, 102, 0.3); padding: 8px 10px; border-radius: 12px;">
+            <div style="font-size: 12.5px; font-weight: 900; color: #ffd166;">NĂM HỌC 2026 - 2027</div>
+            <div style="font-size: 12.5px; font-weight: 900; color: #6ee7b7; margin-top: 2px;">Chủ đề: Magnificat - Tạ ơn</div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- MÀN HÌNH THEO DÕI LIVE VÀ CHẤM TỰ LUẬN TRỰC TIẾP -->
-    <div id="teacher-live-box" style="display: none; margin-top: 18px; background: rgba(5, 150, 105, 0.06); padding: 20px; border-radius: 20px; border: 2px solid #059669; text-align: center;">
+    <div id="teacher-live-box" style="display: none; margin-top: 18px; background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 20px; border: 2px solid #10b981; text-align: center;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-        <h3 id="teacher-live-status-title" style="margin: 0; color: #047857; font-size: 16px;">📡 MÀN HÌNH THEO DÕI (Đang thi)</h3>
+        <h3 id="teacher-live-status-title" style="margin: 0; color: #6ee7b7; font-size: 16px;">📡 MÀN HÌNH THEO DÕI (Đang thi)</h3>
         <button id="btn-toggle-pause" onclick="togglePauseQuiz()" style="padding: 9px 18px; font-size: 13px; background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%); box-shadow: 0 3px 0 #312e81;">⏸ Tạm Dừng</button>
       </div>
-      <h2 style="color: #b45309; font-size: 38px; margin: 4px 0 12px 0;">⏰ <span id="teacher-timer">--</span>s</h2>
-      <div id="teacher-student-like-screen" style="text-align: left; background: #ffffff; padding: 18px; border-radius: 16px; border: 1.5px solid rgba(0,0,0,0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.03);"></div>
-      <div id="teacher-live-essay-review" style="display: none; margin-top: 16px; background: #ffffff; border: 2px solid #d97706; border-radius: 16px; padding: 16px; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-        <h4 style="color: #b45309; margin: 0 0 6px 0; font-size: 16px;">✍️ Kiểm Tra Lại Đáp Án Tự Luận:</h4>
+      <h2 style="color: #ffd166; font-size: 38px; margin: 4px 0 12px 0; text-shadow: 0 0 14px rgba(255, 209, 102, 0.6);">⏰ <span id="teacher-timer">--</span>s</h2>
+      <div id="teacher-student-like-screen" style="text-align: left; background: rgba(0,0,0,0.35); padding: 18px; border-radius: 16px; border: 1.5px solid rgba(255,255,255,0.12);"></div>
+      <div id="teacher-live-essay-review" style="display: none; margin-top: 16px; background: rgba(0,0,0,0.65); border: 2px solid #f59e0b; border-radius: 16px; padding: 16px; text-align: left;">
+        <h4 style="color: #ffd166; margin: 0 0 6px 0; font-size: 16px;">✍️ Kiểm Tra Lại Đáp Án Tự Luận:</h4>
         <div id="teacher-live-essay-list" style="max-height: 320px; overflow-y: auto; margin-top: 10px;"></div>
       </div>
     </div>
@@ -409,8 +425,8 @@
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <div id="suspense-container" class="suspense-box">
       <div class="suspense-icon">🥁</div>
-      <h2 style="color: #b45309; font-size: 20px; font-weight: 900; margin: 8px 0 4px 0;">🎉 BÀI THI ĐÃ KẾT THÚC!</h2>
-      <p id="suspense-guide-text" style="color: #1e293b; font-size: 14px; margin: 0 0 12px 0;">Bài thi đã kết thúc! Bấm nút bên dưới để trao giải!</p>
+      <h2 style="color: #ffd166; font-size: 20px; font-weight: 900; margin: 8px 0 4px 0;">🎉 BÀI THI ĐÃ KẾT THÚC!</h2>
+      <p id="suspense-guide-text" style="color: #ffffff; font-size: 14px; margin: 0 0 12px 0; opacity: 0.9;">Bài thi đã kết thúc! Bấm nút bên dưới để trao giải!</p>
       <div id="teacher-reveal-action" style="display: block;">
         <button onclick="revealWinnerCeremony()" class="btn-reveal-ceremony">🏆 BẤM ĐỂ CÔNG BỐ KẾT QUẢ & TRAO GIẢI 👑</button>
       </div>
@@ -422,31 +438,31 @@
       <div class="podium-container" style="display: flex; justify-content: center; align-items: flex-end; gap: 12px; margin: 20px 0 10px 0;">
         <div id="podium-rank-2" style="display: none; flex-direction: column; align-items: center; width: 110px;">
           <div id="podium-avatar-2" style="font-size: 38px; margin-bottom: 4px;">🥈</div>
-          <div id="podium-name-2" style="font-size: 13px; font-weight: 800; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;">--</div>
-          <div id="podium-score-2" style="font-size: 11px; font-weight: 700; color: #64748b;">0 đ</div>
-          <div style="background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%); width: 100%; height: 70px; border-radius: 12px 12px 0 0; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #fff;">🥈 2</div>
+          <div id="podium-name-2" style="font-size: 13px; font-weight: 800; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;">--</div>
+          <div id="podium-score-2" style="font-size: 11px; font-weight: 700; color: #94a3b8;">0 đ</div>
+          <div style="background: linear-gradient(180deg, #64748b 0%, #475569 100%); width: 100%; height: 70px; border-radius: 12px 12px 0 0; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #fff; border-top: 3px solid #cbd5e1;">🥈 2</div>
         </div>
         <div id="podium-rank-1" style="display: none; flex-direction: column; align-items: center; width: 130px; z-index: 5;">
-          <div style="font-size: 32px; margin-bottom: -10px;">👑</div>
+          <div style="font-size: 32px; margin-bottom: -10px; filter: drop-shadow(0 0 8px #ffd166);">👑</div>
           <div id="podium-avatar-1" style="font-size: 46px; margin-bottom: 4px;">🥇</div>
-          <div id="podium-name-1" style="font-size: 14.5px; font-weight: 900; color: #b45309; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px;">--</div>
-          <div id="podium-score-1" style="font-size: 12px; font-weight: 800; color: #047857;">0 đ</div>
-          <div style="background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); width: 100%; height: 105px; border-radius: 14px 14px 0 0; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: #fff;">🥇 1</div>
+          <div id="podium-name-1" style="font-size: 14.5px; font-weight: 900; color: #ffd166; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px;">--</div>
+          <div id="podium-score-1" style="font-size: 12px; font-weight: 800; color: #6ee7b7;">0 đ</div>
+          <div style="background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); width: 100%; height: 105px; border-radius: 14px 14px 0 0; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: #fff; border-top: 3px solid #fef08a;">🥇 1</div>
         </div>
         <div id="podium-rank-3" style="display: none; flex-direction: column; align-items: center; width: 110px;">
           <div id="podium-avatar-3" style="font-size: 38px; margin-bottom: 4px;">🥉</div>
-          <div id="podium-name-3" style="font-size: 13px; font-weight: 800; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;">--</div>
-          <div id="podium-score-3" style="font-size: 11px; font-weight: 700; color: #64748b;">0 đ</div>
-          <div style="background: linear-gradient(180deg, #d97706 0%, #b45309 100%); width: 100%; height: 50px; border-radius: 12px 12px 0 0; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #fff;">🥉 3</div>
+          <div id="podium-name-3" style="font-size: 13px; font-weight: 800; color: #f97316; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;">--</div>
+          <div id="podium-score-3" style="font-size: 11px; font-weight: 700; color: #94a3b8;">0 đ</div>
+          <div style="background: linear-gradient(180deg, #c2410c 0%, #9a3412 100%); width: 100%; height: 50px; border-radius: 12px 12px 0 0; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #fff; border-top: 3px solid #fdba74;">🥉 3</div>
         </div>
       </div>
     </div>
 
     <div id="teacher-result-view" style="display: none; margin-top: 14px;">
-      <div style="background: #ffffff; border-radius: 16px; padding: 14px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
-        <h3 style="margin: 0 0 10px 0; color: #b45309; font-size: 16px; text-align: center; font-weight: 900;">📊 BẢNG XẾP HẠNG TOÀN BỘ THÍ SINH</h3>
+      <div style="background: rgba(0,0,0,0.35); border-radius: 16px; padding: 14px; border: 1px solid var(--glass-border);">
+        <h3 style="margin: 0 0 10px 0; color: #ffd166; font-size: 16px; text-align: center; font-weight: 900;">📊 BẢNG XẾP HẠNG TOÀN BỘ THÍ SINH</h3>
         <table>
-          <thead><tr><th style="text-align: center; width: 55px;">Giải</th><th>Thí Sinh</th><th style="text-align: center; width: 130px; color: #1e293b;">🎯 Trắc Nghiệm</th><th style="text-align: center; width: 130px; color: #1e293b;">✍️ Tự Luận</th><th style="text-align: right; width: 85px;">Tổng Điểm</th></tr></thead>
+          <thead><tr><th style="text-align: center; width: 55px;">Giải</th><th>Thí Sinh</th><th style="text-align: center; width: 130px; color: #93c5fd;">🎯 Trắc Nghiệm</th><th style="text-align: center; width: 130px; color: #fde047;">✍️ Tự Luận</th><th style="text-align: right; width: 85px;">Tổng Điểm</th></tr></thead>
           <tbody id="teacher-leaderboard-body"></tbody>
         </table>
       </div>
@@ -477,8 +493,8 @@
       const box = document.getElementById('auth-status-box');
       if (!box) return;
       box.style.display = 'block';
-      box.style.background = isSuccess ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)';
-      box.style.color = isSuccess ? '#047857' : '#dc2626';
+      box.style.background = isSuccess ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)';
+      box.style.color = isSuccess ? '#6ee7b7' : '#fca5a5';
       box.style.border = isSuccess ? '1.5px solid #10b981' : '1.5px solid #ef4444';
       box.innerText = msg;
     }
@@ -519,7 +535,7 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td><b>${t.username}</b></td>
-          <td style="color:#b45309; font-weight:700;">${t.password}</td>
+          <td style="color:#ffd166;">${t.password}</td>
           <td style="text-align:right;">
             <button class="btn-edit" onclick="adminResetPass('${t.username}')">Đổi MK</button>
             <button class="btn-delete" onclick="adminDeleteUser('${t.username}')">Xóa</button>
@@ -669,7 +685,7 @@
         const item = document.createElement('div');
         item.className = 'quiz-item';
         item.innerHTML = `
-          <div><strong style="font-size: 14px; color: #b45309;">📌 ${name}</strong></div>
+          <div><strong style="font-size: 14px; color: #ffd166;">📌 ${name}</strong></div>
           <div class="quiz-item-actions">
             <button class="btn-edit" onclick="editQuiz('${name}')">✏️ Sửa</button>
             <button class="btn-delete" onclick="deleteQuiz('${name}')">🗑️ Xóa</button>
@@ -704,7 +720,7 @@
                     <td><b>${s.name}</b></td>
                     <td style="text-align:center;"><small>✅${s.mcCorrect||0} | ❌${s.mcWrong||0}</small></td>
                     <td style="text-align:center;"><small>✅${s.essayCorrect||0} | ❌${s.essayWrong||0}</small></td>
-                    <td style="text-align:right;"><strong style="color:#047857;">${s.score}</strong> đ</td>
+                    <td style="text-align:right;"><strong style="color:#6ee7b7;">${s.score}</strong> đ</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -781,7 +797,7 @@
         if (!titleLabel) {
           titleLabel = document.createElement('div');
           titleLabel.className = 'q-num-label';
-          titleLabel.style.cssText = 'font-weight: 900; color: #b45309; font-size: 13.5px; margin-bottom: 4px;';
+          titleLabel.style.cssText = 'font-weight: 900; color: #ffd166; font-size: 13.5px; margin-bottom: 4px;';
           const typeBox = qBlock.querySelector('div');
           if (typeBox) typeBox.before(titleLabel);
         }
@@ -799,15 +815,15 @@
       const partMaxScore = data && data.maxScore ? data.maxScore : 10;
       pDiv.innerHTML = `
         <button class="btn-delete" style="float:right;" onclick="this.parentElement.remove()">❌ Xóa Phần</button>
-        <label style="font-size: 13px; color: #1e293b;"><strong>Tên Phần:</strong></label>
+        <label style="font-size: 13px;"><strong>Tên Phần:</strong></label>
         <input type="text" class="part-title" value="${partTitle}">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0;">
-          <div style="background: rgba(5, 150, 105, 0.1); border: 1px solid #059669; padding: 10px; border-radius: 12px;">
-            <label style="color: #047857; font-size: 12.5px;">⏱️ <b>Thời gian (Giây):</b></label>
+          <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; padding: 10px; border-radius: 12px;">
+            <label style="color: #6ee7b7; font-size: 12.5px;">⏱️ <b>Thời gian (Giây):</b></label>
             <input type="number" class="part-duration" value="${partDuration}" min="5" style="margin-top: 4px; margin-bottom: 0;">
           </div>
-          <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; padding: 10px; border-radius: 12px;">
-            <label style="color: #b45309; font-size: 12.5px;">⭐ <b>Tổng Điểm Phần:</b></label>
+          <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; padding: 10px; border-radius: 12px;">
+            <label style="color: #fde047; font-size: 12.5px;">⭐ <b>Tổng Điểm Phần:</b></label>
             <input type="number" class="part-max-score" value="${partMaxScore}" min="1" style="margin-top: 4px; margin-bottom: 0;">
           </div>
         </div>
@@ -829,14 +845,14 @@
       qDiv.innerHTML = `
         <button class="btn-delete" style="float:right;" onclick="const p = this.closest('.part-block'); this.parentElement.remove(); updateQuestionNumbers(p);">❌ Xóa</button>
         <div style="margin-bottom: 8px;">
-          <label style="font-size: 12.5px; color: #1e293b;"><strong>Dạng câu hỏi:</strong></label>
+          <label style="font-size: 12.5px;"><strong>Dạng câu hỏi:</strong></label>
           <select class="q-type" onchange="renderQuestionTypeUI(this)">
             <option value="multiple" ${type === 'multiple' ? 'selected' : ''}>Trắc nghiệm A/B/C/D</option>
             <option value="tf" ${type === 'tf' ? 'selected' : ''}>Đúng / Sai</option>
             <option value="short_answer" ${type === 'short_answer' ? 'selected' : ''}>📝 Tự luận (Điền đáp án ngắn)</option>
           </select>
         </div>
-        <label style="font-size: 12.5px; color: #1e293b;">Nội dung câu hỏi:</label>
+        <label style="font-size: 12.5px;">Nội dung câu hỏi:</label>
         <input type="text" class="q-title" value="${title}" placeholder="Nhập câu hỏi...">
         <div class="q-options-area"></div>
       `;
@@ -862,7 +878,7 @@
           <input type="text" class="q-opt1" value="${opt1}" placeholder="Đáp án B (Xanh dương)">
           <input type="text" class="q-opt2" value="${opt2}" placeholder="Đáp án C (Vàng cam)">
           <input type="text" class="q-opt3" value="${opt3}" placeholder="Đáp án D (Xanh ngọc)">
-          <label style="font-size: 12.5px; color: #1e293b;">Đáp án đúng:</label>
+          <label style="font-size: 12.5px;">Đáp án đúng:</label>
           <select class="q-correct">
             <option value="0" ${correct == 0 ? 'selected' : ''}>A</option>
             <option value="1" ${correct == 1 ? 'selected' : ''}>B</option>
@@ -872,7 +888,7 @@
         `;
       } else if (type === 'tf') {
         optionsArea.innerHTML = `
-          <label style="font-size: 12.5px; color: #1e293b;">Đáp án đúng:</label>
+          <label style="font-size: 12.5px;">Đáp án đúng:</label>
           <select class="q-correct">
             <option value="Đúng" ${correct === 'Đúng' ? 'selected' : ''}>Đúng</option>
             <option value="Sai" ${correct === 'Sai' ? 'selected' : ''}>Sai</option>
@@ -880,7 +896,7 @@
         `;
       } else if (type === 'short_answer') {
         optionsArea.innerHTML = `
-          <label style="color: #047857; font-size: 12.5px;"><strong>💡 Các đáp án đúng (Cách nhau bằng dấu | hoặc dấu phẩy):</strong></label>
+          <label style="color: #6ee7b7; font-size: 12.5px;"><strong>💡 Các đáp án đúng (Cách nhau bằng dấu | hoặc dấu phẩy):</strong></label>
           <input type="text" class="q-essay-correct" value="${correct || ''}" placeholder="Ví dụ: Bê-lem | Belem">
         `;
       }
@@ -955,7 +971,7 @@
 
     socket.on('quiz_paused', ({ essaySubmissionsForCurrent }) => {
       const btn = document.getElementById('btn-toggle-pause');
-      if (btn) { btn.innerHTML = '▶️ Tiếp Tục'; btn.style.background = '#d97706'; }
+      if (btn) { btn.innerHTML = '▶️ Tiếp Tục'; btn.style.background = '#f59e0b'; }
       if (currentItemData && currentItemData.question.type === 'short_answer') {
         const liveEssayBox = document.getElementById('teacher-live-essay-review');
         const liveEssayList = document.getElementById('teacher-live-essay-list');
@@ -964,10 +980,10 @@
           if (wrongSubmissions.length > 0) {
             liveEssayBox.style.display = 'block';
             liveEssayList.innerHTML = wrongSubmissions.map(s => `
-              <div style="background: #f8fafc; border-left: 3.5px solid #ef4444; border-radius: 10px; padding: 10px 12px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px;" id="live-review-item-${s.studentId}">
+              <div style="background: rgba(0,0,0,0.35); border-left: 3.5px solid #ef4444; border-radius: 10px; padding: 10px 12px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px;" id="live-review-item-${s.studentId}">
                 <div style="flex: 1;">
-                  <div style="font-size: 13px; color: #64748b;">👤 Thí sinh: <b style="color: #1e293b;">${s.studentName}</b> ${s.mascot ? s.mascot.icon : ''}</div>
-                  <div style="font-size: 14.5px; color: #b45309; font-weight: bold; margin-top: 4px;">Đã điền: "${s.answerText}"</div>
+                  <div style="font-size: 13px; color: #cbd5e1;">👤 Thí sinh: <b style="color: #fff;">${s.studentName}</b> ${s.mascot ? s.mascot.icon : ''}</div>
+                  <div style="font-size: 14.5px; color: #ffd166; font-weight: bold; margin-top: 4px;">Đã điền: "${s.answerText}"</div>
                 </div>
                 <div style="display: flex; gap: 8px;">
                   <button onclick="approveLiveEssay('${s.studentId}', ${s.potentialPoints})" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); padding: 7px 12px; font-size: 12px; white-space: nowrap;">✅ Chấp nhận (+${s.potentialPoints}đ)</button>
@@ -977,7 +993,7 @@
             `).join('');
           } else {
             liveEssayBox.style.display = 'block';
-            liveEssayList.innerHTML = '<div style="color:#047857; font-size:13.5px; text-align:center; font-weight: bold;">🎉 Tất cả học sinh nộp bài đều đã làm đúng!</div>';
+            liveEssayList.innerHTML = '<div style="color:#6ee7b7; font-size:13.5px; text-align:center; font-weight: bold;">🎉 Tất cả học sinh nộp bài đều đã làm đúng!</div>';
           }
         }
       }
@@ -1005,7 +1021,7 @@
       document.getElementById('teacher-timer').innerText = currentRemainingSeconds;
 
       const q = item.question;
-      let html = `<h3 style="margin-top:0; font-size:18.5px; font-weight:800; color:#1e293b;">${q.title}</h3>`;
+      let html = `<h3 style="margin-top:0; font-size:18.5px; font-weight:800; color:#fff;">${q.title}</h3>`;
       if (q.type === 'multiple') {
         const optClasses = ['opt-btn-a', 'opt-btn-b', 'opt-btn-c', 'opt-btn-d'];
         const optPrefix = ['🔴 A', '🔵 B', '🟠 C', '🟢 D'];
@@ -1052,8 +1068,8 @@
       socket.emit('override_essay_live', { roomId: activeRoomId, studentId: studentId, points: points });
       const rowEl = document.getElementById(`live-review-item-${studentId}`);
       if (rowEl) {
-        rowEl.style.borderLeftColor = '#059669'; rowEl.style.background = 'rgba(5, 150, 105, 0.1)';
-        rowEl.innerHTML = `<div style="text-align: center; color: #047857; font-weight: bold; padding: 6px 0; width: 100%;">✅ Đã duyệt đúng (+${points} điểm)</div>`;
+        rowEl.style.borderLeftColor = '#10b981'; rowEl.style.background = 'rgba(16, 185, 129, 0.15)';
+        rowEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 6px 0; width: 100%;">✅ Đã duyệt đúng (+${points} điểm)</div>`;
       }
     }
 
@@ -1111,7 +1127,7 @@
           <td><b>${s.mascot ? s.mascot.icon : '🦁'} ${s.name}</b></td>
           <td style="text-align: center;"><small>✅${s.mcCorrect || 0} | ❌${s.mcWrong || 0}</small></td>
           <td style="text-align: center;"><small>✅${s.essayCorrect || 0} | ❌${s.essayWrong || 0}</small></td>
-          <td style="text-align: right;"><strong style="color: #047857; font-size: 14px;">${s.score}</strong> đ</td>
+          <td style="text-align: right;"><strong style="color: #6ee7b7; font-size: 14px;">${s.score}</strong> đ</td>
         </tr>
       `).join('');
     });
