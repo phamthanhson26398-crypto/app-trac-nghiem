@@ -165,24 +165,40 @@ io.on('connection', (socket) => {
     }
 
     if (role === 'student') {
-      let mascot = ANIMAL_MASCOTS[Math.floor(Math.random() * ANIMAL_MASCOTS.length)];
-      let existing = rooms[roomId].students.find(s => s.deviceToken === deviceToken);
-      if (existing) {
-        existing.id = socket.id;
-        existing.name = name || existing.name;
-        mascot = existing.mascot;
-      } else {
-        rooms[roomId].students.push({ id: socket.id, name: name || 'Thí sinh', mascot: mascot, deviceToken: deviceToken });
-      }
-      socket.emit('my_mascot_assigned', mascot);
-      io.to(roomId).emit('update_students', rooms[roomId].students);
-
-      // 👉 Kiểm tra dựa trên deviceToken cố định của thiết bị xem đã nộp câu này chưa
       const room = rooms[roomId];
+      
+      // 👉 Kiểm tra xem máy này (deviceToken) đã có trong phòng chưa
+      let existing = room.students.find(s => s.deviceToken === deviceToken);
+      let mascot;
+
+      if (existing) {
+        // Nếu đã tồn tại, GIỮ NGUYÊN linh vật cũ và cập nhật socket.id mới
+        existing.id = socket.id;
+        if (name) existing.name = name;
+        mascot = existing.mascot;
+        
+        // Cập nhật luôn socket.id trong bảng điểm (scores) nếu đã tồn tại điểm trước đó
+        if (room.scores[existing.id] || room.scores[socket.id]) {
+          // Gộp dữ liệu điểm nếu cần thiết
+        }
+      } else {
+        // Nếu chưa có, tạo mới linh vật và thêm vào danh sách
+        mascot = ANIMAL_MASCOTS[Math.floor(Math.random() * ANIMAL_MASCOTS.length)];
+        room.students.push({ 
+          id: socket.id, 
+          name: name || 'Thí sinh', 
+          mascot: mascot, 
+          deviceToken: deviceToken 
+        });
+      }
+
+      socket.emit('my_mascot_assigned', mascot);
+      io.to(roomId).emit('update_students', room.students);
+
+      // Nếu phòng đang thi, gửi trạng thái câu hỏi hiện tại cho học sinh F5
       if (room.quizActive && room.currentItem) {
         const q = room.currentItem.question;
-        const studentObj = room.students.find(s => s.id === socket.id);
-        const alreadySubmitted = studentObj && !!room.answersState[studentObj.deviceToken];
+        const alreadySubmitted = !!room.answersState[deviceToken];
 
         socket.emit('question_started', {
           item: room.currentItem,
@@ -222,8 +238,9 @@ io.on('connection', (socket) => {
     room.scores = {};
     room.roomMaxScore = parts.reduce((acc, p) => acc + (p.maxScore || 10), 0);
 
+    // 👉 Dùng deviceToken làm khóa chính để không bị nhân bản học sinh khi tính điểm
     room.students.forEach(s => {
-      room.scores[s.id] = { 
+      room.scores[s.deviceToken] = { 
         id: s.id, 
         deviceToken: s.deviceToken, 
         name: s.name, 
@@ -384,7 +401,6 @@ io.on('connection', (socket) => {
     const student = room.students.find(s => s.id === socket.id);
     if (!student) return;
 
-    // 👉 Khóa trạng thái đã nộp theo deviceToken để chống F5 nộp lại nhiều lần
     room.answersState[student.deviceToken] = {
       studentId: socket.id,
       studentName: student.name,
@@ -394,22 +410,22 @@ io.on('connection', (socket) => {
       answerText: answerText
     };
 
-    if (!room.scores[socket.id]) {
-      room.scores[socket.id] = { id: student.id, deviceToken: student.deviceToken, name: student.name, mascot: student.mascot, score: 0, mcCorrect: 0, mcWrong: 0, essayCorrect: 0, essayWrong: 0, skipped: 0 };
+    if (!room.scores[student.deviceToken]) {
+      room.scores[student.deviceToken] = { id: student.id, deviceToken: student.deviceToken, name: student.name, mascot: student.mascot, score: 0, mcCorrect: 0, mcWrong: 0, essayCorrect: 0, essayWrong: 0, skipped: 0 };
     }
 
     const currentPart = room.quizParts[room.currentItem.partIdx];
     const ptsPerQ = (currentPart.maxScore || 10) / currentPart.questions.length;
 
     if (answerText === '' || answerText === null) {
-      room.scores[socket.id].skipped++;
+      room.scores[student.deviceToken].skipped++;
     } else if (isCorrect) {
-      if (type === 'short_answer') room.scores[socket.id].essayCorrect++;
-      else room.scores[socket.id].mcCorrect++;
-      room.scores[socket.id].score = parseFloat((room.scores[socket.id].score + ptsPerQ).toFixed(1));
+      if (type === 'short_answer') room.scores[student.deviceToken].essayCorrect++;
+      else room.scores[student.deviceToken].mcCorrect++;
+      room.scores[student.deviceToken].score = parseFloat((room.scores[student.deviceToken].score + ptsPerQ).toFixed(1));
     } else {
-      if (type === 'short_answer') room.scores[socket.id].essayWrong++;
-      else room.scores[socket.id].mcWrong++;
+      if (type === 'short_answer') room.scores[student.deviceToken].essayWrong++;
+      else room.scores[student.deviceToken].mcWrong++;
     }
   });
 
