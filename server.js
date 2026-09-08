@@ -394,13 +394,59 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('submit_answer', ({ isCorrect, remainingTime, roomId, type, answerText, questionTitle, teacherAnswers }) => {
+  socket.on('submit_answer', ({ isCorrect, remainingTime, roomId, type, answerText, questionTitle, teacherAnswers, selectedIndex }) => {
     const room = rooms[roomId];
     if (!room || !room.quizActive) return;
 
     const student = room.students.find(s => s.id === socket.id);
     if (!student) return;
 
+    const currentPart = room.quizParts[room.currentItem.partIdx];
+    const ptsPerQ = (currentPart.maxScore || 10) / currentPart.questions.length;
+    const earnedPoints = isCorrect ? ptsPerQ : 0;
+
+    // 🌟 Khởi tạo cấu trúc điểm và lịch sử bài làm chuẩn gốc nếu chưa có
+    if (!room.scores[student.deviceToken]) {
+      room.scores[student.deviceToken] = { 
+        id: student.id, 
+        deviceToken: student.deviceToken, 
+        name: student.name, 
+        mascot: student.mascot, 
+        score: 0, 
+        mcCorrect: 0, 
+        mcWrong: 0, 
+        mcUnanswered: 0,
+        essayCorrect: 0, 
+        essayWrong: 0, 
+        essayUnanswered: 0,
+        skipped: 0,
+        answerHistory: [] 
+      };
+    }
+
+    const studentScoreObj = room.scores[student.deviceToken];
+
+    // 👉 Lưu chi tiết lịch sử trả lời của từng câu hỏi để học sinh xem lại
+    const qIndex = room.currentItem.qIdx;
+    const existingAnsIndex = studentScoreObj.answerHistory.findIndex(h => h.questionIndex === qIndex);
+    
+    const historyItem = {
+      questionIndex: qIndex,
+      type: type,
+      userAnswer: answerText,
+      selectedIndex: selectedIndex !== undefined ? selectedIndex : null,
+      isCorrect: isCorrect,
+      points: earnedPoints,
+      isOverridden: false
+    };
+
+    if (existingAnsIndex >= 0) {
+      studentScoreObj.answerHistory[existingAnsIndex] = historyItem;
+    } else {
+      studentScoreObj.answerHistory.push(historyItem);
+    }
+
+    // Lưu trạng thái nộp bài để chống F5 nộp lại nhiều lần
     room.answersState[student.deviceToken] = {
       studentId: socket.id,
       studentName: student.name,
@@ -410,22 +456,16 @@ io.on('connection', (socket) => {
       answerText: answerText
     };
 
-    if (!room.scores[student.deviceToken]) {
-      room.scores[student.deviceToken] = { id: student.id, deviceToken: student.deviceToken, name: student.name, mascot: student.mascot, score: 0, mcCorrect: 0, mcWrong: 0, essayCorrect: 0, essayWrong: 0, skipped: 0 };
-    }
-
-    const currentPart = room.quizParts[room.currentItem.partIdx];
-    const ptsPerQ = (currentPart.maxScore || 10) / currentPart.questions.length;
-
+    // Tính toán điểm số và số câu đúng/sai
     if (answerText === '' || answerText === null) {
-      room.scores[student.deviceToken].skipped++;
+      studentScoreObj.skipped++;
     } else if (isCorrect) {
-      if (type === 'short_answer') room.scores[student.deviceToken].essayCorrect++;
-      else room.scores[student.deviceToken].mcCorrect++;
-      room.scores[student.deviceToken].score = parseFloat((room.scores[student.deviceToken].score + ptsPerQ).toFixed(1));
+      if (type === 'short_answer') studentScoreObj.essayCorrect++;
+      else studentScoreObj.mcCorrect++;
+      studentScoreObj.score = parseFloat((studentScoreObj.score + ptsPerQ).toFixed(1));
     } else {
-      if (type === 'short_answer') room.scores[student.deviceToken].essayWrong++;
-      else room.scores[student.deviceToken].mcWrong++;
+      if (type === 'short_answer') studentScoreObj.essayWrong++;
+      else studentScoreObj.mcWrong++;
     }
   });
 
