@@ -177,11 +177,13 @@ io.on('connection', (socket) => {
       socket.emit('my_mascot_assigned', mascot);
       io.to(roomId).emit('update_students', rooms[roomId].students);
 
-      // 👉 Kiểm tra nếu phòng đang thi, gửi câu hỏi kèm trạng thái đã nộp hay chưa
+      // 👉 Kiểm tra dựa trên deviceToken cố định của thiết bị xem đã nộp câu này chưa
       const room = rooms[roomId];
       if (room.quizActive && room.currentItem) {
         const q = room.currentItem.question;
-        const alreadySubmitted = !!room.answersState[socket.id]; // Kiểm tra xem đã nộp câu này chưa
+        const studentObj = room.students.find(s => s.id === socket.id);
+        const alreadySubmitted = studentObj && !!room.answersState[studentObj.deviceToken];
+
         socket.emit('question_started', {
           item: room.currentItem,
           duration: room.currentRemainingSeconds || q.duration || 15,
@@ -382,7 +384,8 @@ io.on('connection', (socket) => {
     const student = room.students.find(s => s.id === socket.id);
     if (!student) return;
 
-    room.answersState[socket.id] = {
+    // 👉 Khóa trạng thái đã nộp theo deviceToken để chống F5 nộp lại nhiều lần
+    room.answersState[student.deviceToken] = {
       studentId: socket.id,
       studentName: student.name,
       mascot: student.mascot,
