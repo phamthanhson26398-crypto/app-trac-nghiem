@@ -177,15 +177,17 @@ io.on('connection', (socket) => {
       socket.emit('my_mascot_assigned', mascot);
       io.to(roomId).emit('update_students', rooms[roomId].students);
 
-      // 👉 NẾU PHÒNG ĐANG TRONG TRẬN THI ĐẤU (QUIZ ACTIVE), ĐẨY THẮNG HỌC SINH VÀO ĐÚNG CÂU HỎI HIỆN TẠI
+      // 👉 Kiểm tra nếu phòng đang thi, gửi câu hỏi kèm trạng thái đã nộp hay chưa
       const room = rooms[roomId];
       if (room.quizActive && room.currentItem) {
         const q = room.currentItem.question;
+        const alreadySubmitted = !!room.answersState[socket.id]; // Kiểm tra xem đã nộp câu này chưa
         socket.emit('question_started', {
           item: room.currentItem,
           duration: room.currentRemainingSeconds || q.duration || 15,
           currentIndex: room.currentItem.qIdx,
-          totalQuestions: room.quizParts[room.currentItem.partIdx].questions.length
+          totalQuestions: room.quizParts[room.currentItem.partIdx].questions.length,
+          alreadySubmitted: alreadySubmitted
         });
       }
     }
