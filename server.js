@@ -199,7 +199,18 @@ io.on('connection', (socket) => {
     room.roomMaxScore = parts.reduce((acc, p) => acc + (p.maxScore || 10), 0);
 
     room.students.forEach(s => {
-      room.scores[s.id] = { name: s.name, mascot: s.mascot, score: 0, mcCorrect: 0, mcWrong: 0, essayCorrect: 0, essayWrong: 0 };
+      room.scores[s.id] = { 
+        id: s.id, 
+        deviceToken: s.deviceToken, 
+        name: s.name, 
+        mascot: s.mascot, 
+        score: 0, 
+        mcCorrect: 0, 
+        mcWrong: 0, 
+        essayCorrect: 0, 
+        essayWrong: 0, 
+        skipped: 0 
+      };
     });
 
     runNextQuestion(roomId);
@@ -278,7 +289,6 @@ io.on('connection', (socket) => {
       io.to(roomId).emit('quiz_paused', { essaySubmissionsForCurrent });
     } else {
       io.to(roomId).emit('quiz_resumed');
-      // Tiếp tục đếm giờ
     }
   });
 
@@ -299,13 +309,15 @@ io.on('connection', (socket) => {
     };
 
     if (!room.scores[socket.id]) {
-      room.scores[socket.id] = { name: student.name, mascot: student.mascot, score: 0, mcCorrect: 0, mcWrong: 0, essayCorrect: 0, essayWrong: 0 };
+      room.scores[socket.id] = { id: student.id, deviceToken: student.deviceToken, name: student.name, mascot: student.mascot, score: 0, mcCorrect: 0, mcWrong: 0, essayCorrect: 0, essayWrong: 0, skipped: 0 };
     }
 
     const currentPart = room.quizParts[room.currentItem.partIdx];
     const ptsPerQ = (currentPart.maxScore || 10) / currentPart.questions.length;
 
-    if (isCorrect) {
+    if (answerText === '' || answerText === null) {
+      room.scores[socket.id].skipped++;
+    } else if (isCorrect) {
       if (type === 'short_answer') room.scores[socket.id].essayCorrect++;
       else room.scores[socket.id].mcCorrect++;
       room.scores[socket.id].score = parseFloat((room.scores[socket.id].score + ptsPerQ).toFixed(1));
