@@ -10,7 +10,7 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/canvas-confetti.browser.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -22,7 +22,7 @@
       --bg: #072318;
       --glass-bg: rgba(13, 37, 27, 0.88);
       --glass-card: rgba(255, 255, 255, 0.08);
-      --glass-border: #d4c5b9; /* 🌟 Khung viền bên trong màu Be thanh lịch */
+      --glass-border: #d4c5b9; 
       --text: #ffffff;
       --text-muted: #94a3b8;
     }
@@ -161,7 +161,7 @@
     }
 
     .part-block { background: rgba(0, 0, 0, 0.28); border: 1.5px solid var(--glass-border); padding: 14px; border-radius: 16px; margin-bottom: 14px; }
-    .q-block { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); padding: 12px; border-radius: 13px; margin-bottom: 10px; }
+    .q-block { background: rgba(255, 255, 255, 0.05); border: 1.5px solid var(--glass-border); padding: 12px; border-radius: 13px; margin-bottom: 10px; }
 
     .opt-btn { 
       text-align: left; margin-top: 14px; width: 100%; font-size: 15.5px; font-weight: 700; line-height: 1.4;
@@ -228,7 +228,6 @@
       100% { opacity: 0; transform: translateY(-28px) scale(0.9); }
     }
 
-    /* --- HIỆU ỨNG LINH VẬT Ở PHÒNG CHỜ --- */
     .lobby-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 12px 8px; margin-top: 12px; max-height: 480px; overflow-y: auto; padding: 8px 4px; }
     .lobby-student-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; user-select: none; }
     
@@ -367,6 +366,7 @@
     <p style="color: #cbd5e1; font-size: 14.5px;">Các Thí Sinh hãy đợi một chút nhé!</p>
   </div>
 
+  <!-- MÀN HÌNH CHỌN VAI TRÒ (CHỈ CÒN GLV, HỌC SINH VÀ ADMIN) -->
   <div id="role-screen" class="card" style="max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 style="text-align: center; margin-top: 0; font-size: 22px; font-weight: 900; letter-spacing: -0.3px;">🎯 BẠN LÀ AI?</h2>
@@ -382,10 +382,11 @@
     </button>
   </div>
 
+  <!-- ĐĂNG NHẬP GIÁO LÝ VIÊN (ĐÃ BỎ HOÀN TOÀN TÍNH NĂNG TỰ ĐĂNG KÝ) -->
   <div id="auth-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 id="auth-title" style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
-    <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Mỗi tài khoản sẽ có một Phòng Thi & Mã QR riêng</p>
+    <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Vui lòng nhập tài khoản được cấp bởi Quản Trị Viên</p>
 
     <div id="auth-status-box" style="display: none; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 800; text-align: center; margin-bottom: 12px;"></div>
 
@@ -399,11 +400,6 @@
       <button type="submit" id="auth-submit-btn" style="width: 100%; padding: 13px; font-size: 15px; margin-top: 4px;">Đăng Nhập Ngay</button>
     </form>
 
-    <div style="text-align: center; margin-top: 14px; font-size: 13px;">
-      <span id="auth-toggle-text" style="color: var(--text-muted);">Chưa có tài khoản?</span>
-      <a href="javascript:void(0)" onclick="toggleAuthMode()" style="color: #6ee7b7; font-weight: 800; text-decoration: none; margin-left: 4px;">Đăng Ký Mới</a>
-    </div>
-
     <button onclick="backToRoleScreen()" style="background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.15); width: 100%; margin-top: 12px; box-shadow: none; font-size: 13px;">← Quay Lại</button>
   </div>
 
@@ -412,12 +408,20 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <div>
         <h2 style="margin: 0; font-size: 18px; color: #ffd166;">⚙️ Quản Trị Hệ Thống (Admin)</h2>
-        <small style="color: var(--text-muted); font-size: 12px;">Xem toàn bộ tài khoản đăng ký trên mọi thiết bị</small>
+        <small style="color: var(--text-muted); font-size: 12px;">Quản lý và cấp tài khoản Giáo Lý Viên</small>
       </div>
       <button onclick="backToRoleScreen()" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-size: 12px; padding: 5px 10px; box-shadow: none; border: 1px solid rgba(239, 68, 68, 0.4);">Đăng Xuất</button>
     </div>
+    <div class="sub-panel" style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981;">
+      <h3 style="margin: 0 0 8px 0; font-size: 14.5px; color: #6ee7b7;">➕ Cấp Tài Khoản Mới Cho GLV</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <input type="text" id="admin-new-user" placeholder="Tên tài khoản mới" style="margin-bottom: 0;">
+        <input type="password" id="admin-new-pass" placeholder="Mật khẩu" style="margin-bottom: 0;">
+      </div>
+      <button onclick="adminCreateAccount()" style="width: 100%; margin-top: 10px; background: linear-gradient(180deg, #10b981 0%, #047857 100%); font-size: 13.5px; padding: 10px; box-shadow: 0 2px 0 #064e3b;">✨ Tạo và Cấp Tài Khoản</button>
+    </div>
     <div class="sub-panel">
-      <h3 style="margin: 0 0 8px 0; font-size: 14.5px;">📋 Danh Sách Toàn Bộ GLV Đã Đăng Ký</h3>
+      <h3 style="margin: 0 0 8px 0; font-size: 14.5px;">📋 Danh Sách Toàn Bộ GLV Trong Hệ Thống</h3>
       <table>
         <thead>
           <tr>
@@ -558,7 +562,7 @@
     </button>
   </div>
 
-  <!-- PHÒNG CHỜ LINH VẬT CỦA HỌC SINH (CÓ NHÚN NHẢY & COMMENT CHẬM RÃI 5S) -->
+  <!-- PHÒNG CHỜ LINH VẬT CỦA HỌC SINH -->
   <div id="lobby-screen" class="card" style="display: none; text-align: center; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -581,7 +585,7 @@
     </div>
   </div>
 
-  <!-- MÀN HÌNH LÀM BÀI GỐC CỦA HỌC SINH -->
+  <!-- MÀN HÌNH LÀM BÀI CỦA HỌC SINH -->
   <div id="quiz-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner" style="font-size: 11px; padding: 3px 10px; margin-bottom: 8px;">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -715,7 +719,6 @@
     let localTimerInterval = null;
     let restTransitionInterval = null;
     let currentRemainingSeconds = 0;
-    let isAuthRegisterMode = false;
     let currentItemData = null;
     
     let isSelectedChoiceCorrect = false;
@@ -736,7 +739,6 @@
       "Hồi hộp ghê 💓", "Quyết tâm giật giải 🏅", "Xin nhẹ top 1 😎"
     ];
 
-    // 🌟 Comment vui nhộn ở phòng chờ (chuẩn 5 giây nhịp nhàng)
     setInterval(() => {
       const speechBubbles = document.querySelectorAll('.mascot-speech');
       if (speechBubbles.length === 0) return;
@@ -766,27 +768,50 @@
     function selectRole(role) {
       myRole = role;
       document.getElementById('role-screen').style.display = 'none';
-      if (role === 'teacher') document.getElementById('auth-screen').style.display = 'block';
-      else if (role === 'student') document.getElementById('student-screen').style.display = 'block';
-      else if (role === 'admin') {
+      if (role === 'teacher') {
+        document.getElementById('auth-screen').style.display = 'block';
+      } else if (role === 'student') {
+        // Học sinh chuyển thẳng qua giao diện nhập tên phòng
+        document.getElementById('student-screen').style.display = 'block';
+      } else if (role === 'admin') {
         const adminPass = prompt('Mật khẩu Admin:');
         if (adminPass === 'tnttthaiha') {
           document.getElementById('admin-screen').style.display = 'block';
-          socket.emit('admin_get_users');
+          loadAdminUsers();
         } else {
-          alert('Sai mật khẩu!'); document.getElementById('role-screen').style.display = 'block';
+          alert('Sai mật khẩu!'); 
+          document.getElementById('role-screen').style.display = 'block';
         }
       }
     }
 
-    function toggleAuthMode() {
-      isAuthRegisterMode = !isAuthRegisterMode;
-      const box = document.getElementById('auth-status-box');
-      if (box) box.style.display = 'none';
-      document.getElementById('auth-title').innerText = isAuthRegisterMode ? '📝 Đăng Ký Tài Khoản GLV' : '🔐 Đăng Nhập Giáo Lý Viên';
-      document.getElementById('auth-submit-btn').innerText = isAuthRegisterMode ? 'Tạo Tài Khoản Mới' : 'Đăng Nhập Ngay';
-      document.getElementById('auth-toggle-text').innerText = isAuthRegisterMode ? 'Đã có tài khoản?' : 'Chưa có tài khoản?';
-      document.querySelector('#auth-screen a').innerText = isAuthRegisterMode ? 'Đăng Nhập' : 'Đăng Ký Mới';
+    function loadAdminUsers() {
+      fetch('/api/teachers')
+        .then(res => res.json())
+        .then(list => { renderAdminUserTable(list); })
+        .catch(err => { socket.emit('admin_get_users'); });
+    }
+
+    function renderAdminUserTable(list) {
+      const tbody = document.getElementById('admin-user-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      if (!Array.isArray(list) || list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Chưa có tài khoản nào.</td></tr>';
+        return;
+      }
+      list.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><b>${t.username}</b></td>
+          <td style="color:#ffd166;">${t.password}</td>
+          <td style="text-align:right;">
+            <button class="btn-edit" onclick="adminResetPass('${t.username}')">Đổi MK</button>
+            <button class="btn-delete" onclick="adminDeleteUser('${t.username}')">Xóa</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
     function handleAuthSubmit(event) {
@@ -801,47 +826,54 @@
         return;
       }
       const btn = document.getElementById('auth-submit-btn');
-      if (btn) btn.innerText = '⏳ Đang gửi yêu cầu...';
-
-      if (isAuthRegisterMode) {
-        socket.emit('teacher_register', { username, password: pass });
-      } else {
-        socket.emit('teacher_login', { username, password: pass });
-      }
+      if (btn) btn.innerText = '⏳ Đang đăng nhập...';
+      socket.emit('teacher_login', { username, password: pass });
     }
 
-    socket.on('auth_response', ({ success, message, isRegister, username }) => {
+    socket.on('auth_response', ({ success, message, username }) => {
       const btn = document.getElementById('auth-submit-btn');
-      if (btn) btn.innerText = isAuthRegisterMode ? 'Tạo Tài Khoản Mới' : 'Đăng Nhập Ngay';
-
+      if (btn) btn.innerText = 'Đăng Nhập Ngay';
       if (!success) {
         showAuthNotice(message || '❌ Đăng nhập thất bại.');
         return;
       }
-      
-      if (isRegister) {
-        showAuthNotice(message || 'Đăng ký thành công! Hãy đăng nhập.', true);
-        toggleAuthMode();
-      } else {
-        currentTeacherUser = username; activeRoomId = username;
-        sessionStorage.setItem('tntt_current_teacher', username);
-        document.getElementById('logged-user-name').innerText = username;
-        document.getElementById('teacher-room-id-badge').innerText = activeRoomId;
-        document.getElementById('teacher-room-code-txt').innerText = activeRoomId;
+      currentTeacherUser = username; 
+      activeRoomId = username;
+      sessionStorage.setItem('tntt_current_teacher', username);
+      document.getElementById('logged-user-name').innerText = username;
+      document.getElementById('teacher-room-id-badge').innerText = activeRoomId;
+      document.getElementById('teacher-room-code-txt').innerText = activeRoomId;
 
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('teacher-screen').style.display = 'block';
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('teacher-screen').style.display = 'block';
 
-        generateRoomQRCode(activeRoomId);
-        loadSavedQuizzes();
-        socket.emit('clear_room_students', { roomId: activeRoomId });
-        socket.emit('join_room', { role: 'teacher', roomId: activeRoomId, deviceToken: myDeviceToken });
-      }
+      generateRoomQRCode(activeRoomId);
+      loadSavedQuizzes();
+      renderHistoryUI();
+      socket.emit('clear_room_students', { roomId: activeRoomId });
+      socket.emit('join_room', { role: 'teacher', roomId: activeRoomId, deviceToken: myDeviceToken });
     });
+
+    function adminCreateAccount() {
+      const uInput = document.getElementById('admin-new-user');
+      const pInput = document.getElementById('admin-new-pass');
+      if (!uInput || !pInput) return;
+      const username = uInput.value.trim();
+      const password = pInput.value.trim();
+      if (!username || !password) {
+        alert('⚠️ Vui lòng điền đầy đủ tên tài khoản và mật khẩu!');
+        return;
+      }
+      socket.emit('admin_create_user', { username, password });
+      uInput.value = ''; pInput.value = '';
+      setTimeout(() => { loadAdminUsers(); }, 400);
+      alert(`Đã tạo thành công tài khoản "${username}"!`);
+    }
 
     function backToRoleScreen() {
       document.getElementById('auth-screen').style.display = 'none';
       document.getElementById('admin-screen').style.display = 'none';
+      document.getElementById('teacher-screen').style.display = 'none';
       document.getElementById('student-screen').style.display = 'none';
       document.getElementById('lobby-screen').style.display = 'none';
       document.getElementById('role-screen').style.display = 'block';
@@ -854,39 +886,20 @@
       location.reload();
     }
 
-    socket.on('admin_user_list_update', (users) => {
-      const tbody = document.getElementById('admin-user-table-body');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-      const userList = Object.keys(users);
-      if (userList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Chưa có tài khoản nào.</td></tr>';
-        return;
-      }
-      userList.forEach(u => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><b>${u}</b></td>
-          <td style="color:#ffd166;">${users[u]}</td>
-          <td style="text-align:right;">
-            <button class="btn-edit" onclick="adminResetPass('${u}')">Đổi MK</button>
-            <button class="btn-delete" onclick="adminDeleteUser('${u}')">Xóa</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    });
+    socket.on('admin_user_list_update', (list) => { renderAdminUserTable(list); });
 
     function adminResetPass(username) {
       const newPass = prompt(`Nhập mật khẩu mới cho ${username}:`);
       if (newPass && newPass.trim()) {
         socket.emit('admin_reset_pass', { username, newPass: newPass.trim() });
+        setTimeout(() => { loadAdminUsers(); }, 400);
       }
     }
 
     function adminDeleteUser(username) {
       if (confirm(`Bạn có chắc muốn xóa tài khoản ${username}?`)) {
         socket.emit('admin_delete_user', { username });
+        setTimeout(() => { loadAdminUsers(); }, 400);
       }
     }
 
@@ -961,7 +974,6 @@
     function openQRZoom() { document.getElementById("qr-zoom-modal").style.display = "flex"; }
     function closeQRZoom() { document.getElementById("qr-zoom-modal").style.display = "none"; }
 
-    // 👉 Đảm bảo học sinh khi F5 không bị văng ra mà giữ nguyên trong phòng (Khôi phục hoàn toàn chuẩn gốc)
     window.addEventListener('DOMContentLoaded', () => {
       const savedTeacher = sessionStorage.getItem('tntt_current_teacher');
       if (savedTeacher) {
@@ -1075,7 +1087,6 @@
       localStorage.setItem(getTeacherHistoryStorageKey(), JSON.stringify(historyData));
     }
 
-    // 👉 Tải kho bài thi trực tiếp từ MongoDB Atlas
     function loadSavedQuizzes() {
       socket.emit('get_teacher_quizzes', { username: currentTeacherUser });
     }
@@ -1414,7 +1425,6 @@
 
     function togglePauseQuiz() { socket.emit('toggle_pause', { roomId: activeRoomId }); }
 
-    // 👉 ĐỒNG BỘ HIỂN THỊ DANH SÁCH LỚP CẢ GLV LẪN HỌC SINH (CÓ NHÚN NHẢY)
     socket.on('update_students', (students) => {
       const gridHTML = students.map(s => `
         <div class="lobby-student-chip">
@@ -1482,16 +1492,11 @@
         if (liveEssayBox) liveEssayBox.style.display = 'none';
       }
     });
-    // 👇 THÊM 2 SỰ KIỆN NÀY VÀO NGAY ĐÂY:
-    socket.on('timer_paused', () => {
-      isClientPaused = true;
-    });
 
-    socket.on('timer_resumed', () => {
-      isClientPaused = false;
-    });
+    socket.on('timer_paused', () => { isClientPaused = true; });
+    socket.on('timer_resumed', () => { isClientPaused = false; });
 
-// 👉 BẮT ĐẦU CÂU HỎI (CHUẨN CẤU TRÚC GỐC, ĐÃ FIX CHỐNG GIAN LẬN NỘP NHIỀU LẦN KHI F5)
+    // 👉 BẮT ĐẦU CÂU HỎI (ĐÃ TÍCH HỢP CỜ ALREADY SUBMITTED CHỐNG F5 NỘP NHIỀU LẦN)
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions, alreadySubmitted }) => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
@@ -1499,8 +1504,6 @@
       currentRemainingSeconds = duration;
       currentItemData = item;
       isSelectedChoiceCorrect = false; hasSelectedAnOption = false; 
-      
-      // 👉 Kiểm tra nếu F5 lại mà server báo đã nộp rồi thì khóa trạng thái nộp luôn
       hasSubmittedCurrentQuestion = !!alreadySubmitted; 
       currentSelectedIndex = null;
 
@@ -1827,7 +1830,7 @@
         document.getElementById('teacher-result-view').style.display = 'none';
         document.getElementById('student-result-view').style.display = 'block';
 
-        const myRecord = leaderboard.find(s => s.id === socket.id);
+        const myRecord = leaderboard.find(s => s.id === socket.id || s.deviceToken === myDeviceToken);
         const score = myRecord ? myRecord.score : 0;
         document.getElementById('my-student-name').innerText = currentStudentName || 'Em';
         document.getElementById('my-final-score').innerText = score;
