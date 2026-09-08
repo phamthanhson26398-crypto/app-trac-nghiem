@@ -1537,9 +1537,12 @@
         const optClasses = ['opt-btn-a', 'opt-btn-b', 'opt-btn-c', 'opt-btn-d'];
         const optPrefix = ['🔴 A', '🔵 B', '🟠 C', '🟢 D'];
         q.options.forEach((opt, optIdx) => {
-          const isCorrect = (optIdx == q.correct);
+          // 🌟 Ép kiểu String để so sánh chính xác tuyệt đối 100%, không bị lệch kiểu dữ liệu từ server/MongoDB
+          const isCorrect = (String(optIdx) === String(q.correct));
           const btnClass = optClasses[optIdx] || 'opt-btn-a';
-          if (opt) html += `<button class="opt-btn ${btnClass}" data-is-correct="${isCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isCorrect}, this, ${optIdx})"` : 'style="pointer-events:none;"'}><b>${optPrefix[optIdx]}:</b> ${opt}</button>`;
+          if (opt) {
+            html += `<button class="opt-btn ${btnClass}" data-is-correct="${isCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isCorrect}, this, ${optIdx})"` : 'style="pointer-events:none;"'}><b>${optPrefix[optIdx]}:</b> ${opt}</button>`;
+          }
         });
       } else if (q.type === 'tf') {
         const isTrueCorrect = (q.correct === 'Đúng');
@@ -1602,7 +1605,6 @@
             }
           }
         } else {
-          // 👉 HIỆN SÁNG ĐÁP ÁN ĐÚNG VÀ TÔ MÀU BÁO SAI KHI HẾT GIỜ CHO TRẮC NGHIỆM
           const optButtons = document.querySelectorAll('#quiz-screen .opt-btn');
           optButtons.forEach(b => {
             const isCorrect = b.getAttribute('data-is-correct') === 'true';
@@ -1622,17 +1624,6 @@
           if (isCorrect) { b.classList.add('reveal-correct'); if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅'; }
           else { b.style.opacity = '0.35'; }
         });
-
-        if (currentItemData && currentItemData.question.type === 'short_answer') {
-          const screenBox = document.getElementById('teacher-student-like-screen');
-          if (screenBox && !document.getElementById('teacher-essay-answer-banner')) {
-            const banner = document.createElement('div');
-            banner.id = 'teacher-essay-answer-banner';
-            banner.style.cssText = 'margin-top: 12px; background: rgba(16, 185, 129, 0.2); border: 1.5px solid #10b981; padding: 10px; border-radius: 10px; color: #6ee7b7; font-weight: 800; text-align: center;';
-            banner.innerHTML = `🎯 <b>ĐÁP ÁN:</b> <span style="color:#ffd166;">${currentItemData.question.correct}</span>`;
-            screenBox.appendChild(banner);
-          }
-        }
       }
 
       let restSeconds = 10;
