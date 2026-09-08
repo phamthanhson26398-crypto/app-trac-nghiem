@@ -1533,28 +1533,31 @@
       const q = item.question;
       let html = `<h3 style="margin-top:0; font-size:18.5px; font-weight:800; color:#fff;">${q.title}</h3>`;
 
+      // 🌟 Dự phòng an toàn: Hỗ trợ cả thuộc tính q.correct lẫn các biến thể khác nếu có trong database cũ
+      const correctVal = q.correct !== undefined ? q.correct : (q.answer !== undefined ? q.answer : 0);
+
       if (q.type === 'multiple') {
         const optClasses = ['opt-btn-a', 'opt-btn-b', 'opt-btn-c', 'opt-btn-d'];
         const optPrefix = ['🔴 A', '🔵 B', '🟠 C', '🟢 D'];
         q.options.forEach((opt, optIdx) => {
-          // 🌟 Ép kiểu String để so sánh chính xác tuyệt đối 100%, không bị lệch kiểu dữ liệu từ server/MongoDB
-          const isCorrect = (String(optIdx) === String(q.correct));
+          // Ép kiểu String an toàn tuyệt đối để so sánh chính xác 100%
+          const isCorrect = (String(optIdx) === String(correctVal));
           const btnClass = optClasses[optIdx] || 'opt-btn-a';
           if (opt) {
             html += `<button class="opt-btn ${btnClass}" data-is-correct="${isCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isCorrect}, this, ${optIdx})"` : 'style="pointer-events:none;"'}><b>${optPrefix[optIdx]}:</b> ${opt}</button>`;
           }
         });
       } else if (q.type === 'tf') {
-        const isTrueCorrect = (q.correct === 'Đúng');
-        const isFalseCorrect = (q.correct === 'Sai');
+        const isTrueCorrect = (String(correctVal).trim().toLowerCase() === 'đúng');
+        const isFalseCorrect = (String(correctVal).trim().toLowerCase() === 'sai');
         html += `<button class="opt-btn opt-btn-d" data-is-correct="${isTrueCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isTrueCorrect}, this, 'Đúng')"` : 'style="pointer-events:none;"'}>🟢 Đúng</button>
                  <button class="opt-btn opt-btn-a" data-is-correct="${isFalseCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isFalseCorrect}, this, 'Sai')"` : 'style="pointer-events:none;"'}>🔴 Sai</button>`;
       } else if (q.type === 'short_answer') {
         if (myRole !== 'teacher') {
-        html += `
-          <label style="font-weight: 800; color: #6ee7b7; font-size: 13.5px;">✍️ Nhập câu trả lời của em:</label>
-          <input type="text" id="student-essay-input" placeholder="Gõ câu trả lời..." class="essay-input-box" autocomplete="off" ${alreadySubmitted ? 'disabled' : ''}>
-        `;
+          html += `
+            <label style="font-weight: 800; color: #6ee7b7; font-size: 13.5px;">✍️ Nhập câu trả lời của em:</label>
+            <input type="text" id="student-essay-input" placeholder="Gõ câu trả lời..." class="essay-input-box" autocomplete="off" ${alreadySubmitted ? 'disabled' : ''}>
+          `;
         }
       }
 
