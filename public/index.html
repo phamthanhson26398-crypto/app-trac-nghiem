@@ -1602,11 +1602,17 @@
             }
           }
         } else {
+          // 👉 HIỆN SÁNG ĐÁP ÁN ĐÚNG VÀ TÔ MÀU BÁO SAI KHI HẾT GIỜ CHO TRẮC NGHIỆM
           const optButtons = document.querySelectorAll('#quiz-screen .opt-btn');
           optButtons.forEach(b => {
             const isCorrect = b.getAttribute('data-is-correct') === 'true';
-            if (isCorrect) { b.classList.add('reveal-correct'); if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅'; }
-            else { if (b.classList.contains('selected')) b.classList.add('reveal-wrong'); else b.style.opacity = '0.35'; }
+            if (isCorrect) { 
+              b.classList.add('reveal-correct'); 
+              if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅'; 
+            } else { 
+              if (b.classList.contains('selected')) b.classList.add('reveal-wrong'); 
+              else b.style.opacity = '0.35'; 
+            }
           });
         }
       } else {
