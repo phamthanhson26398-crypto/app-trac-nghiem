@@ -1482,6 +1482,14 @@
         if (liveEssayBox) liveEssayBox.style.display = 'none';
       }
     });
+    // 👇 THÊM 2 SỰ KIỆN NÀY VÀO NGAY ĐÂY:
+    socket.on('timer_paused', () => {
+      isClientPaused = true;
+    });
+
+    socket.on('timer_resumed', () => {
+      isClientPaused = false;
+    });
 
     // 👉 BẮT ĐẦU CÂU HỎI (CHUẨN CẤU TRÚC GỐC, KHÔNG BỊ TREO ĐỒNG HỒ)
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
