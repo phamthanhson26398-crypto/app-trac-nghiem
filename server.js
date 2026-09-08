@@ -272,20 +272,41 @@ io.on('connection', (socket) => {
       if (room.currentPartIdx >= room.quizParts.length) {
         room.quizActive = false;
         const leaderboard = Object.values(room.scores);
-        io.to(roomId).emit('quiz_ended', { quizName: room.quizName, leaderboard });
+        
+        // 👉 Gom toàn bộ danh sách câu hỏi kèm theo để gửi cho học sinh xem lại
+        let allQuestionsList = [];
+        room.quizParts.forEach((part) => {
+          part.questions.forEach((qu, qIdx) => {
+            allQuestionsList.push({
+              partTitle: part.title,
+              questionIndex: qIdx + 1,
+              question: qu
+            });
+          });
+        });
+
+        io.to(roomId).emit('quiz_ended', { quizName: room.quizName, leaderboard, allQuestions: allQuestionsList });
         return;
       }
       return runNextQuestion(roomId);
     }
 
     const q = currentPart.questions[room.currentQIdx];
+    
+    // 🌟 ÉP KIỂU ĐÁP ÁN ĐÚNG (q.correct) VỀ KIỂU SỐ NGUYÊN (INT) NẾU LÀ TRẮC NGHIỆM A/B/C/D
+    // Giúp phía giao diện client nhận diện chính xác 100% đáp án đúng để tô sáng màu xanh khi hết giờ
+    let formattedQuestion = { ...q };
+    if (formattedQuestion.type === 'multiple' && formattedQuestion.correct !== undefined) {
+      formattedQuestion.correct = parseInt(formattedQuestion.correct, 10);
+    }
+
     room.currentItem = { 
       partIdx: room.currentPartIdx, 
       partTitle: currentPart.title,
       qIdx: room.currentQIdx, 
       questionIndex: room.currentQIdx + 1,
       totalQuestionsInPart: currentPart.questions.length,
-      question: q 
+      question: formattedQuestion 
     };
     room.answersState = {}; // Reset trạng thái nộp bài của câu mới
     room.currentRemainingSeconds = q.duration || 15;
@@ -481,7 +502,21 @@ io.on('connection', (socket) => {
     const room = rooms[roomId];
     if (!room) return;
     const leaderboard = Object.values(room.scores);
-    io.to(roomId).emit('results_revealed', { leaderboard, quizName: room.quizName });
+    
+    let allQuestionsList = [];
+    if (room.quizParts) {
+      room.quizParts.forEach((part) => {
+        part.questions.forEach((qu, qIdx) => {
+          allQuestionsList.push({
+            partTitle: part.title,
+            questionIndex: qIdx + 1,
+            question: qu
+          });
+        });
+      });
+    }
+
+    io.to(roomId).emit('results_revealed', { leaderboard, quizName: room.quizName, allQuestions: allQuestionsList });
   });
 
   socket.on('disconnect', () => {
