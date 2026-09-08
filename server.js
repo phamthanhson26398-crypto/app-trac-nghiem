@@ -240,7 +240,6 @@ io.on('connection', (socket) => {
     const room = rooms[roomId];
     if (!room || !room.quizActive) return;
 
-    // Xóa triệt để các bộ hẹn giờ cũ
     if (room.timer) { clearInterval(room.timer); room.timer = null; }
     if (room.nextQTimeout) { clearTimeout(room.nextQTimeout); room.nextQTimeout = null; }
     room.isPaused = false;
@@ -267,7 +266,7 @@ io.on('connection', (socket) => {
       totalQuestionsInPart: currentPart.questions.length,
       question: q 
     };
-    room.answersState = {};
+    room.answersState = {}; // Reset trạng thái nộp bài của câu mới
     room.currentRemainingSeconds = q.duration || 15;
 
     io.to(roomId).emit('question_started', {
