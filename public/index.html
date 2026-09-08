@@ -1491,14 +1491,17 @@
       isClientPaused = false;
     });
 
-    // 👉 BẮT ĐẦU CÂU HỎI (CHUẨN CẤU TRÚC GỐC, KHÔNG BỊ TREO ĐỒNG HỒ)
-    socket.on('question_started', ({ item, duration, currentIndex, totalQuestions }) => {
+// 👉 BẮT ĐẦU CÂU HỎI (CHUẨN CẤU TRÚC GỐC, ĐÃ FIX CHỐNG GIAN LẬN NỘP NHIỀU LẦN KHI F5)
+    socket.on('question_started', ({ item, duration, currentIndex, totalQuestions, alreadySubmitted }) => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
 
       currentRemainingSeconds = duration;
       currentItemData = item;
-      isSelectedChoiceCorrect = false; hasSelectedAnOption = false; hasSubmittedCurrentQuestion = false;
+      isSelectedChoiceCorrect = false; hasSelectedAnOption = false; 
+      
+      // 👉 Kiểm tra nếu F5 lại mà server báo đã nộp rồi thì khóa trạng thái nộp luôn
+      hasSubmittedCurrentQuestion = !!alreadySubmitted; 
       currentSelectedIndex = null;
 
       document.getElementById('result-screen').style.display = 'none';
@@ -1533,25 +1536,27 @@
         q.options.forEach((opt, optIdx) => {
           const isCorrect = (optIdx == q.correct);
           const btnClass = optClasses[optIdx] || 'opt-btn-a';
-          if (opt) html += `<button class="opt-btn ${btnClass}" data-is-correct="${isCorrect}" type="button" ${myRole === 'student' ? `onclick="selectChoice(${isCorrect}, this, ${optIdx})"` : 'style="pointer-events:none;"'}><b>${optPrefix[optIdx]}:</b> ${opt}</button>`;
+          if (opt) html += `<button class="opt-btn ${btnClass}" data-is-correct="${isCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isCorrect}, this, ${optIdx})"` : 'style="pointer-events:none;"'}><b>${optPrefix[optIdx]}:</b> ${opt}</button>`;
         });
       } else if (q.type === 'tf') {
         const isTrueCorrect = (q.correct === 'Đúng');
         const isFalseCorrect = (q.correct === 'Sai');
-        html += `<button class="opt-btn opt-btn-d" data-is-correct="${isTrueCorrect}" type="button" ${myRole === 'student' ? `onclick="selectChoice(${isTrueCorrect}, this, 'Đúng')"` : 'style="pointer-events:none;"'}>🟢 Đúng</button>
-                 <button class="opt-btn opt-btn-a" data-is-correct="${isFalseCorrect}" type="button" ${myRole === 'student' ? `onclick="selectChoice(${isFalseCorrect}, this, 'Sai')"` : 'style="pointer-events:none;"'}>🔴 Sai</button>`;
+        html += `<button class="opt-btn opt-btn-d" data-is-correct="${isTrueCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isTrueCorrect}, this, 'Đúng')"` : 'style="pointer-events:none;"'}>🟢 Đúng</button>
+                 <button class="opt-btn opt-btn-a" data-is-correct="${isFalseCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isFalseCorrect}, this, 'Sai')"` : 'style="pointer-events:none;"'}>🔴 Sai</button>`;
       } else if (q.type === 'short_answer') {
         if (myRole !== 'teacher') {
         html += `
           <label style="font-weight: 800; color: #6ee7b7; font-size: 13.5px;">✍️ Nhập câu trả lời của em:</label>
-          <input type="text" id="student-essay-input" placeholder="Gõ câu trả lời..." class="essay-input-box" autocomplete="off">
+          <input type="text" id="student-essay-input" placeholder="Gõ câu trả lời..." class="essay-input-box" autocomplete="off" ${alreadySubmitted ? 'disabled' : ''}>
         `;
         }
       }
 
       if (myRole === 'student') {
-        html += `<button id="btn-submit" class="btn-submit-answer" type="button" onclick="submitCurrentAnswer()">📤 NỘP ĐÁP ÁN</button>`;
-        html += `<div id="waiting-box" class="waiting-status-box" style="display: none;">⏳ ĐÃ GHI NHẬN ĐÁP ÁN! ĐANG CHỜ HẾT THỜI GIAN...</div>`;
+        if (!alreadySubmitted) {
+          html += `<button id="btn-submit" class="btn-submit-answer" type="button" onclick="submitCurrentAnswer()">📤 NỘP ĐÁP ÁN</button>`;
+        }
+        html += `<div id="waiting-box" class="waiting-status-box" style="display: ${alreadySubmitted ? 'block' : 'none'}; background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.5);">✅ <b>BẠN ĐÃ NỘP BÀI CÂU NÀY RỒI!</b> Đang chờ hết thời gian...</div>`;
         html += `<div id="essay-reveal-box" style="display: none; margin-top: 12px; padding: 12px; border-radius: 14px; font-weight: 800; font-size: 13.5px; text-align: center;"></div>`;
         document.getElementById('questions-container').innerHTML = html;
       } else {
