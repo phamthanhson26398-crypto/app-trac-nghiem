@@ -278,6 +278,8 @@ io.on('connection', (socket) => {
       if (room.isPaused) return;
 
       room.currentRemainingSeconds--;
+      
+      // Nếu hết thời gian của câu hỏi hiện tại
       if (room.currentRemainingSeconds <= 0) {
         clearInterval(room.timer);
         room.timer = null;
@@ -288,18 +290,18 @@ io.on('connection', (socket) => {
             room.currentQIdx++;
             runNextQuestion(roomId);
           }
-        }, 10000);
+        }, 10000); // 10 giây nghỉ giữa các câu
       }
     }, 1000);
   }
 
-  // 👉 XỬ LÝ TẠM DỪNG & TIẾP TỤC DỨT ĐIỂM
+  // 👉 SỰ KIỆN TẠM DỪNG & TIẾP TỤC ĐÃ ĐƯỢC CỐ ĐỊNH CHUẨN XÁC
   socket.on('toggle_pause', ({ roomId }) => {
     const room = rooms[roomId];
     if (!room || !room.quizActive) return;
 
     if (!room.isPaused) {
-      // 🛑 BẤM TẠM DỪNG: Dừng tất cả bộ đếm và lưu lại số giây hiện tại
+      // 🛑 BẤM TẠM DỪNG: Đóng băng toàn bộ bộ đếm và giữ nguyên `currentRemainingSeconds`
       room.isPaused = true;
       if (room.timer) { clearInterval(room.timer); room.timer = null; }
       if (room.nextQTimeout) { clearTimeout(room.nextQTimeout); room.nextQTimeout = null; }
@@ -326,12 +328,12 @@ io.on('connection', (socket) => {
       io.to(roomId).emit('timer_paused');
       io.to(roomId).emit('quiz_paused', { essaySubmissionsForCurrent });
     } else {
-      // ▶️ BẤM TIẾP TỤC: Tiếp tục chạy đúng từ số giây còn lại (không bị reset hay ép 3 giây)
+      // ▶️ BẤM TIẾP TỤC: Chạy tiếp đúng từ số giây hiện tại đang được giữ lại trên server
       room.isPaused = false;
       io.to(roomId).emit('timer_resumed');
       io.to(roomId).emit('quiz_resumed');
 
-      // Cho phép đồng hồ tiếp tục chạy vòng lặp với chính xác số giây `room.currentRemainingSeconds` đang giữ
+      // Tiếp tục đếm ngược từ đúng `room.currentRemainingSeconds` hiện tại
       startQuestionTimer(roomId);
     }
   });
