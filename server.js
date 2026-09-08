@@ -266,8 +266,13 @@ io.on('connection', (socket) => {
     const room = rooms[roomId];
     if (!room) return;
     if (room.timer) {
+      // 🛑 Đang chạy -> Bấm tạm dừng
       clearInterval(room.timer);
       room.timer = null;
+      
+      // 👉 Gửi thông báo dừng đồng hồ đến toàn bộ phòng thi (cả GLV và Học sinh)
+      io.to(roomId).emit('timer_paused');
+
       let essaySubmissionsForCurrent = [];
       if (room.currentItem && room.currentItem.question.type === 'short_answer') {
         const qMaxScore = room.quizParts[room.currentItem.partIdx].maxScore || 10;
@@ -288,7 +293,23 @@ io.on('connection', (socket) => {
       }
       io.to(roomId).emit('quiz_paused', { essaySubmissionsForCurrent });
     } else {
+      // ▶️ Đang tạm dừng -> Bấm tiếp tục (Chạy lại đồng hồ đếm ngược từ thời gian còn lại)
+      io.to(roomId).emit('timer_resumed');
       io.to(roomId).emit('quiz_resumed');
+      
+      // Khởi động lại vòng lặp đếm giờ trên server
+      room.timer = setInterval(() => {
+        room.currentRemainingSeconds = (room.currentRemainingSeconds || 15) - 1;
+        if (room.currentRemainingSeconds <= 0) {
+          clearInterval(room.timer);
+          room.timer = null;
+          io.to(roomId).emit('question_time_up');
+          setTimeout(() => {
+            room.currentQIdx++;
+            runNextQuestion(roomId);
+          }, 10000);
+        }
+      }, 1000);
     }
   });
 
