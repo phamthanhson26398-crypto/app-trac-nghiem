@@ -22,7 +22,7 @@
       --bg: #072318;
       --glass-bg: rgba(13, 37, 27, 0.88);
       --glass-card: rgba(255, 255, 255, 0.08);
-      --glass-border: #d4c5b9; /* Viền trong màu Be thanh lịch */
+      --glass-border: #d4c5b9; 
       --text: #ffffff;
       --text-muted: #94a3b8;
     }
@@ -96,7 +96,6 @@
     #qrcode img { margin: auto; width: 100px !important; height: 100px !important; }
     #xu-doan-logo { width: 120px; height: auto; margin-top: 15px; border-radius: 30px; }
 
-    /* --- HIỆU ỨNG LINH VẬT Ở PHÒNG CHỜ --- */
     .lobby-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 12px 8px; margin-top: 12px; max-height: 480px; overflow-y: auto; padding: 8px 4px; }
     .lobby-student-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; user-select: none; }
     
@@ -336,7 +335,7 @@
       </div>
     </div>
 
-    <!-- MÀN HÌNH LÀM BÀI ĐÚNG GỐC CỦA HỌC SINH (ĐỒNG HỒ KHÔNG BỊ DỪNG SỚM) -->
+    <!-- MÀN HÌNH LÀM BÀI CỦA HỌC SINH -->
     <div id="student-quiz-section" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
         <span id="student-q-progress" style="font-size: 13.5px; font-weight: 800; color: #6ee7b7;">Câu số --</span>
@@ -348,7 +347,7 @@
       <div id="student-answer-feedback" style="text-align: center; margin-top: 14px; font-weight: 800; font-size: 15px;"></div>
     </div>
 
-    <!-- MÀN HÌNH KẾT QUẢ ĐẦY ĐỦ CỦA HỌC SINH -->
+    <!-- MÀN HÌNH KẾT QUẢ ĐẦY ĐỦ (ĐÃ FIX KHỚP SỐ LIỆU ĐÚNG, SAI, BỎ QUA) -->
     <div id="student-result-section" style="display: none; text-align: center; padding: 20px 0;">
       <h2 style="color: #ffd166; font-size: 24px; margin-bottom: 6px;">🎉 HOÀN THÀNH BÀI THI!</h2>
       <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">Cảm ơn bạn đã tham gia bài kiểm tra.</p>
@@ -440,7 +439,6 @@
     let studentTimeLeft = 0;
     let selectedStudentAnswer = null;
     let hasSubmittedCurrent = false;
-    let studentStats = { correct: 0, wrong: 0, skipped: 0 };
 
     // --- QUẢN LÝ HIỆU ỨNG COMMENT VUI NHỘN Ở PHÒNG CHỜ ---
     const FUNNY_COMMENTS = [
@@ -639,7 +637,6 @@
 
       activeRoomId = roomId;
       myRole = 'student';
-      studentStats = { correct: 0, wrong: 0, skipped: 0 };
       
       sessionStorage.setItem('tntt_current_student_room', activeRoomId);
       sessionStorage.setItem('tntt_current_student_name', name);
@@ -679,7 +676,7 @@
       const submitBtn = document.getElementById('student-submit-btn');
       if (submitBtn) submitBtn.style.display = 'none';
 
-      // 👉 ĐỒNG HỒ ĐẾM NGƯỢC CHẠY CHUẨN XÁC TỪNG GIÂY
+      // 👉 ĐỒNG HỒ ĐẾM NGƯỢC CHẠY CHUẨN XÁC, KHÔNG BỊ DỪNG SỚM
       if (studentTimerInterval) clearInterval(studentTimerInterval);
       studentTimerInterval = setInterval(() => {
         studentTimeLeft--;
@@ -740,7 +737,7 @@
     function submitStudentAnswer() {
       if (hasSubmittedCurrent) return;
       hasSubmittedCurrent = true;
-      // ⚠️ CHÚ Ý: KHÔNG XÓA `studentTimerInterval` Ở ĐÂY ĐỂ ĐỒNG HỒ CỦA CÂU VẪN CHẠY BÌNH THƯỜNG TRÊN MÀN HÌNH CHỜ HẾT GIỜ
+      // 👉 HỌC SINH NỘP BÀI THÌ ẨN NÚT NỘP NHƯNG ĐỒNG HỒ VẪN CHẠY TIẾP ĐẾN HẾT GIỜ CÂU HỎI
 
       const submitBtn = document.getElementById('student-submit-btn');
       if (submitBtn) submitBtn.style.display = 'none';
@@ -763,15 +760,6 @@
         isCorrect = acceptable.includes(answerText.toLowerCase());
       }
 
-      // Thống kê cá nhân
-      if (selectedStudentAnswer === null && answerText === '') {
-        studentStats.skipped++;
-      } else if (isCorrect) {
-        studentStats.correct++;
-      } else {
-        studentStats.wrong++;
-      }
-
       const feedback = document.getElementById('student-answer-feedback');
       if (isCorrect) {
         feedback.innerHTML = '<span style="color:#6ee7b7; font-size:18px;">✅ ĐÃ NỘP - CHÍNH XÁC!</span>';
@@ -779,7 +767,6 @@
         feedback.innerHTML = '<span style="color:#ef4444; font-size:18px;">❌ ĐÃ NỘP - CHƯA CHÍNH XÁC!</span>';
       }
 
-      // Hiện đáp án đúng ngay sau khi nộp
       const buttons = document.querySelectorAll('#student-options-container .opt-btn');
       buttons.forEach((b, idx) => {
         b.style.pointerEvents = 'none';
@@ -799,12 +786,16 @@
     // Khi hết giờ câu hỏi
     socket.on('question_time_up', () => {
       if (!hasSubmittedCurrent) {
-        studentStats.skipped++;
         hasSubmittedCurrent = true;
         if (studentTimerInterval) clearInterval(studentTimerInterval);
         const submitBtn = document.getElementById('student-submit-btn');
         if (submitBtn) submitBtn.style.display = 'none';
         document.getElementById('student-answer-feedback').innerHTML = '<span style="color:#f59e0b; font-size:18px;">⏰ HẾT GIỜ - BỎ QUA!</span>';
+        
+        socket.emit('submit_answer', {
+          isCorrect: false, remainingTime: 0, roomId: activeRoomId,
+          type: currentItemData.question.type, answerText: '', questionTitle: currentItemData.question.title, teacherAnswers: currentItemData.question.correct
+        });
       }
       
       let restSecs = 10;
@@ -814,6 +805,28 @@
         document.getElementById('student-q-timer').innerText = `⏳ Nghỉ: ${Math.max(0, restSecs)}s`;
         if (restSecs <= 0) clearInterval(restTimer);
       }, 1000);
+    });
+
+    // --- KẾT QUẢ CUỐI BÀI CỦA HỌC SINH (HIỂN THỊ ĐỦ ĐÚNG, SAI, BỎ QUA VÀ ĐIỂM SỐ) ---
+    socket.on('quiz_ended', ({ quizName, leaderboard }) => {
+      if (myRole === 'student') {
+        document.getElementById('student-quiz-section').style.display = 'none';
+        document.getElementById('student-result-section').style.display = 'block';
+        
+        const me = leaderboard.find(s => s.id === socket.id || s.deviceToken === myDeviceToken);
+        if (me) {
+          document.getElementById('student-final-score-display').innerText = `${me.score} đ`;
+          document.getElementById('student-res-correct').innerText = (me.mcCorrect || 0) + (me.essayCorrect || 0);
+          document.getElementById('student-res-wrong').innerText = (me.mcWrong || 0) + (me.essayWrong || 0);
+          document.getElementById('student-res-skipped').innerText = me.skipped || 0;
+        }
+        return;
+      }
+      if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
+      if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
+      document.getElementById('teacher-screen').style.display = 'none';
+      document.getElementById('result-screen').style.display = 'block';
+      document.getElementById('suspense-container').style.display = 'block';
     });
 
     // --- KHO BÀI THI LƯU TRÊN MÂY (MONGODB ATLAS) ---
@@ -1244,88 +1257,6 @@
       }, 1000);
     });
 
-    socket.on('quiz_ended', ({ quizName, leaderboard }) => {
-      if (myRole === 'student') {
-        document.getElementById('student-quiz-section').style.display = 'none';
-        document.getElementById('student-result-section').style.display = 'block';
-        const me = leaderboard.find(s => s.id === socket.id || s.deviceToken === myDeviceToken);
-        if (me) {
-          document.getElementById('student-final-score-display').innerText = `${me.score} đ`;
-          document.getElementById('student-res-correct').innerText = studentStats.correct;
-          document.getElementById('student-res-wrong').innerText = studentStats.wrong;
-          document.getElementById('student-res-skipped').innerText = studentStats.skipped;
-        }
-        return;
-      }
-      if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
-      if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
-      document.getElementById('teacher-screen').style.display = 'none';
-      document.getElementById('result-screen').style.display = 'block';
-      document.getElementById('suspense-container').style.display = 'block';
-    });
-
-    function revealWinnerCeremony() { socket.emit('reveal_results', { roomId: activeRoomId }); }
-
-    socket.on('results_revealed', ({ leaderboard, quizName }) => {
-      document.getElementById('suspense-container').style.display = 'none';
-      const sortedList = leaderboard.sort((a, b) => b.score - a.score);
-      const rankedResults = sortedList.map((item, index) => ({ ...item, rank: index + 1 }));
-      
-      document.getElementById('champion-stage').style.display = 'block';
-      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-
-      const rank1El = document.getElementById('podium-rank-1');
-      const rank2El = document.getElementById('podium-rank-2');
-      const rank3El = document.getElementById('podium-rank-3');
-      rank1El.style.display = 'none'; rank2El.style.display = 'none'; rank3El.style.display = 'none';
-
-      const r1 = rankedResults.filter(s => s.rank === 1);
-      const r2 = rankedResults.filter(s => s.rank === 2);
-      const r3 = rankedResults.filter(s => s.rank === 3);
-
-      if (r1.length > 0) {
-        rank1El.style.display = 'flex';
-        document.getElementById('podium-avatar-1').innerText = r1[0].mascot ? r1[0].mascot.icon : '🦁';
-        document.getElementById('podium-name-1').innerText = r1[0].name;
-        document.getElementById('podium-score-1').innerText = `${r1[0].score} đ`;
-      }
-      if (r2.length > 0) {
-        rank2El.style.display = 'flex';
-        document.getElementById('podium-avatar-2').innerText = r2[0].mascot ? r2[0].mascot.icon : '🥈';
-        document.getElementById('podium-name-2').innerText = r2[0].name;
-        document.getElementById('podium-score-2').innerText = `${r2[0].score} đ`;
-      }
-      if (r3.length > 0) {
-        rank3El.style.display = 'flex';
-        document.getElementById('podium-avatar-3').innerText = r3[0].mascot ? r3[0].mascot.icon : '🥉';
-        document.getElementById('podium-name-3').innerText = r3[0].name;
-        document.getElementById('podium-score-3').innerText = `${r3[0].score} đ`;
-      }
-
-      saveHistoryRecord(quizName, leaderboard);
-      document.getElementById('teacher-result-view').style.display = 'block';
-      document.getElementById('teacher-leaderboard-body').innerHTML = rankedResults.map(s => `
-        <tr>
-          <td style="text-align: center;">#${s.rank}</td>
-          <td><b>${s.mascot ? s.mascot.icon : '🦁'} ${s.name}</b></td>
-          <td style="text-align: center;"><small>✅${s.mcCorrect || 0} | ❌${s.mcWrong || 0}</small></td>
-          <td style="text-align: center;"><small>✅${s.essayCorrect || 0} | ❌${s.essayWrong || 0}</small></td>
-          <td style="text-align: right;"><strong style="color: #6ee7b7; font-size: 14px;">${s.score}</strong> đ</td>
-        </tr>
-      `).join('');
-    });
-
-    function backToTeacherDashboard() {
-      document.getElementById('result-screen').style.display = 'none';
-      document.getElementById('teacher-screen').style.display = 'block';
-      const btn = document.getElementById('start-btn');
-      if (btn) { btn.disabled = false; btn.innerText = '🚀 BẮT ĐẦU PHÁT ĐỀ'; }
-      const liveBox = document.getElementById('teacher-live-box');
-      if (liveBox) liveBox.style.display = 'none';
-      loadSavedQuizzes();
-      renderHistoryUI();
-    }
-
     window.addEventListener('DOMContentLoaded', () => {
       // 1. Phục hồi trạng thái đăng nhập cho Giáo Lý Viên
       const savedTeacher = sessionStorage.getItem('tntt_current_teacher');
@@ -1346,7 +1277,7 @@
         return;
       }
 
-      // 2. Tự động phục hồi phiên của học sinh (Nếu F5 trang sẽ giữ nguyên trong phòng)
+      // 2. Tự động phục hồi phiên của học sinh
       const savedStudentRoom = sessionStorage.getItem('tntt_current_student_room');
       const savedStudentName = sessionStorage.getItem('tntt_current_student_name');
       
