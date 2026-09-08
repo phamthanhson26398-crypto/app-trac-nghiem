@@ -1533,23 +1533,30 @@
       const q = item.question;
       let html = `<h3 style="margin-top:0; font-size:18.5px; font-weight:800; color:#fff;">${q.title}</h3>`;
 
-      // 🌟 Dự phòng an toàn: Hỗ trợ cả thuộc tính q.correct lẫn các biến thể khác nếu có trong database cũ
-      const correctVal = q.correct !== undefined ? q.correct : (q.answer !== undefined ? q.answer : 0);
-
       if (q.type === 'multiple') {
         const optClasses = ['opt-btn-a', 'opt-btn-b', 'opt-btn-c', 'opt-btn-d'];
         const optPrefix = ['🔴 A', '🔵 B', '🟠 C', '🟢 D'];
-        q.options.forEach((opt, optIdx) => {
-          // Ép kiểu String an toàn tuyệt đối để so sánh chính xác 100%
-          const isCorrect = (String(optIdx) === String(correctVal));
+        
+        // Dùng optionsWithMeta được chuẩn bị sẵn từ server, hoặc fallback về mảng thô nếu có
+        const optionsList = q.optionsWithMeta || q.options.map((opt, idx) => ({
+          text: opt,
+          isCorrect: String(idx) === String(q.correct)
+        }));
+
+        optionsList.forEach((optObj, optIdx) => {
+          const isCorrect = optObj.isCorrect;
+          const optText = optObj.text;
           const btnClass = optClasses[optIdx] || 'opt-btn-a';
-          if (opt) {
-            html += `<button class="opt-btn ${btnClass}" data-is-correct="${isCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isCorrect}, this, ${optIdx})"` : 'style="pointer-events:none;"'}><b>${optPrefix[optIdx]}:</b> ${opt}</button>`;
+          
+          if (optText) {
+            html += `<button class="opt-btn ${btnClass}" data-is-correct="${isCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isCorrect}, this, ${optIdx})"` : 'style="pointer-events:none;"'}><b>${optPrefix[optIdx]}:</b> ${optText}</button>`;
           }
         });
       } else if (q.type === 'tf') {
-        const isTrueCorrect = (String(correctVal).trim().toLowerCase() === 'đúng');
-        const isFalseCorrect = (String(correctVal).trim().toLowerCase() === 'sai');
+        const correctVal = String(q.correct || '').trim().toLowerCase();
+        const isTrueCorrect = (correctVal === 'đúng' || correctVal === 'true' || correctVal === '1');
+        const isFalseCorrect = (correctVal === 'sai' || correctVal === 'false' || correctVal === '0');
+        
         html += `<button class="opt-btn opt-btn-d" data-is-correct="${isTrueCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isTrueCorrect}, this, 'Đúng')"` : 'style="pointer-events:none;"'}>🟢 Đúng</button>
                  <button class="opt-btn opt-btn-a" data-is-correct="${isFalseCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isFalseCorrect}, this, 'Sai')"` : 'style="pointer-events:none;"'}>🔴 Sai</button>`;
       } else if (q.type === 'short_answer') {
