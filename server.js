@@ -26,15 +26,14 @@ mongoose.connect(MONGODB_URI, {
   console.error('❌ Lỗi kết nối MongoDB:', err);
 });
 
-// 2. KHAI BÁO MODEL TEACHER (CÓ THÊM TRƯỜNG LƯU KHO BÀI THI TRÊN MÂY)
+// 2. KHAI BÁO MODEL TEACHER
 const teacherSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  quizzes: { type: Object, default: {} } // Lưu kho bài thi trực tiếp trên database
+  quizzes: { type: Object, default: {} }
 });
 const Teacher = mongoose.model('Teacher', teacherSchema);
 
-// API HTTP lấy danh sách giáo lý viên cho Admin
 app.get('/api/teachers', async (req, res) => {
   try {
     const list = await Teacher.find({}, { username: 1, password: 1, _id: 0 });
@@ -61,7 +60,6 @@ const ANIMAL_MASCOTS = [
 io.on('connection', (socket) => {
   const deviceToken = socket.handshake.query.deviceToken;
 
-  // --- XỬ LÝ ĐĂNG NHẬP & TÀI KHOẢN GIÁO LÝ VIÊN ---
   socket.on('teacher_login', async ({ username, password }) => {
     try {
       const cleanUser = (username || '').trim();
@@ -125,7 +123,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // --- ĐỒNG BỘ KHO BÀI THI TRÊN MÂY (MONGODB ATLAS) ---
   socket.on('get_teacher_quizzes', async ({ username }) => {
     try {
       const teacher = await Teacher.findOne({ username });
@@ -146,7 +143,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // --- QUẢN LÝ PHÒNG THI VÀ SOCKET TRÒ CHƠI ---
   socket.on('join_room', ({ role, roomId, name }) => {
     if (!roomId) return;
     socket.join(roomId);
@@ -154,7 +150,18 @@ io.on('connection', (socket) => {
     socket.role = role;
 
     if (!rooms[roomId]) {
-      rooms[roomId] = { students: [], quizActive: false, currentPartIdx: 0, currentQIdx: 0, timer: null, scores: {}, answersState: {} };
+      rooms[roomId] = { 
+        students: [], 
+        quizActive: false, 
+        currentPartIdx: 0, 
+        currentQIdx: 0, 
+        timer: null, 
+        nextQTimeout: null,
+        currentRemainingSeconds: 0,
+        isPaused: false,
+        scores: {}, 
+        answersState: {} 
+      };
     }
 
     if (role === 'student') {
@@ -193,6 +200,7 @@ io.on('connection', (socket) => {
     room.quizParts = parts;
     room.quizName = quizName;
     room.quizActive = true;
+    room.isPaused = false;
     room.currentPartIdx = 0;
     room.currentQIdx = 0;
     room.scores = {};
@@ -220,12 +228,16 @@ io.on('connection', (socket) => {
     const room = rooms[roomId];
     if (!room || !room.quizActive) return;
 
+    // Xóa triệt để các bộ hẹn giờ cũ
+    if (room.timer) { clearInterval(room.timer); room.timer = null; }
+    if (room.nextQTimeout) { clearTimeout(room.nextQTimeout); room.nextQTimeout = null; }
+    room.isPaused = false;
+
     const currentPart = room.quizParts[room.currentPartIdx];
     if (!currentPart || room.currentQIdx >= currentPart.questions.length) {
       room.currentPartIdx++;
       room.currentQIdx = 0;
       if (room.currentPartIdx >= room.quizParts.length) {
-        // Hết bài thi
         room.quizActive = false;
         const leaderboard = Object.values(room.scores);
         io.to(roomId).emit('quiz_ended', { quizName: room.quizName, leaderboard });
@@ -235,43 +247,62 @@ io.on('connection', (socket) => {
     }
 
     const q = currentPart.questions[room.currentQIdx];
-    room.currentItem = { partIdx: room.currentPartIdx, qIdx: room.currentQIdx, question: q };
+    room.currentItem = { 
+      partIdx: room.currentPartIdx, 
+      partTitle: currentPart.title,
+      qIdx: room.currentQIdx, 
+      questionIndex: room.currentQIdx + 1,
+      totalQuestionsInPart: currentPart.questions.length,
+      question: q 
+    };
     room.answersState = {};
+    room.currentRemainingSeconds = q.duration || 15;
 
     io.to(roomId).emit('question_started', {
       item: room.currentItem,
-      duration: q.duration || 15,
+      duration: room.currentRemainingSeconds,
       currentIndex: room.currentQIdx,
       totalQuestions: currentPart.questions.length
     });
 
-    let timeLeft = q.duration || 15;
+    startQuestionTimer(roomId);
+  }
+
+  function startQuestionTimer(roomId) {
+    const room = rooms[roomId];
+    if (!room) return;
+
     if (room.timer) clearInterval(room.timer);
 
     room.timer = setInterval(() => {
-      timeLeft--;
-      if (timeLeft <= 0) {
+      if (room.isPaused) return;
+
+      room.currentRemainingSeconds--;
+      if (room.currentRemainingSeconds <= 0) {
         clearInterval(room.timer);
+        room.timer = null;
         io.to(roomId).emit('question_time_up');
 
-        setTimeout(() => {
-          room.currentQIdx++;
-          runNextQuestion(roomId);
-        }, 10000); // Nghỉ 10 giây giữa các câu
+        room.nextQTimeout = setTimeout(() => {
+          if (!room.isPaused) {
+            room.currentQIdx++;
+            runNextQuestion(roomId);
+          }
+        }, 10000);
       }
     }, 1000);
   }
 
+  // 👉 XỬ LÝ TẠM DỪNG & TIẾP TỤC DỨT ĐIỂM
   socket.on('toggle_pause', ({ roomId }) => {
     const room = rooms[roomId];
-    if (!room) return;
-    if (room.timer) {
-      // 🛑 Đang chạy -> Bấm tạm dừng
-      clearInterval(room.timer);
-      room.timer = null;
-      
-      // 👉 Gửi thông báo dừng đồng hồ đến toàn bộ phòng thi (cả GLV và Học sinh)
-      io.to(roomId).emit('timer_paused');
+    if (!room || !room.quizActive) return;
+
+    if (!room.isPaused) {
+      // 🛑 BẤM TẠM DỪNG
+      room.isPaused = true;
+      if (room.timer) { clearInterval(room.timer); room.timer = null; }
+      if (room.nextQTimeout) { clearTimeout(room.nextQTimeout); room.nextQTimeout = null; }
 
       let essaySubmissionsForCurrent = [];
       if (room.currentItem && room.currentItem.question.type === 'short_answer') {
@@ -291,25 +322,24 @@ io.on('connection', (socket) => {
           }
         });
       }
+
+      io.to(roomId).emit('timer_paused');
       io.to(roomId).emit('quiz_paused', { essaySubmissionsForCurrent });
     } else {
-      // ▶️ Đang tạm dừng -> Bấm tiếp tục (Chạy lại đồng hồ đếm ngược từ thời gian còn lại)
+      // ▶️ BẤM TIẾP TỤC
+      room.isPaused = false;
       io.to(roomId).emit('timer_resumed');
       io.to(roomId).emit('quiz_resumed');
-      
-      // Khởi động lại vòng lặp đếm giờ trên server
-      room.timer = setInterval(() => {
-        room.currentRemainingSeconds = (room.currentRemainingSeconds || 15) - 1;
-        if (room.currentRemainingSeconds <= 0) {
-          clearInterval(room.timer);
-          room.timer = null;
-          io.to(roomId).emit('question_time_up');
-          setTimeout(() => {
-            room.currentQIdx++;
-            runNextQuestion(roomId);
-          }, 10000);
-        }
-      }, 1000);
+
+      if (room.currentRemainingSeconds > 0) {
+        startQuestionTimer(roomId);
+      } else {
+        // Nếu đã hết giờ từ trước đó thì đợi 3s rồi nhảy câu mới
+        room.nextQTimeout = setTimeout(() => {
+          room.currentQIdx++;
+          runNextQuestion(roomId);
+        }, 3000);
+      }
     }
   });
 
