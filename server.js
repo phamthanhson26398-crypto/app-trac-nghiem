@@ -299,7 +299,7 @@ io.on('connection', (socket) => {
     if (!room || !room.quizActive) return;
 
     if (!room.isPaused) {
-      // 🛑 BẤM TẠM DỪNG
+      // 🛑 BẤM TẠM DỪNG: Dừng tất cả bộ đếm và lưu lại số giây hiện tại
       room.isPaused = true;
       if (room.timer) { clearInterval(room.timer); room.timer = null; }
       if (room.nextQTimeout) { clearTimeout(room.nextQTimeout); room.nextQTimeout = null; }
@@ -326,20 +326,13 @@ io.on('connection', (socket) => {
       io.to(roomId).emit('timer_paused');
       io.to(roomId).emit('quiz_paused', { essaySubmissionsForCurrent });
     } else {
-      // ▶️ BẤM TIẾP TỤC
+      // ▶️ BẤM TIẾP TỤC: Tiếp tục chạy đúng từ số giây còn lại (không bị reset hay ép 3 giây)
       room.isPaused = false;
       io.to(roomId).emit('timer_resumed');
       io.to(roomId).emit('quiz_resumed');
 
-      if (room.currentRemainingSeconds > 0) {
-        startQuestionTimer(roomId);
-      } else {
-        // Nếu đã hết giờ từ trước đó thì đợi 3s rồi nhảy câu mới
-        room.nextQTimeout = setTimeout(() => {
-          room.currentQIdx++;
-          runNextQuestion(roomId);
-        }, 3000);
-      }
+      // Cho phép đồng hồ tiếp tục chạy vòng lặp với chính xác số giây `room.currentRemainingSeconds` đang giữ
+      startQuestionTimer(roomId);
     }
   });
 
