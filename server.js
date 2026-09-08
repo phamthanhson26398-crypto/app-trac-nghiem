@@ -176,6 +176,18 @@ io.on('connection', (socket) => {
       }
       socket.emit('my_mascot_assigned', mascot);
       io.to(roomId).emit('update_students', rooms[roomId].students);
+
+      // 👉 NẾU PHÒNG ĐANG TRONG TRẬN THI ĐẤU (QUIZ ACTIVE), ĐẨY THẮNG HỌC SINH VÀO ĐÚNG CÂU HỎI HIỆN TẠI
+      const room = rooms[roomId];
+      if (room.quizActive && room.currentItem) {
+        const q = room.currentItem.question;
+        socket.emit('question_started', {
+          item: room.currentItem,
+          duration: room.currentRemainingSeconds || q.duration || 15,
+          currentIndex: room.currentItem.qIdx,
+          totalQuestions: room.quizParts[room.currentItem.partIdx].questions.length
+        });
+      }
     }
   });
 
