@@ -1841,13 +1841,25 @@
     function toggleStudentReviewModal() {
       isStudentReviewOpen = !isStudentReviewOpen;
       const box = document.getElementById('student-answers-review-container');
-      if (isStudentReviewOpen) box.style.display = 'block';
-      else box.style.display = 'none';
+      if (!box) return;
+      if (isStudentReviewOpen) {
+        box.style.display = 'block';
+        // Tự động cuộn mượt xuống dưới để học sinh thấy nội dung xem lại ngay
+        box.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        box.style.display = 'none';
+      }
     }
 
     function renderStudentReviewUI(studentData) {
       const container = document.getElementById('student-answers-review-container');
-      if (!container || !studentData || !allQuizQuestionsList) return;
+      if (!container) return;
+      
+      // Nếu chưa có dữ liệu lịch sử hoặc danh sách câu hỏi thì báo đang cập nhật
+      if (!studentData || !allQuizQuestionsList || allQuizQuestionsList.length === 0) {
+        container.innerHTML = `<div style="padding: 12px; color: #ffd166; font-size: 13.5px; text-align: center;">Đang đồng bộ dữ liệu bài làm...</div>`;
+        return;
+      }
 
       const historyList = studentData.answerHistory || [];
       let html = '';
@@ -1863,18 +1875,18 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
               <div style="font-size: 12px; color: #ffd166; font-weight: 800;">${qItem.partTitle} - Câu ${qItem.questionIndex}</div>
               <div style="font-size: 12.5px; font-weight: 900; color: ${earnedPoints > 0 ? '#6ee7b7' : '#fca5a5'}; background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 8px; border: 1px solid var(--glass-border);">
-                ⭐ Điểm đạt được: ${earnedPoints} đ
+                ⭐ Điểm: ${earnedPoints} đ
               </div>
             </div>
-            <div style="font-size: 15px; font-weight: 800; margin-bottom: 8px;">${q.title}</div>
+            <div style="font-size: 15px; font-weight: 800; margin-bottom: 8px; color: #fff;">${q.title}</div>
         `;
 
         if (q.type === 'multiple') {
           const optPrefix = ['A', 'B', 'C', 'D'];
           q.options.forEach((optText, optIdx) => {
             if (!optText) return;
-            const isThisCorrect = (optIdx == q.correct);
-            const isStudentChosen = studentAns && (studentAns.selectedIndex === optIdx);
+            const isThisCorrect = (String(optIdx) === String(q.correct));
+            const isStudentChosen = studentAns && (String(studentAns.selectedIndex) === String(optIdx));
             
             let itemClass = 'review-opt-item';
             let badge = '';
@@ -1926,7 +1938,7 @@
 
           html += `
             <div style="background: rgba(255,255,255,0.06); padding: 10px; border-radius: 12px; margin-top: 6px;">
-              <div style="font-size: 13.5px; margin-bottom: 6px;">
+              <div style="font-size: 13.5px; margin-bottom: 6px; color: #fff;">
                 ✍️ Câu trả lời của em: 
                 <b style="color: ${isCorrect ? '#6ee7b7' : '#fca5a5'};">"${userVal}"</b>
                 ${isCorrect && !isOverridden ? ' ✅' : ''}
