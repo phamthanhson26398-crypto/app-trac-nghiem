@@ -366,7 +366,7 @@
     <p style="color: #cbd5e1; font-size: 14.5px;">Các Thí Sinh hãy đợi một chút nhé!</p>
   </div>
 
-  <!-- MÀN HÌNH CHỌN VAI TRÒ (CHỈ CÒN GLV, HỌC SINH VÀ ADMIN) -->
+  <!-- MÀN HÌNH CHỌN VAI TRÒ -->
   <div id="role-screen" class="card" style="max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 style="text-align: center; margin-top: 0; font-size: 22px; font-weight: 900; letter-spacing: -0.3px;">🎯 BẠN LÀ AI?</h2>
@@ -382,7 +382,7 @@
     </button>
   </div>
 
-  <!-- ĐĂNG NHẬP GIÁO LÝ VIÊN (ĐÃ BỎ HOÀN TOÀN TÍNH NĂNG TỰ ĐĂNG KÝ) -->
+  <!-- ĐĂNG NHẬP GIÁO LÝ VIÊN -->
   <div id="auth-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <h2 id="auth-title" style="text-align: center; margin: 0 0 4px 0; font-weight: 900; font-size: 20px;">🔐 Đăng Nhập Giáo Lý Viên</h2>
@@ -403,6 +403,7 @@
     <button onclick="backToRoleScreen()" style="background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.15); width: 100%; margin-top: 12px; box-shadow: none; font-size: 13px;">← Quay Lại</button>
   </div>
 
+  <!-- MÀN HÌNH ADMIN -->
   <div id="admin-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -449,7 +450,7 @@
 
     <!-- BỐ CỤC 3 CỘT -->
     <div class="teacher-dashboard-layout">
-      <!-- CỘT 1: MÃ QR & LOGO -->
+      <!-- CỘT 1 -->
       <div style="text-align: center;">
         <div id="qrcode-box">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
@@ -462,7 +463,7 @@
         <img id="xu-doan-logo" src="/logo-xu-doan.png" alt="Logo Xứ Đoàn" style="width: 180px; height: auto; margin-top: 30px; border-radius: 10px;">
       </div>
 
-      <!-- CỘT 2: KHO BÀI THI, SOẠN ĐỀ, BẢNG ĐIỂM VÀ NÚT PHÁT ĐỀ -->
+      <!-- CỘT 2 -->
       <div>
         <div class="quiz-manager">
           <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -506,7 +507,7 @@
         </div>
       </div>
 
-      <!-- CỘT 3: SỐ NGƯỜI VÀ LOGO NĂM HỌC -->
+      <!-- CỘT 3 -->
       <div style="display: flex; flex-direction: column; gap: 16px;">
         <div style="background: rgba(0, 0, 0, 0.28); border: 1.5px dashed var(--glass-border); padding: 14px; border-radius: 18px; min-height: 250px;">
           <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1);">
@@ -536,7 +537,7 @@
       
       <div id="teacher-student-like-screen" style="text-align: left; background: rgba(0,0,0,0.35); padding: 18px; border-radius: 16px; border: 1.5px solid rgba(255,255,255,0.12);"></div>
 
-      <!-- KHUNG CHẤM TỰ LUẬN TRỰC TIẾP KHI BẤM TẠM DỪNG -->
+      <!-- KHUNG CHẤM TỰ LUẬN TRỰC TIẾP -->
       <div id="teacher-live-essay-review" style="display: none; margin-top: 16px; background: rgba(0,0,0,0.65); border: 2px solid #f59e0b; border-radius: 16px; padding: 16px; text-align: left;">
         <h4 style="color: #ffd166; margin: 0 0 6px 0; font-size: 16px;">✍️ Kiểm Tra Lại Đáp Án Tự Luận:</h4>
         <div id="teacher-live-essay-list" style="max-height: 320px; overflow-y: auto; margin-top: 10px;"></div>
@@ -562,7 +563,7 @@
     </button>
   </div>
 
-  <!-- PHÒNG CHỜ LINH VẬT CỦA HỌC SINH -->
+  <!-- PHÒNG CHỜ LINH VẬT -->
   <div id="lobby-screen" class="card" style="display: none; text-align: center; max-width: 680px; margin: auto;">
     <div class="header-banner">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -585,7 +586,7 @@
     </div>
   </div>
 
-  <!-- MÀN HÌNH LÀM BÀI CỦA HỌC SINH -->
+  <!-- MÀN HÌNH LÀM BÀI -->
   <div id="quiz-screen" class="card" style="display: none; max-width: 680px; margin: auto;">
     <div class="header-banner" style="font-size: 11px; padding: 3px 10px; margin-bottom: 8px;">Thiếu Nhi Thánh Thể Việt Nam</div>
     
@@ -1495,7 +1496,7 @@
     socket.on('timer_paused', () => { isClientPaused = true; });
     socket.on('timer_resumed', () => { isClientPaused = false; });
 
-    // 👉 BẮT ĐẦU CÂU HỎI (ĐÃ TÍCH HỢP ĐÚNG CHUẨN ĐỂ SÁNG ĐÈN ĐÁP ÁN ĐÚNG KHI HẾT GIỜ)
+    // BẮT ĐẦU CÂU HỎI
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions, alreadySubmitted }) => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
@@ -1537,20 +1538,14 @@
         const optPrefix = ['🔴 A', '🔵 B', '🟠 C', '🟢 D'];
         
         q.options.forEach((optText, optIdx) => {
-          // 👉 So sánh chuẩn xác giữa chỉ số nút bấm và q.correct từ server
-          const isCorrect = (String(optIdx) === String(q.correct));
           const btnClass = optClasses[optIdx] || 'opt-btn-a';
-          
           if (optText) {
-            html += `<button class="opt-btn ${btnClass}" data-is-correct="${isCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isCorrect}, this, ${optIdx})"` : 'style="pointer-events:none;"'}><b>${optPrefix[optIdx]}:</b> ${optText}</button>`;
+            html += `<button class="opt-btn ${btnClass}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(this, ${optIdx})"` : 'style="pointer-events:none;"'}><b>${optPrefix[optIdx]}:</b> ${optText}</button>`;
           }
         });
       } else if (q.type === 'tf') {
-        const isTrueCorrect = (String(q.correct).trim().toLowerCase() === 'đúng');
-        const isFalseCorrect = (String(q.correct).trim().toLowerCase() === 'sai');
-        
-        html += `<button class="opt-btn opt-btn-d" data-is-correct="${isTrueCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isTrueCorrect}, this, 'Đúng')"` : 'style="pointer-events:none;"'}>🟢 Đúng</button>
-                 <button class="opt-btn opt-btn-a" data-is-correct="${isFalseCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isFalseCorrect}, this, 'Sai')"` : 'style="pointer-events:none;"'}>🔴 Sai</button>`;
+        html += `<button class="opt-btn opt-btn-d" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(this, 'Đúng')"` : 'style="pointer-events:none;"'}>🟢 Đúng</button>
+                 <button class="opt-btn opt-btn-a" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(this, 'Sai')"` : 'style="pointer-events:none;"'}>🔴 Sai</button>`;
       } else if (q.type === 'short_answer') {
         if (myRole !== 'teacher') {
           html += `
@@ -1580,20 +1575,27 @@
       }, 1000);
     });
 
+    // 🌟 SỰ KIỆN HẾT GIỜ (QUÉT TRỰC TIẾP CHỈ SỐ ĐỂ HIỆN SÁNG ĐÈN ĐÁP ÁN ĐÚNG CHUẨN 100%)
     socket.on('question_time_up', () => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (myRole === 'student') document.getElementById('timer').innerText = '0';
       if (myRole === 'teacher') document.getElementById('teacher-timer').innerText = '0';
 
-      // 🌟 GIẢI PHÁP TỐI ƯU TẬN GỐC: Quét tất cả các nút và so sánh trực tiếp chỉ số với q.correct
       const correctVal = currentItemData && currentItemData.question ? currentItemData.question.correct : null;
 
       const processButtonsReveal = (containerSelector) => {
         const buttons = document.querySelectorAll(`${containerSelector} .opt-btn`);
         buttons.forEach((b, optIdx) => {
-          // So sánh trực tiếp chỉ số nút (optIdx) với đáp án đúng từ server
-          const isReallyCorrect = (String(optIdx) === String(correctVal));
-          
+          let isReallyCorrect = false;
+          const qType = currentItemData.question.type;
+
+          if (qType === 'multiple') {
+            isReallyCorrect = (String(optIdx) === String(correctVal));
+          } else if (qType === 'tf') {
+            const btnText = b.innerText.includes('Đúng') ? 'Đúng' : 'Sai';
+            isReallyCorrect = (String(btnText).trim().toLowerCase() === String(correctVal).trim().toLowerCase());
+          }
+
           if (isReallyCorrect) {
             b.classList.add('reveal-correct');
             if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅';
@@ -1633,7 +1635,6 @@
         }
       } 
       
-      // Kích hoạt đồng thời cho màn hình giáo viên
       processButtonsReveal('#teacher-student-like-screen');
 
       let restSeconds = 10;
@@ -1684,11 +1685,21 @@
       if (rowEl) { rowEl.style.opacity = '0'; setTimeout(() => rowEl.remove(), 300); }
     }
 
-    function selectChoice(isCorrect, element, selectedIdx) {
+    function selectChoice(element, selectedIdx) {
       if (hasSubmittedCurrentQuestion || currentRemainingSeconds <= 0 || isClientPaused) return;
-      isSelectedChoiceCorrect = isCorrect;
+      
+      const correctVal = currentItemData.question.correct;
+      const qType = currentItemData.question.type;
+
+      if (qType === 'multiple') {
+        isSelectedChoiceCorrect = (String(selectedIdx) === String(correctVal));
+      } else if (qType === 'tf') {
+        isSelectedChoiceCorrect = (String(selectedIdx).trim().toLowerCase() === String(correctVal).trim().toLowerCase());
+      }
+
       hasSelectedAnOption = true;
       currentSelectedIndex = selectedIdx;
+
       if (element.tagName === 'BUTTON') {
         element.parentNode.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
         element.classList.add('selected');
