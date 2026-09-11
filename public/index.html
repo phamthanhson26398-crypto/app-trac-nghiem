@@ -1607,6 +1607,7 @@
             }
           }
         } else {
+          // 👉 Quét toàn bộ nút trắc nghiệm trên màn hình học sinh
           const optButtons = document.querySelectorAll('#quiz-screen .opt-btn');
           optButtons.forEach(b => {
             const isCorrect = b.getAttribute('data-is-correct') === 'true';
@@ -1619,12 +1620,19 @@
             }
           });
         }
-      } else {
-        const teacherOptButtons = document.querySelectorAll('#teacher-student-like-screen .opt-btn');
+      } 
+      
+      // 👉 Bổ sung quét đồng thời cả màn hình theo dõi của Giáo viên (giúp GLV cũng thấy sáng đèn đáp án đúng)
+      const teacherOptButtons = document.querySelectorAll('#teacher-student-like-screen .opt-btn');
+      if (teacherOptButtons && teacherOptButtons.length > 0) {
         teacherOptButtons.forEach(b => {
           const isCorrect = b.getAttribute('data-is-correct') === 'true';
-          if (isCorrect) { b.classList.add('reveal-correct'); if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅'; }
-          else { b.style.opacity = '0.35'; }
+          if (isCorrect) { 
+            b.classList.add('reveal-correct'); 
+            if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅'; 
+          } else { 
+            b.style.opacity = '0.35'; 
+          }
         });
       }
 
