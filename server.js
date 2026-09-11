@@ -292,15 +292,19 @@ io.on('connection', (socket) => {
 
     const q = currentPart.questions[room.currentQIdx];
     
-    // 🌟 Chuẩn hóa đáp án đúng: Tự động đổi 'A','B','C','D' hoặc chuỗi thành số index (0,1,2,3) để khớp với giao diện
+    // 🌟 Chuẩn hóa toàn diện đáp án đúng cho cả Trắc nghiệm lẫn Đúng/Sai
     let formattedQuestion = JSON.parse(JSON.stringify(q));
     if (formattedQuestion.type === 'multiple' && formattedQuestion.correct !== undefined) {
       const c = String(formattedQuestion.correct).trim().toUpperCase();
-      if (c === 'A') formattedQuestion.correct = 0;
-      else if (c === 'B') formattedQuestion.correct = 1;
-      else if (c === 'C') formattedQuestion.correct = 2;
-      else if (c === 'D') formattedQuestion.correct = 3;
+      if (c === 'A' || c === '0') formattedQuestion.correct = 0;
+      else if (c === 'B' || c === '1') formattedQuestion.correct = 1;
+      else if (c === 'C' || c === '2') formattedQuestion.correct = 2;
+      else if (c === 'D' || c === '3') formattedQuestion.correct = 3;
       else formattedQuestion.correct = parseInt(formattedQuestion.correct, 10) || 0;
+    } else if (formattedQuestion.type === 'tf' && formattedQuestion.correct !== undefined) {
+      const c = String(formattedQuestion.correct).trim().toLowerCase();
+      if (c === 'đúng' || c === 'true' || c === '1' || c === 'dung') formattedQuestion.correct = 'Đúng';
+      else formattedQuestion.correct = 'Sai';
     }
 
     room.currentItem = { 
