@@ -273,7 +273,6 @@ io.on('connection', (socket) => {
         room.quizActive = false;
         const leaderboard = Object.values(room.scores);
         
-        // 👉 Gom toàn bộ danh sách câu hỏi kèm theo để gửi cho học sinh xem lại
         let allQuestionsList = [];
         room.quizParts.forEach((part) => {
           part.questions.forEach((qu, qIdx) => {
@@ -293,11 +292,15 @@ io.on('connection', (socket) => {
 
     const q = currentPart.questions[room.currentQIdx];
     
-    // 🌟 ÉP KIỂU ĐÁP ÁN ĐÚNG (q.correct) VỀ KIỂU SỐ NGUYÊN (INT) NẾU LÀ TRẮC NGHIỆM A/B/C/D
-    // Giúp phía giao diện client nhận diện chính xác 100% đáp án đúng để tô sáng màu xanh khi hết giờ
-    let formattedQuestion = { ...q };
+    // 🌟 Chuẩn hóa đáp án đúng: Tự động đổi 'A','B','C','D' hoặc chuỗi thành số index (0,1,2,3) để khớp với giao diện
+    let formattedQuestion = JSON.parse(JSON.stringify(q));
     if (formattedQuestion.type === 'multiple' && formattedQuestion.correct !== undefined) {
-      formattedQuestion.correct = parseInt(formattedQuestion.correct, 10);
+      const c = String(formattedQuestion.correct).trim().toUpperCase();
+      if (c === 'A') formattedQuestion.correct = 0;
+      else if (c === 'B') formattedQuestion.correct = 1;
+      else if (c === 'C') formattedQuestion.correct = 2;
+      else if (c === 'D') formattedQuestion.correct = 3;
+      else formattedQuestion.correct = parseInt(formattedQuestion.correct, 10) || 0;
     }
 
     room.currentItem = { 
@@ -308,7 +311,7 @@ io.on('connection', (socket) => {
       totalQuestionsInPart: currentPart.questions.length,
       question: formattedQuestion 
     };
-    room.answersState = {}; // Reset trạng thái nộp bài của câu mới
+    room.answersState = {}; 
     room.currentRemainingSeconds = q.duration || 15;
 
     io.to(roomId).emit('question_started', {
