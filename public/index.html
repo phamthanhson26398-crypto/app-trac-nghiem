@@ -771,7 +771,6 @@
       if (role === 'teacher') {
         document.getElementById('auth-screen').style.display = 'block';
       } else if (role === 'student') {
-        // Học sinh chuyển thẳng qua giao diện nhập tên phòng
         document.getElementById('student-screen').style.display = 'block';
       } else if (role === 'admin') {
         const adminPass = prompt('Mật khẩu Admin:');
@@ -1496,7 +1495,7 @@
     socket.on('timer_paused', () => { isClientPaused = true; });
     socket.on('timer_resumed', () => { isClientPaused = false; });
 
-    // 👉 BẮT ĐẦU CÂU HỎI (ĐÃ TÍCH HỢP CỜ ALREADY SUBMITTED CHỐNG F5 NỘP NHIỀU LẦN)
+    // 👉 BẮT ĐẦU CÂU HỎI (ĐÃ TÍCH HỢP ĐÚNG CHUẨN ĐỂ SÁNG ĐÈN ĐÁP ÁN ĐÚNG KHI HẾT GIỜ)
     socket.on('question_started', ({ item, duration, currentIndex, totalQuestions, alreadySubmitted }) => {
       if (localTimerInterval) { clearInterval(localTimerInterval); localTimerInterval = null; }
       if (restTransitionInterval) { clearInterval(restTransitionInterval); restTransitionInterval = null; }
@@ -1537,15 +1536,9 @@
         const optClasses = ['opt-btn-a', 'opt-btn-b', 'opt-btn-c', 'opt-btn-d'];
         const optPrefix = ['🔴 A', '🔵 B', '🟠 C', '🟢 D'];
         
-        // Dùng optionsWithMeta được chuẩn bị sẵn từ server, hoặc fallback về mảng thô nếu có
-        const optionsList = q.optionsWithMeta || q.options.map((opt, idx) => ({
-          text: opt,
-          isCorrect: String(idx) === String(q.correct)
-        }));
-
-        optionsList.forEach((optObj, optIdx) => {
-          const isCorrect = optObj.isCorrect;
-          const optText = optObj.text;
+        q.options.forEach((optText, optIdx) => {
+          // 👉 So sánh chuẩn xác giữa chỉ số nút bấm và q.correct từ server
+          const isCorrect = (String(optIdx) === String(q.correct));
           const btnClass = optClasses[optIdx] || 'opt-btn-a';
           
           if (optText) {
@@ -1553,9 +1546,8 @@
           }
         });
       } else if (q.type === 'tf') {
-        const correctVal = String(q.correct || '').trim().toLowerCase();
-        const isTrueCorrect = (correctVal === 'đúng' || correctVal === 'true' || correctVal === '1');
-        const isFalseCorrect = (correctVal === 'sai' || correctVal === 'false' || correctVal === '0');
+        const isTrueCorrect = (String(q.correct).trim().toLowerCase() === 'đúng');
+        const isFalseCorrect = (String(q.correct).trim().toLowerCase() === 'sai');
         
         html += `<button class="opt-btn opt-btn-d" data-is-correct="${isTrueCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isTrueCorrect}, this, 'Đúng')"` : 'style="pointer-events:none;"'}>🟢 Đúng</button>
                  <button class="opt-btn opt-btn-a" data-is-correct="${isFalseCorrect}" type="button" ${myRole === 'student' && !alreadySubmitted ? `onclick="selectChoice(${isFalseCorrect}, this, 'Sai')"` : 'style="pointer-events:none;"'}>🔴 Sai</button>`;
@@ -1854,7 +1846,6 @@
       if (!box) return;
       if (isStudentReviewOpen) {
         box.style.display = 'block';
-        // Tự động cuộn mượt xuống dưới để học sinh thấy nội dung xem lại ngay
         box.scrollIntoView({ behavior: 'smooth' });
       } else {
         box.style.display = 'none';
@@ -1865,7 +1856,6 @@
       const container = document.getElementById('student-answers-review-container');
       if (!container) return;
       
-      // Nếu chưa có dữ liệu lịch sử hoặc danh sách câu hỏi thì báo đang cập nhật
       if (!studentData || !allQuizQuestionsList || allQuizQuestionsList.length === 0) {
         container.innerHTML = `<div style="padding: 12px; color: #ffd166; font-size: 13.5px; text-align: center;">Đang đồng bộ dữ liệu bài làm...</div>`;
         return;
@@ -1919,7 +1909,7 @@
           });
         } else if (q.type === 'tf') {
           ['Đúng', 'Sai'].forEach(optVal => {
-            const isThisCorrect = (q.correct === optVal);
+            const isThisCorrect = (String(q.correct).trim().toLowerCase() === optVal.toLowerCase());
             const isStudentChosen = studentAns && (studentAns.userAnswer === optVal);
             
             let itemClass = 'review-opt-item';
