@@ -1585,6 +1585,28 @@
       if (myRole === 'student') document.getElementById('timer').innerText = '0';
       if (myRole === 'teacher') document.getElementById('teacher-timer').innerText = '0';
 
+      // 🌟 GIẢI PHÁP TỐI ƯU TẬN GỐC: Quét tất cả các nút và so sánh trực tiếp chỉ số với q.correct
+      const correctVal = currentItemData && currentItemData.question ? currentItemData.question.correct : null;
+
+      const processButtonsReveal = (containerSelector) => {
+        const buttons = document.querySelectorAll(`${containerSelector} .opt-btn`);
+        buttons.forEach((b, optIdx) => {
+          // So sánh trực tiếp chỉ số nút (optIdx) với đáp án đúng từ server
+          const isReallyCorrect = (String(optIdx) === String(correctVal));
+          
+          if (isReallyCorrect) {
+            b.classList.add('reveal-correct');
+            if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅';
+          } else {
+            if (b.classList.contains('selected')) {
+              b.classList.add('reveal-wrong');
+            } else {
+              b.style.opacity = '0.35';
+            }
+          }
+        });
+      };
+
       if (myRole === 'student') {
         const submitBtn = document.getElementById('btn-submit');
         if (submitBtn) submitBtn.style.display = 'none';
@@ -1607,34 +1629,12 @@
             }
           }
         } else {
-          // 👉 Quét toàn bộ nút trắc nghiệm trên màn hình học sinh
-          const optButtons = document.querySelectorAll('#quiz-screen .opt-btn');
-          optButtons.forEach(b => {
-            const isCorrect = b.getAttribute('data-is-correct') === 'true';
-            if (isCorrect) { 
-              b.classList.add('reveal-correct'); 
-              if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅'; 
-            } else { 
-              if (b.classList.contains('selected')) b.classList.add('reveal-wrong'); 
-              else b.style.opacity = '0.35'; 
-            }
-          });
+          processButtonsReveal('#quiz-screen');
         }
       } 
       
-      // 👉 Bổ sung quét đồng thời cả màn hình theo dõi của Giáo viên (giúp GLV cũng thấy sáng đèn đáp án đúng)
-      const teacherOptButtons = document.querySelectorAll('#teacher-student-like-screen .opt-btn');
-      if (teacherOptButtons && teacherOptButtons.length > 0) {
-        teacherOptButtons.forEach(b => {
-          const isCorrect = b.getAttribute('data-is-correct') === 'true';
-          if (isCorrect) { 
-            b.classList.add('reveal-correct'); 
-            if (!b.innerHTML.includes('✅')) b.innerHTML += ' ✅'; 
-          } else { 
-            b.style.opacity = '0.35'; 
-          }
-        });
-      }
+      // Kích hoạt đồng thời cho màn hình giáo viên
+      processButtonsReveal('#teacher-student-like-screen');
 
       let restSeconds = 10;
       if (myRole === 'teacher') {
