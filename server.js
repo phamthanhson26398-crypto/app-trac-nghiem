@@ -167,22 +167,14 @@ io.on('connection', (socket) => {
     if (role === 'student') {
       const room = rooms[roomId];
       
-      // 👉 Kiểm tra xem máy này (deviceToken) đã có trong phòng chưa
       let existing = room.students.find(s => s.deviceToken === deviceToken);
       let mascot;
 
       if (existing) {
-        // Nếu đã tồn tại, GIỮ NGUYÊN linh vật cũ và cập nhật socket.id mới
         existing.id = socket.id;
         if (name) existing.name = name;
         mascot = existing.mascot;
-        
-        // Cập nhật luôn socket.id trong bảng điểm (scores) nếu đã tồn tại điểm trước đó
-        if (room.scores[existing.id] || room.scores[socket.id]) {
-          // Gộp dữ liệu điểm nếu cần thiết
-        }
       } else {
-        // Nếu chưa có, tạo mới linh vật và thêm vào danh sách
         mascot = ANIMAL_MASCOTS[Math.floor(Math.random() * ANIMAL_MASCOTS.length)];
         room.students.push({ 
           id: socket.id, 
@@ -195,7 +187,6 @@ io.on('connection', (socket) => {
       socket.emit('my_mascot_assigned', mascot);
       io.to(roomId).emit('update_students', room.students);
 
-      // Nếu phòng đang thi, gửi trạng thái câu hỏi hiện tại cho học sinh F5
       if (room.quizActive && room.currentItem) {
         const q = room.currentItem.question;
         const alreadySubmitted = !!room.answersState[deviceToken];
@@ -238,7 +229,6 @@ io.on('connection', (socket) => {
     room.scores = {};
     room.roomMaxScore = parts.reduce((acc, p) => acc + (p.maxScore || 10), 0);
 
-    // 👉 Dùng deviceToken làm khóa chính để không bị nhân bản học sinh khi tính điểm
     room.students.forEach(s => {
       room.scores[s.deviceToken] = { 
         id: s.id, 
@@ -250,7 +240,8 @@ io.on('connection', (socket) => {
         mcWrong: 0, 
         essayCorrect: 0, 
         essayWrong: 0, 
-        skipped: 0 
+        skipped: 0,
+        answerHistory: []
       };
     });
 
@@ -292,19 +283,18 @@ io.on('connection', (socket) => {
 
     const q = currentPart.questions[room.currentQIdx];
     
-    // 🌟 Chuẩn hóa toàn diện đáp án đúng cho cả Trắc nghiệm lẫn Đúng/Sai
+    // 🌟 CHUẨN HÓA ĐÁP ÁN ĐÚNG AN TOÀN TUYỆT ĐỐI CHO TRẮC NGHIỆM
     let formattedQuestion = JSON.parse(JSON.stringify(q));
-    if (formattedQuestion.type === 'multiple' && formattedQuestion.correct !== undefined) {
-      const c = String(formattedQuestion.correct).trim().toUpperCase();
-      if (c === 'A' || c === '0') formattedQuestion.correct = 0;
-      else if (c === 'B' || c === '1') formattedQuestion.correct = 1;
-      else if (c === 'C' || c === '2') formattedQuestion.correct = 2;
-      else if (c === 'D' || c === '3') formattedQuestion.correct = 3;
-      else formattedQuestion.correct = parseInt(formattedQuestion.correct, 10) || 0;
-    } else if (formattedQuestion.type === 'tf' && formattedQuestion.correct !== undefined) {
-      const c = String(formattedQuestion.correct).trim().toLowerCase();
-      if (c === 'đúng' || c === 'true' || c === '1' || c === 'dung') formattedQuestion.correct = 'Đúng';
-      else formattedQuestion.correct = 'Sai';
+    if (formattedQuestion.type === 'multiple') {
+      let cStr = String(formattedQuestion.correct !== undefined ? formattedQuestion.correct : 0).trim().toUpperCase();
+      if (cStr === 'A') formattedQuestion.correct = 0;
+      else if (cStr === 'B') formattedQuestion.correct = 1;
+      else if (cStr === 'C') formattedQuestion.correct = 2;
+      else if (cStr === 'D') formattedQuestion.correct = 3;
+      else {
+        let parsed = parseInt(cStr, 10);
+        formattedQuestion.correct = !isNaN(parsed) ? parsed : 0;
+      }
     }
 
     room.currentItem = { 
@@ -318,7 +308,6 @@ io.on('connection', (socket) => {
     room.answersState = {}; 
     room.currentRemainingSeconds = q.duration || 15;
 
-    // 👉 Đảm bảo gửi đầy đủ tham số để client nhận diện chuẩn xác
     io.to(roomId).emit('question_started', {
       item: room.currentItem,
       duration: room.currentRemainingSeconds,
@@ -341,20 +330,17 @@ io.on('connection', (socket) => {
 
       room.currentRemainingSeconds--;
       
-      // Nếu hết thời gian làm bài của câu hỏi hiện tại
       if (room.currentRemainingSeconds <= 0) {
         clearInterval(room.timer);
         room.timer = null;
         io.to(roomId).emit('question_time_up');
 
-        // Bắt đầu đếm 10 giây nghỉ giữa câu
         room.currentRemainingSeconds = 10; 
         startRestTimer(roomId);
       }
     }, 1000);
   }
 
-  // 🌟 HÀM ĐẾM THỜI GIAN NGHỈ 10 GIÂY (GIỮ NGUYÊN SỐ GIÂY, KHÔNG BAO GIỜ BỊ RESET KHI TẠM DỪNG)
   function startRestTimer(roomId) {
     const room = rooms[roomId];
     if (!room) return;
@@ -366,7 +352,6 @@ io.on('connection', (socket) => {
 
       room.currentRemainingSeconds--;
 
-      // Nếu đếm ngược hết 10 giây nghỉ -> Tự động sang câu tiếp theo
       if (room.currentRemainingSeconds <= 0) {
         clearInterval(room.timer);
         room.timer = null;
@@ -376,13 +361,11 @@ io.on('connection', (socket) => {
     }, 1000);
   }
 
-  // 👉 SỰ KIỆN TẠM DỪNG & TIẾP TỤC ĐẢM BẢO GIỮ NGUYÊN TIẾN TRÌNH THỜI GIAN
   socket.on('toggle_pause', ({ roomId }) => {
     const room = rooms[roomId];
     if (!room || !room.quizActive) return;
 
     if (!room.isPaused) {
-      // 🛑 BẤM TẠM DỪNG: Đóng băng hoàn toàn tiến trình đếm ngược hiện tại
       room.isPaused = true;
       if (room.timer) { clearInterval(room.timer); room.timer = null; }
       if (room.nextQTimeout) { clearTimeout(room.nextQTimeout); room.nextQTimeout = null; }
@@ -409,14 +392,11 @@ io.on('connection', (socket) => {
       io.to(roomId).emit('timer_paused');
       io.to(roomId).emit('quiz_paused', { essaySubmissionsForCurrent });
     } else {
-      // ▶️ BẤM TIẾP TỤC: Phục hồi lại đúng trạng thái trước khi dừng (Đang làm bài hay đang nghỉ 10s)
       room.isPaused = false;
       io.to(roomId).emit('timer_resumed');
       io.to(roomId).emit('quiz_resumed');
 
-      // Nếu đang trong thời gian nghỉ 10 giây mà bị bấm tạm dừng thì gọi tiếp hàm nghỉ, ngược lại gọi hàm làm bài
       if (room.currentRemainingSeconds <= 10 && room.timer === null && room.currentItem && room.currentRemainingSeconds > 0) {
-        // Kiểm tra xem đang ở giai đoạn nghỉ hay đang làm bài dựa vào khoảng thời gian
         startRestTimer(roomId);
       } else {
         startQuestionTimer(roomId);
@@ -435,7 +415,6 @@ io.on('connection', (socket) => {
     const ptsPerQ = (currentPart.maxScore || 10) / currentPart.questions.length;
     const earnedPoints = isCorrect ? ptsPerQ : 0;
 
-    // 🌟 Khởi tạo cấu trúc điểm và lịch sử bài làm chuẩn gốc nếu chưa có
     if (!room.scores[student.deviceToken]) {
       room.scores[student.deviceToken] = { 
         id: student.id, 
@@ -455,8 +434,6 @@ io.on('connection', (socket) => {
     }
 
     const studentScoreObj = room.scores[student.deviceToken];
-
-    // 👉 Lưu chi tiết lịch sử trả lời của từng câu hỏi để học sinh xem lại
     const qIndex = room.currentItem.qIdx;
     const existingAnsIndex = studentScoreObj.answerHistory.findIndex(h => h.questionIndex === qIndex);
     
@@ -476,7 +453,6 @@ io.on('connection', (socket) => {
       studentScoreObj.answerHistory.push(historyItem);
     }
 
-    // Lưu trạng thái nộp bài để chống F5 nộp lại nhiều lần
     room.answersState[student.deviceToken] = {
       studentId: socket.id,
       studentName: student.name,
@@ -486,7 +462,6 @@ io.on('connection', (socket) => {
       answerText: answerText
     };
 
-    // Tính toán điểm số và số câu đúng/sai
     if (answerText === '' || answerText === null) {
       studentScoreObj.skipped++;
     } else if (isCorrect) {
