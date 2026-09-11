@@ -1468,7 +1468,7 @@
                     <div style="font-size: 14.5px; color: #ffd166; font-weight: bold; margin-top: 4px;">Đã điền: "${s.answerText}"</div>
                   </div>
                   <div style="display: flex; gap: 8px;">
-                    <button onclick="approveLiveEssay('${s.studentId}', ${s.potentialPoints})" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); padding: 7px 12px; font-size: 12px; white-space: nowrap;">✅ Chấp nhận (+${s.potentialPoints}đ)</button>
+                    <button onclick="approveLiveEssay('${s.studentId}', ${s.potentialPoints})" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); padding: 7px 12px; font-size: 12px; white-space: nowrap;">✅ Chấp nhận</button>
                     <button onclick="dismissLiveEssay(this)" style="background: #64748b; padding: 7px 12px; font-size: 12px; white-space: nowrap;">❌ Bỏ qua</button>
                   </div>
                 </div>
@@ -1671,12 +1671,12 @@
       }, 1000);
     });
 
-    function approveLiveEssay(studentId, points) {
-      socket.emit('override_essay_live', { roomId: activeRoomId, studentId: studentId, points: points });
+    function approveLiveEssay(studentId) {
+      socket.emit('override_essay_live', { roomId: activeRoomId, studentId: studentId });
       const rowEl = document.getElementById(`live-review-item-${studentId}`);
       if (rowEl) {
         rowEl.style.borderLeftColor = '#10b981'; rowEl.style.background = 'rgba(16, 185, 129, 0.15)';
-        rowEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 6px 0; width: 100%;">✅ Đã duyệt đúng (+${points} điểm)</div>`;
+        rowEl.innerHTML = `<div style="text-align: center; color: #10b981; font-weight: bold; padding: 6px 0; width: 100%;">✅ Đã chấp nhận đáp án</div>`;
       }
     }
 
