@@ -415,25 +415,15 @@ io.on('connection', (socket) => {
     const qCount = currentPart.questions.length;
     const partMaxScore = currentPart.maxScore || 10;
     
-    // 🌟 Tính điểm tối đa của 1 câu hỏi trong phần này
+    // Điểm tối đa của 1 câu hỏi
     const maxPtsPerQ = partMaxScore / qCount;
-    
-    // Tổng thời gian quy định của câu hỏi hiện tại (lấy từ duration của câu hoặc phần)
     const totalDuration = room.currentItem.question.duration || 15;
-    
-    // remainingTime là số giây còn lại khi học sinh bấm nộp (ví dụ nộp lúc còn 12s)
     const validRemainingTime = Math.max(0, Math.min(remainingTime, totalDuration));
 
-    // 🌟 Công thức tính điểm theo giây: (Điểm tối đa câu / Tổng giây) * Số giây còn lại
+    // 🌟 Áp dụng chung công thức tính điểm theo tốc độ giây cho cả Trắc nghiệm lẫn Tự luận
     let earnedPoints = 0;
     if (isCorrect) {
-      if (type === 'short_answer') {
-        // Tự luận giữ nguyên điểm tối đa nếu đúng
-        earnedPoints = maxPtsPerQ;
-      } else {
-        // Trắc nghiệm tính điểm theo tốc độ thời gian
-        earnedPoints = parseFloat(((maxPtsPerQ / totalDuration) * validRemainingTime).toFixed(1));
-      }
+      earnedPoints = parseFloat(((maxPtsPerQ / totalDuration) * validRemainingTime).toFixed(1));
     }
 
     if (!room.scores[student.deviceToken]) {
@@ -496,17 +486,53 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('override_essay_live', ({ roomId, studentId, points }) => {
+  socket.on('override_essay_live', ({ roomId, studentId }) => {
     const room = rooms[roomId];
-    if (!room || !room.scores[studentId]) return;
-    
+    if (!room || !room.quizActive) return;
+
+    // Tìm học sinh theo socket.id hoặc deviceToken
+    let studentScoreObj = null;
+    let targetDeviceToken = null;
+
+    for (let devTok in room.scores) {
+      if (room.scores[devTok].id === studentId) {
+        studentScoreObj = room.scores[devTok];
+        targetDeviceToken = devTok;
+        break;
+      }
+    }
+
+    if (!studentScoreObj) return;
+
     const currentPart = room.quizParts[room.currentItem.partIdx];
     const qCount = currentPart.questions.length;
     const maxPtsPerQ = (currentPart.maxScore || 10) / qCount;
+    const totalDuration = room.currentItem.question.duration || 15;
 
-    room.scores[studentId].essayCorrect++;
-    room.scores[studentId].essayWrong = Math.max(0, room.scores[studentId].essayWrong - 1);
-    room.scores[studentId].score = parseFloat((room.scores[studentId].score + maxPtsPerQ).toFixed(1));
+    // Lấy lại số giây còn lại lúc học sinh đã nộp bài từ lịch sử, nếu không có mặc định lấy nửa thời gian
+    const qIndex = room.currentItem.qIdx;
+    const histItem = studentScoreObj.answerHistory.find(h => h.questionIndex === qIndex);
+    const validRemainingTime = histItem && histItem.remainingTime !== undefined ? histItem.remainingTime : (totalDuration / 2);
+
+    // Tính lại điểm theo công thức tốc độ
+    const overridePoints = parseFloat(((maxPtsPerQ / totalDuration) * validRemainingTime).toFixed(1));
+
+    // Cập nhật thống kê điểm và số câu tự luận đúng/sai
+    studentScoreObj.essayCorrect++;
+    studentScoreObj.essayWrong = Math.max(0, studentScoreObj.essayWrong - 1);
+    studentScoreObj.score = parseFloat((studentScoreObj.score + overridePoints).toFixed(1));
+
+    // Cập nhật trong lịch sử bài làm để học sinh xem lại thấy chính xác đã được duyệt
+    if (histItem) {
+      histItem.isCorrect = true;
+      histItem.points = overridePoints;
+      histItem.isOverridden = true;
+    }
+
+    // Cập nhật trạng thái trong answersState của phòng
+    if (room.answersState[targetDeviceToken]) {
+      room.answersState[targetDeviceToken].isCorrect = true;
+    }
   });
 
   socket.on('reveal_results', ({ roomId }) => {
