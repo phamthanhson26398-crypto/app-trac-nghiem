@@ -318,11 +318,13 @@ io.on('connection', (socket) => {
     room.answersState = {}; 
     room.currentRemainingSeconds = q.duration || 15;
 
+    // 👉 Đảm bảo gửi đầy đủ tham số để client nhận diện chuẩn xác
     io.to(roomId).emit('question_started', {
       item: room.currentItem,
       duration: room.currentRemainingSeconds,
       currentIndex: room.currentQIdx,
-      totalQuestions: currentPart.questions.length
+      totalQuestions: currentPart.questions.length,
+      alreadySubmitted: false
     });
 
     startQuestionTimer(roomId);
