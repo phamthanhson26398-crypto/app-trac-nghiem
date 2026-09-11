@@ -412,8 +412,29 @@ io.on('connection', (socket) => {
     if (!student) return;
 
     const currentPart = room.quizParts[room.currentItem.partIdx];
-    const ptsPerQ = (currentPart.maxScore || 10) / currentPart.questions.length;
-    const earnedPoints = isCorrect ? ptsPerQ : 0;
+    const qCount = currentPart.questions.length;
+    const partMaxScore = currentPart.maxScore || 10;
+    
+    // 🌟 Tính điểm tối đa của 1 câu hỏi trong phần này
+    const maxPtsPerQ = partMaxScore / qCount;
+    
+    // Tổng thời gian quy định của câu hỏi hiện tại (lấy từ duration của câu hoặc phần)
+    const totalDuration = room.currentItem.question.duration || 15;
+    
+    // remainingTime là số giây còn lại khi học sinh bấm nộp (ví dụ nộp lúc còn 12s)
+    const validRemainingTime = Math.max(0, Math.min(remainingTime, totalDuration));
+
+    // 🌟 Công thức tính điểm theo giây: (Điểm tối đa câu / Tổng giây) * Số giây còn lại
+    let earnedPoints = 0;
+    if (isCorrect) {
+      if (type === 'short_answer') {
+        // Tự luận giữ nguyên điểm tối đa nếu đúng
+        earnedPoints = maxPtsPerQ;
+      } else {
+        // Trắc nghiệm tính điểm theo tốc độ thời gian
+        earnedPoints = parseFloat(((maxPtsPerQ / totalDuration) * validRemainingTime).toFixed(1));
+      }
+    }
 
     if (!room.scores[student.deviceToken]) {
       room.scores[student.deviceToken] = { 
@@ -444,6 +465,7 @@ io.on('connection', (socket) => {
       selectedIndex: selectedIndex !== undefined ? selectedIndex : null,
       isCorrect: isCorrect,
       points: earnedPoints,
+      remainingTime: validRemainingTime,
       isOverridden: false
     };
 
@@ -467,7 +489,7 @@ io.on('connection', (socket) => {
     } else if (isCorrect) {
       if (type === 'short_answer') studentScoreObj.essayCorrect++;
       else studentScoreObj.mcCorrect++;
-      studentScoreObj.score = parseFloat((studentScoreObj.score + ptsPerQ).toFixed(1));
+      studentScoreObj.score = parseFloat((studentScoreObj.score + earnedPoints).toFixed(1));
     } else {
       if (type === 'short_answer') studentScoreObj.essayWrong++;
       else studentScoreObj.mcWrong++;
@@ -477,9 +499,14 @@ io.on('connection', (socket) => {
   socket.on('override_essay_live', ({ roomId, studentId, points }) => {
     const room = rooms[roomId];
     if (!room || !room.scores[studentId]) return;
+    
+    const currentPart = room.quizParts[room.currentItem.partIdx];
+    const qCount = currentPart.questions.length;
+    const maxPtsPerQ = (currentPart.maxScore || 10) / qCount;
+
     room.scores[studentId].essayCorrect++;
     room.scores[studentId].essayWrong = Math.max(0, room.scores[studentId].essayWrong - 1);
-    room.scores[studentId].score = parseFloat((room.scores[studentId].score + points).toFixed(1));
+    room.scores[studentId].score = parseFloat((room.scores[studentId].score + maxPtsPerQ).toFixed(1));
   });
 
   socket.on('reveal_results', ({ roomId }) => {
